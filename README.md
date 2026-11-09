@@ -24,8 +24,8 @@ Output: `main.pdf` and a copy `IR3C_MedIA_draft2.pdf`.
 ## Conventions (apply everywhere)
 
 * IR3C = **budget-matched** model in every comparison: BraTS `IR3_matched` (step 12,510);
-  OAIZIB / IXI fine-tuned from it (`runs/*_matchedinit`). Full budget only in Table 23.
-  *Exception*: downstream segmentation (Table 6) — archived recons are full-budget; marked †, re-run pending.
+  OAIZIB / IXI fine-tuned from it (`runs/*_matchedinit`). Full budget only in Table 23 and as a
+  reference row of Table 6 (downstream re-run with matched IR3C: `runs/IR3C_MedIA_P2_matched_downstream/`).
 * Region = foreground voxels of missing slices. Aggregation = cells averaged within subject, then mean ± sd across subjects.
 * Slice rejection = `runs/IR3C_SliceReject_all/` (matched), **not** the older full-init `IR3C_SliceReject/` used by draft 1.
 * CAS `table` takes `[pos=...]`, not `[t]`/`[H]` (plain options are silently ignored).
@@ -43,12 +43,14 @@ Output: `main.pdf` and a copy `IR3C_MedIA_draft2.pdf`.
 
 ## Pending experiments (shaded `tbd` cells + orange boxes in the PDF)
 
+Live status: `../IR3C_paper_TODO.md` (outside this repo).
+
 Set `\showpendingfalse` in `main.tex` to hide the orange boxes.
 
 | # | Experiment | Fills | Cost / status |
 |---|---|---|---|
 | P1 | OAIZIB slice rejection (`IR3C_SliceReject_all/run_all.sh`) | Table 5 OAIZIB rows, Fig. 5 row | ~2.5 GPU-days; smoke passed |
-| P2 | Downstream seg with matched IR3C | Table 6 shaded row | inference only, ~2 h |
+| P2 | Downstream seg with matched IR3C | Table 6 | **done 2026-11-09** |
 | P3 | Formulation ablation (HPC package: A0–A3, C1–C3) + new binary-mask-only arm + seeds 43/44 for A0, A3, C2 | Table 9; "3D U-Net direct" rows of Table 2 | HPC |
 | P4 | Leave-one-family-out training (6 models) | Table 10 "Held out" | 6 trainings |
 | P5 | 5 subject-specific mask realisations per family, R=4 | Table 11 | inference only |

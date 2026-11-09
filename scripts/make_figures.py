@@ -334,11 +334,11 @@ def fig_downstream():
     """Job: show that downstream consistency does not follow PSNR: SAINT is close to IR3C
     in PSNR but falls away from the complete-input segmentation as R grows."""
     import pandas as pd
-    d = pd.read_csv(os.path.join(C.ROOT, "runs/IR3C_LPIPS/downstream/"
+    d = pd.read_csv(os.path.join(C.ROOT, "runs/IR3C_MedIA_P2_matched_downstream/"
                                          "downstream_segmentation_per_volume.csv"))
     floor = d[d.method == "gt_roundtrip"]
     meth = [("linear", "Linear"), ("DCSRN_mixed", "DCSRN"), ("ArSSR", "ArSSR"),
-            ("I3Net", "I3Net"), ("SAINT", "SAINT"), ("IR3", "IR3C")]
+            ("I3Net", "I3Net"), ("SAINT", "SAINT"), ("IR3_matched", "IR3C")]
     fig, axs = plt.subplots(1, 3, figsize=(DOUBLE, 2.05))
     for j, (ax, k) in enumerate(zip(axs, ("WT", "TC", "ET"))):
         for k_i, (m, key) in enumerate(meth):

@@ -332,19 +332,24 @@ def tab_rejection_absolute():
 # =========================================================================== Table 6 (downstream)
 DS_METHODS = [("Linear", "linear"), ("Bicubic", "bicubic"), ("DCSRN", "DCSRN_mixed"),
               ("ArSSR", "ArSSR"), ("I$^3$Net", "I3Net"), ("SAINT", "SAINT"),
-              ("IR3C (ours)$^{\dagger}$", "IR3")]
+              ("IR3C (ours)", "IR3_matched")]
+#: reference row below the rule, never bolded: the full-budget checkpoint (Table 23)
+DS_FULL = ("IR3C, full budget", "IR3")
+#: P2 run: seeded from runs/IR3C_LPIPS/downstream (byte-identical reference predictions)
+#: plus the budget-matched IR3C rows (IR3C_paper_TODO.md, P2).
+DS_CSV = "runs/IR3C_MedIA_P2_matched_downstream/downstream_segmentation_per_volume.csv"
 
 
 def tab_downstream():
-    p = os.path.join(C.ROOT, "runs/IR3C_LPIPS/downstream/downstream_segmentation_per_volume.csv")
-    d = pd.read_csv(p)
+    d = pd.read_csv(os.path.join(C.ROOT, DS_CSV))
     rt = d[d.method == "gt_roundtrip"]
     floor = {k: rt[f"{k}_Dice"].mean() for k in ("WT", "TC", "ET")}
     cols = [(k, R) for k in ("WT", "TC", "ET") for R in C.TRAIN_R]
     vals = {}
-    for nm, m in DS_METHODS:
+    for nm, m in DS_METHODS + [DS_FULL]:
         for k, R in cols:
             s = d[(d.method == m) & (d.R == R)].set_index("subject_id")[f"{k}_Dice"]
+            assert len(s) == 88, (m, k, R, len(s))
             vals[(nm, k, R)] = s
     best = {c: bold_idx([vals[(nm,) + c].mean() for nm, _ in DS_METHODS]) for c in cols}
     t = [r"\begin{table*}[t]",
@@ -355,9 +360,9 @@ def tab_downstream():
          r"agreement with expert labels. Re-saving and reloading the complete volume gives "
          r"WT/TC/ET Dice of " + f"{floor['WT']:.3f}/{floor['TC']:.3f}/{floor['ET']:.3f}" +
          r", which is the pipeline's noise floor. WT: whole tumour; TC: tumour core; ET: "
-         r"enhancing tumour. $^{\dagger}$These reconstructions were archived from the "
-         r"full-budget IR3C checkpoint; the shaded row is the pending re-run with the "
-         r"budget-matched checkpoint used in all other tables.}",
+         r"enhancing tumour. IR3C is the budget-matched checkpoint used in all other tables; the "
+         r"last row gives the full-budget checkpoint (Table~\ref{tab:budget}) for reference and "
+         r"is excluded from the bold marking.}",
          r"\label{tab:downstream}",
          r"\small",
          r"\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lccccccccc@{}}",
@@ -372,17 +377,21 @@ def tab_downstream():
             s = f"{vals[(nm,) + c].mean():.3f}"
             cells.append(r"\textbf{" + s + "}" if best[c] == i else s)
         t.append(nm + " & " + " & ".join(cells) + r" \\")
-    t.append(r"\pendrow IR3C, matched budget & " + " & ".join([TBD] * 9) + r" \\")
+    nm = DS_FULL[0]
+    t.append(r"\midrule")
+    t.append(nm + " & " + " & ".join(f"{vals[(nm,) + c].mean():.3f}" for c in cols) + r" \\")
     t += [r"\bottomrule", r"\end{tabular*}", r"\end{table*}", ""]
     C.write("tab_downstream.tex", "\n".join(t))
     # paired IR3 vs linear and vs SAINT, WT
     out = {}
     for R in C.TRAIN_R:
-        out[R] = dict(lin=C.paired(vals[("IR3C (ours)$^{\dagger}$", "WT", R)],
+        out[R] = dict(lin=C.paired(vals[("IR3C (ours)", "WT", R)],
                                    vals[("Linear", "WT", R)]),
-                      saint=C.paired(vals[("IR3C (ours)$^{\dagger}$", "WT", R)],
+                      saint=C.paired(vals[("IR3C (ours)", "WT", R)],
                                      vals[("SAINT", "WT", R)]))
-    return floor, {k: {nm: vals[(nm,) + k].mean() for nm, _ in DS_METHODS} for k in cols}, out
+        out[R]["full"] = C.paired(vals[("IR3C (ours)", "WT", R)], vals[(DS_FULL[0], "WT", R)])
+    return floor, {k: {nm: vals[(nm,) + k].mean() for nm, _ in DS_METHODS + [DS_FULL]}
+                   for k in cols}, out
 
 
 # =========================================================================== pending: labelled seg
@@ -772,7 +781,8 @@ if __name__ == "__main__":
         lines.append(f"DS {k}: " + ", ".join(f"{n}={x:.4f}" for n, x in v.items()))
     for R, pr in dpaired.items():
         lines.append(f"DS WT R{R}: IR3-lin {pr['lin']['mean']:+.4f} p {pr['lin']['p']:.2g}; "
-                     f"IR3-SAINT {pr['saint']['mean']:+.4f} p {pr['saint']['p']:.2g}")
+                     f"IR3-SAINT {pr['saint']['mean']:+.4f} p {pr['saint']['p']:.2g}; "
+                     f"matched-full {pr['full']['mean']:+.4f} p {pr['full']['p']:.2g}")
     for k, (a, f) in facts["anchor"].items():
         lines.append(f"ANCHOR {k}: raw {a:.3f} final {f:.3f}")
     for k, p in facts["backbone"].items():

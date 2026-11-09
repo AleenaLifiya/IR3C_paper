@@ -70,18 +70,18 @@ SR IXI (4, 'burst', 0.1): IR3C 24.30 best SAINT_impute 22.85 d +1.45 [+1.19,+1.7
 SR IXI (4, 'burst', 0.2): IR3C 23.53 best ArSSR 21.62 d +1.92 [+1.77,+2.07] win 0.98 padj 5.5e-17
 SR IXI (4, 'burst', 0.3): IR3C 22.80 best ArSSR 20.65 d +2.16 [+1.98,+2.33] win 0.99 padj 5.5e-17
 DS floor {'WT': 0.9897245673629506, 'TC': 0.9909903940318451, 'ET': 0.9792571924260414}
-DS ('WT', 2): Linear=0.9910, Bicubic=0.9925, DCSRN=0.9696, ArSSR=0.9889, I$^3$Net=0.9227, SAINT=0.9860, IR3C (ours)$^{\dagger}$=0.9929
-DS ('WT', 4): Linear=0.9774, Bicubic=0.9811, DCSRN=0.7675, ArSSR=0.9767, I$^3$Net=0.6760, SAINT=0.8314, IR3C (ours)$^{\dagger}$=0.9853
-DS ('WT', 8): Linear=0.9474, Bicubic=0.9493, DCSRN=0.9150, ArSSR=0.9491, I$^3$Net=0.6456, SAINT=0.8155, IR3C (ours)$^{\dagger}$=0.9619
-DS ('TC', 2): Linear=0.9927, Bicubic=0.9931, DCSRN=0.9660, ArSSR=0.9882, I$^3$Net=0.9348, SAINT=0.9802, IR3C (ours)$^{\dagger}$=0.9929
-DS ('TC', 4): Linear=0.9812, Bicubic=0.9815, DCSRN=0.8634, ArSSR=0.9823, I$^3$Net=0.8354, SAINT=0.8944, IR3C (ours)$^{\dagger}$=0.9869
-DS ('TC', 8): Linear=0.9676, Bicubic=0.9665, DCSRN=0.9350, ArSSR=0.9768, I$^3$Net=0.8157, SAINT=0.8713, IR3C (ours)$^{\dagger}$=0.9766
-DS ('ET', 2): Linear=0.9867, Bicubic=0.9875, DCSRN=0.9445, ArSSR=0.9806, I$^3$Net=0.9033, SAINT=0.9606, IR3C (ours)$^{\dagger}$=0.9878
-DS ('ET', 4): Linear=0.9697, Bicubic=0.9716, DCSRN=0.8144, ArSSR=0.9705, I$^3$Net=0.7946, SAINT=0.8515, IR3C (ours)$^{\dagger}$=0.9764
-DS ('ET', 8): Linear=0.9413, Bicubic=0.9423, DCSRN=0.8941, ArSSR=0.9481, I$^3$Net=0.7840, SAINT=0.8278, IR3C (ours)$^{\dagger}$=0.9500
-DS WT R2: IR3-lin +0.0020 p 4.1e-12; IR3-SAINT +0.0070 p 5.4e-16
-DS WT R4: IR3-lin +0.0079 p 3.7e-16; IR3-SAINT +0.1539 p 3.7e-16
-DS WT R8: IR3-lin +0.0146 p 1.5e-14; IR3-SAINT +0.1465 p 3.7e-16
+DS ('WT', 2): Linear=0.9910, Bicubic=0.9925, DCSRN=0.9696, ArSSR=0.9889, I$^3$Net=0.9227, SAINT=0.9860, IR3C (ours)=0.9928, IR3C, full budget=0.9929
+DS ('WT', 4): Linear=0.9774, Bicubic=0.9811, DCSRN=0.7675, ArSSR=0.9767, I$^3$Net=0.6760, SAINT=0.8314, IR3C (ours)=0.9846, IR3C, full budget=0.9853
+DS ('WT', 8): Linear=0.9474, Bicubic=0.9493, DCSRN=0.9150, ArSSR=0.9491, I$^3$Net=0.6456, SAINT=0.8155, IR3C (ours)=0.9606, IR3C, full budget=0.9619
+DS ('TC', 2): Linear=0.9927, Bicubic=0.9931, DCSRN=0.9660, ArSSR=0.9882, I$^3$Net=0.9348, SAINT=0.9802, IR3C (ours)=0.9927, IR3C, full budget=0.9929
+DS ('TC', 4): Linear=0.9812, Bicubic=0.9815, DCSRN=0.8634, ArSSR=0.9823, I$^3$Net=0.8354, SAINT=0.8944, IR3C (ours)=0.9863, IR3C, full budget=0.9869
+DS ('TC', 8): Linear=0.9676, Bicubic=0.9665, DCSRN=0.9350, ArSSR=0.9768, I$^3$Net=0.8157, SAINT=0.8713, IR3C (ours)=0.9769, IR3C, full budget=0.9766
+DS ('ET', 2): Linear=0.9867, Bicubic=0.9875, DCSRN=0.9445, ArSSR=0.9806, I$^3$Net=0.9033, SAINT=0.9606, IR3C (ours)=0.9875, IR3C, full budget=0.9878
+DS ('ET', 4): Linear=0.9697, Bicubic=0.9716, DCSRN=0.8144, ArSSR=0.9705, I$^3$Net=0.7946, SAINT=0.8515, IR3C (ours)=0.9758, IR3C, full budget=0.9764
+DS ('ET', 8): Linear=0.9413, Bicubic=0.9423, DCSRN=0.8941, ArSSR=0.9481, I$^3$Net=0.7840, SAINT=0.8278, IR3C (ours)=0.9495, IR3C, full budget=0.9500
+DS WT R2: IR3-lin +0.0018 p 1.1e-08; IR3-SAINT +0.0068 p 5.4e-16; matched-full -0.0002 p 5e-07
+DS WT R4: IR3-lin +0.0072 p 3.7e-16; IR3-SAINT +0.1532 p 3.7e-16; matched-full -0.0007 p 2.1e-13
+DS WT R8: IR3-lin +0.0132 p 1.7e-14; IR3-SAINT +0.1452 p 3.7e-16; matched-full -0.0013 p 2e-07
 ANCHOR nearest: raw 20.686 final 25.804
 ANCHOR linear: raw 23.201 final 26.171
 ANCHOR cubic: raw 22.705 final 26.133

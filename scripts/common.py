@@ -14,9 +14,8 @@ Conventions (applied to every table and figure)
   per-subject win rate, Holm correction within a table.
 * Checkpoint: IR3C is the BUDGET-MATCHED model everywhere (BraTS ``IR3_matched`` at
   step 12,510; IXI and OAIZIB fine-tuned FROM that checkpoint, ``*_matchedinit``).
-  Full-budget IR3C appears only in the budget-sensitivity appendix table, and in the
-  downstream segmentation experiment, whose archived reconstructions predate the matched
-  checkpoint (stated in the caption).
+  Full-budget IR3C appears only in the budget-sensitivity appendix table and as a
+  reference row of the downstream table (matched rows from the P2 re-run).
 """
 from __future__ import annotations
 

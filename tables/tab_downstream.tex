@@ -1,5 +1,5 @@
 \begin{table*}[t]
-\caption{Downstream segmentation consistency on BraTS-GLI (U0, $n=88$). A frozen SegResNet receives the acquired T1, T1c and T2 volumes with complete or reconstructed FLAIR. Dice is computed against the same network's prediction on the complete input, so it measures how far a reconstruction moves a fixed pipeline, not agreement with expert labels. Re-saving and reloading the complete volume gives WT/TC/ET Dice of 0.990/0.991/0.979, which is the pipeline's noise floor. WT: whole tumour; TC: tumour core; ET: enhancing tumour. $^{\dagger}$These reconstructions were archived from the full-budget IR3C checkpoint; the shaded row is the pending re-run with the budget-matched checkpoint used in all other tables.}
+\caption{Downstream segmentation consistency on BraTS-GLI (U0, $n=88$). A frozen SegResNet receives the acquired T1, T1c and T2 volumes with complete or reconstructed FLAIR. Dice is computed against the same network's prediction on the complete input, so it measures how far a reconstruction moves a fixed pipeline, not agreement with expert labels. Re-saving and reloading the complete volume gives WT/TC/ET Dice of 0.990/0.991/0.979, which is the pipeline's noise floor. WT: whole tumour; TC: tumour core; ET: enhancing tumour. IR3C is the budget-matched checkpoint used in all other tables; the last row gives the full-budget checkpoint (Table~\ref{tab:budget}) for reference and is excluded from the bold marking.}
 \label{tab:downstream}
 \small
 \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lccccccccc@{}}
@@ -11,11 +11,12 @@ Method & $R=2$ & $R=4$ & $R=8$ & $R=2$ & $R=4$ & $R=8$ & $R=2$ & $R=4$ & $R=8$ \
 Linear & 0.991 & 0.977 & 0.947 & 0.993 & 0.981 & 0.968 & 0.987 & 0.970 & 0.941 \\
 Bicubic & 0.993 & 0.981 & 0.949 & \textbf{0.993} & 0.982 & 0.966 & 0.987 & 0.972 & 0.942 \\
 DCSRN & 0.970 & 0.768 & 0.915 & 0.966 & 0.863 & 0.935 & 0.945 & 0.814 & 0.894 \\
-ArSSR & 0.989 & 0.977 & 0.949 & 0.988 & 0.982 & \textbf{0.977} & 0.981 & 0.970 & 0.948 \\
+ArSSR & 0.989 & 0.977 & 0.949 & 0.988 & 0.982 & 0.977 & 0.981 & 0.970 & 0.948 \\
 I$^3$Net & 0.923 & 0.676 & 0.646 & 0.935 & 0.835 & 0.816 & 0.903 & 0.795 & 0.784 \\
 SAINT & 0.986 & 0.831 & 0.815 & 0.980 & 0.894 & 0.871 & 0.961 & 0.852 & 0.828 \\
-IR3C (ours)$^{\dagger}$ & \textbf{0.993} & \textbf{0.985} & \textbf{0.962} & 0.993 & \textbf{0.987} & 0.977 & \textbf{0.988} & \textbf{0.976} & \textbf{0.950} \\
-\pendrow IR3C, matched budget & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
+IR3C (ours) & \textbf{0.993} & \textbf{0.985} & \textbf{0.961} & 0.993 & \textbf{0.986} & \textbf{0.977} & \textbf{0.988} & \textbf{0.976} & \textbf{0.950} \\
+\midrule
+IR3C, full budget & 0.993 & 0.985 & 0.962 & 0.993 & 0.987 & 0.977 & 0.988 & 0.976 & 0.950 \\
 \bottomrule
 \end{tabular*}
 \end{table*}

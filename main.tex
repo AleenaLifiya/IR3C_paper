@@ -597,8 +597,8 @@ crossover also holds outside the brain.
 Table~\ref{tab:downstream} and Fig.~\ref{fig:downstream} report how far each reconstruction
 moves the output of a frozen tumour segmentation network. The reference is the network's own
 prediction on the complete input; re-saving and reloading the complete volume gives WT Dice
-of 0.990, which is the noise floor of the pipeline. IR3C has the highest WT Dice at every factor and is within 0.001 of the best TC and ET Dice (WT 0.993, 0.985 and 0.962 at $R=2$, 4 and 8), and its advantage over linear
-interpolation grows with sparsity (0.002, 0.008 and 0.015; Holm-adjusted $p<10^{-10}$ at every factor). The classical interpolants stay close to IR3C on this endpoint even though they are
+of 0.990, which is the noise floor of the pipeline. IR3C has the highest WT Dice at every factor and is best or within 0.001 of the best in every TC and ET column (WT 0.993, 0.985 and 0.961 at $R=2$, 4 and 8), and its advantage over linear
+interpolation grows with sparsity (0.002, 0.007 and 0.013; Holm-adjusted $p<10^{-7}$ at every factor). The full-budget checkpoint changes WT Dice by at most 0.001, so this endpoint does not depend on the training budget. The classical interpolants stay close to IR3C on this endpoint even though they are
 more than 2\,dB lower in PSNR.
 
 The downstream ranking does not follow PSNR. SAINT is within 1\,dB of IR3C in PSNR on BraTS-GLI at
@@ -622,12 +622,6 @@ intervals across subjects.}
 \label{fig:downstream}
 \end{figure*}
 
-\begin{pendingnote}{matched-budget downstream run}
-The archived downstream reconstructions were produced with the full-budget IR3C checkpoint.
-Re-run \texttt{downstream\_ir3c/run\_downstream.py} with the matched-budget checkpoint
-(inference only, about 2\,h) to fill the shaded row of Table~\ref{tab:downstream}, and replace
-the IR3C row if the conclusions are unchanged.
-\end{pendingnote}
 
 \subsection{Qualitative results}
 \label{sec:res-qual}
