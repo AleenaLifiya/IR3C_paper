@@ -1,0 +1,18 @@
+\begin{table*}[t]
+\caption{\pendlabel\ Loss-term ablation on BraTS-GLI: each arm removes one term of Eq.~(\ref{eq:loss}) and keeps everything else, including the $0.001\,\lVert\delta\rVert_1$ term, the backbone, the initial weights, the data order and the budget. PSNR (dB) is over missing-slice foreground, $R\in\{2,4,8\}$. Background haze is the mean predicted intensity on missing-slice background voxels, U0 ($\times10^{-3}$). WT Dice is the downstream consistency of Table~\ref{tab:downstream} (U0, $n=88$). The control \texttt{B0\_ir3c} is the same trained model as \texttt{A0\_ir3c} in Table~\ref{tab:formulation}. Only the linear row is computed.}
+\label{tab:loss}
+\small
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lllccccccc@{}}
+\toprule
+& & & \multicolumn{2}{c}{PSNR $\uparrow$} & Bg.\ haze $\downarrow$ & \multicolumn{3}{c}{WT Dice $\uparrow$} \\
+\cmidrule(lr){4-5}\cmidrule(lr){7-9}
+Variant & Arm & Removed term & U0 & U1--U6 & U0 & $R=2$ & $R=4$ & $R=8$ \\
+\midrule
+Linear interpolation only & --- & --- & 26.20 & 22.70 & 1.38 & 0.991 & 0.977 & 0.947 \\
+\pendrow Full objective (Eq.~\ref{eq:loss}) & \texttt{B0\_ir3c} & --- & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
+\pendrow No background term & \texttt{B1\_no\_background} & $0.30\,\mathcal{L}_{\mathrm{C}}^{\mathrm{bg}}$ & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
+\pendrow No structural term & \texttt{B2\_no\_structure} & $0.10\,(1-\mathrm{SSIM})$ & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
+\pendrow No gradient term & \texttt{B3\_no\_gradient} & $0.05\,\mathcal{L}_{\nabla_z}^{\mathrm{fg}}$ & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
+\bottomrule
+\end{tabular*}
+\end{table*}

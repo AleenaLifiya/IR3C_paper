@@ -353,7 +353,7 @@ residual:
 with $\delta=s\tanh f_\theta(X)$.
 All terms are restricted to missing slices. The background term prevents the network from
 adding low-level intensity outside the anatomy, which a foreground-only loss leaves
-unconstrained.
+unconstrained. The contribution of each term is tested in Section~\ref{sec:pending-loss}.
 
 %% ================================================================= 4 EXPERIMENTS
 \section{Experimental setup}
@@ -696,8 +696,32 @@ see \texttt{HANDOVER\_IR3C\_ABLATIONS.md}). Two additions are needed: (i)~a new 
 only the binary kept-slice profile $k_z$, and (ii)~seeds 43 and 44 for \texttt{A0\_ir3c},
 \texttt{A3\_direct} and \texttt{C2\_no\_positional}. Evaluate every arm on the BraTS-GLI test
 masks, at $R=16$, and on the rejection condition $R=4$, 30\% burst. The loss-term arms
-\texttt{B1}--\texttt{B3} belong in the appendix. Report \texttt{A1\_unbounded} as it is, even
-if it diverges.
+\texttt{B1}--\texttt{B3} are reported separately in Table~\ref{tab:loss}. Report
+\texttt{A1\_unbounded} as it is, even if it diverges.
+\end{pendingnote}
+
+\subsubsection{Loss terms}
+\label{sec:pending-loss}
+
+Table~\ref{tab:loss} removes one term of Eq.~(\ref{eq:loss}) at a time, with the backbone,
+initial weights, data order and budget held fixed, and scores each model on image metrics
+and on downstream segmentation consistency. The background term is the main test case. It
+acts only outside the anatomy, where PSNR is not measured, so removing it should cost little
+PSNR. If the network then adds low-level intensity to the background, the intensity
+normalisation of the segmentation network shifts, and Dice should fall, as it does for
+\Ithree\ (Section~\ref{sec:res-downstream}). The structural and gradient terms are expected
+to have smaller effects on both endpoints.
+
+\input{tables/tab_loss.tex}
+
+\begin{pendingnote}{loss-term ablation (Table~\ref{tab:loss})}
+The three arms \texttt{B1\_no\_background}, \texttt{B2\_no\_structure} and
+\texttt{B3\_no\_gradient} are already defined in the HPC package
+(\texttt{ir3c\_ablations\_v2/arms.py}, Ablation~B) and will be trained locally with the
+formulation ablation. The residual term ($0.001\,\lVert\delta\rVert_1$) is kept in every
+arm. The control \texttt{B0\_ir3c} is \texttt{A0\_ir3c}, not a new training. Evaluate every
+arm on the BraTS-GLI test masks and run the downstream segmentation of
+Table~\ref{tab:downstream} (U0, $R\in\{2,4,8\}$, $n=88$) on each.
 \end{pendingnote}
 
 \subsection{Generalisation to unseen sampling geometry}
@@ -807,7 +831,10 @@ geometry within a trained or adapted anatomy; it is not anatomy-invariant.
 The segmentation experiment shows that PSNR should not be the only endpoint. SAINT and
 \Ithree have reasonable PSNR but change the downstream segmentation substantially. The
 classical interpolants trail by more than 2\,dB in PSNR yet remain close to IR3C on Dice,
-because their errors are smooth. The endpoint has a clear limitation: it measures
+because their errors are smooth. The loss-term ablation (Table~\ref{tab:loss}, pending)
+tests the same point from the training side: if removing the background term leaves PSNR
+almost unchanged but lowers Dice, PSNR is also an unreliable criterion for choosing the
+training objective. The endpoint has a clear limitation: it measures
 consistency with another model's prediction, not accuracy against expert labels.
 
 LPIPS ranks the methods differently from every pixel metric (Table~\ref{tab:lpips}). On

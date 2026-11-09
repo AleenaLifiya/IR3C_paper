@@ -51,9 +51,9 @@ Set `\showpendingfalse` in `main.tex` to hide the orange boxes.
 |---|---|---|---|
 | P1 | OAIZIB slice rejection (`IR3C_SliceReject_all/run_all.sh`) | Table 5 OAIZIB rows, Fig. 5 row | ~2.5 GPU-days; smoke passed |
 | P2 | Downstream seg with matched IR3C | Table 6 | **done 2026-11-09** |
-| P3 | Formulation ablation (HPC package: A0–A3, C1–C3) + new binary-mask-only arm + seeds 43/44 for A0, A3, C2 | Table 9; "3D U-Net direct" rows of Table 2 | HPC |
-| P4 | Leave-one-family-out training (6 models) | Table 10 "Held out" | 6 trainings |
-| P5 | 5 subject-specific mask realisations per family, R=4 | Table 11 | inference only |
+| P3 | Formulation ablation (HPC package: A0–A3, C1–C3) + new binary-mask-only arm + seeds 43/44 for A0, A3, C2; loss-term arms B1–B3 (+ downstream Dice) | Table 9; Table 10 (loss terms); "3D U-Net direct" rows of Table 2 | HPC |
+| P4 | Leave-one-family-out training (6 models) | Table 11 "Held out" | 6 trainings |
+| P5 | 5 subject-specific mask realisations per family, R=4 | Table 12 | inference only |
 | P6 | Per-slice error vs gap length / distance | Fig. 8 | re-scoring only (store per-slice SE) |
 | P7 | Labelled downstream | – | **dropped 2026-11-09** (no expert labels; Table 12 removed) |
 | P8 | SA-INR baseline, all datasets | Table 2, Table 3 SA-INR rows | train + eval |

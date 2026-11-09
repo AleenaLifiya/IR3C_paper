@@ -477,6 +477,48 @@ def tab_formulation():
     C.write("tab_formulation.tex", "\n".join(t))
 
 
+# =========================================================================== pending: loss terms
+def tab_loss():
+    """Loss-term leave-one-out (HPC package Ablation B). Scored on image metrics AND downstream
+    Dice, because the hypothesis is that the background term matters for the second only."""
+    spec = dict(C.method_specs("BraTS"))
+    lin_u0 = C.per_subject("BraTS", spec["Linear"], ["U0"]).mean()
+    lin_irr = C.per_subject("BraTS", spec["Linear"], C.NONUNIFORM).mean()
+    lin_bg = C.per_subject("BraTS", spec["Linear"], ["U0"], metric="bg_haze").mean()
+    d = pd.read_csv(os.path.join(C.ROOT, DS_CSV))
+    lin_wt = [d[(d.method == "linear") & (d.R == R)]["WT_Dice"].mean() for R in C.TRAIN_R]
+    rows = [
+        ("Full objective (Eq.~\\ref{eq:loss})", r"\texttt{B0\_ir3c}", "---"),
+        ("No background term", r"\texttt{B1\_no\_background}", r"$0.30\,\mathcal{L}_{\mathrm{C}}^{\mathrm{bg}}$"),
+        ("No structural term", r"\texttt{B2\_no\_structure}", r"$0.10\,(1-\mathrm{SSIM})$"),
+        ("No gradient term", r"\texttt{B3\_no\_gradient}", r"$0.05\,\mathcal{L}_{\nabla_z}^{\mathrm{fg}}$"),
+    ]
+    t = [r"\begin{table*}[t]",
+         r"\caption{\pendlabel\ Loss-term ablation on BraTS-GLI: each arm removes one term of "
+         r"Eq.~(\ref{eq:loss}) and keeps everything else, including the $0.001\,\lVert\delta"
+         r"\rVert_1$ term, the backbone, the initial weights, the data order and the budget. "
+         r"PSNR (dB) is over missing-slice foreground, $R\in\{2,4,8\}$. Background haze is the "
+         r"mean predicted intensity on missing-slice background voxels, U0 ($\times10^{-3}$). WT Dice is the "
+         r"downstream consistency of Table~\ref{tab:downstream} (U0, $n=88$). The control "
+         r"\texttt{B0\_ir3c} is the same trained model as \texttt{A0\_ir3c} in "
+         r"Table~\ref{tab:formulation}. Only the linear row is computed.}",
+         r"\label{tab:loss}",
+         r"\small",
+         r"\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lllccccccc@{}}",
+         r"\toprule",
+         r"& & & \multicolumn{2}{c}{PSNR $\uparrow$} & Bg.\ haze $\downarrow$ & "
+         r"\multicolumn{3}{c}{WT Dice $\uparrow$} \\",
+         r"\cmidrule(lr){4-5}\cmidrule(lr){7-9}",
+         r"Variant & Arm & Removed term & U0 & U1--U6 & U0 & $R=2$ & $R=4$ & $R=8$ \\",
+         r"\midrule",
+         f"Linear interpolation only & --- & --- & {lin_u0:.2f} & {lin_irr:.2f} & "
+         f"{1e3 * lin_bg:.2f} & " + " & ".join(f"{v:.3f}" for v in lin_wt) + r" \\"]
+    for nm, arm, term in rows:
+        t.append(r"\pendrow " + f"{nm} & {arm} & {term} & " + " & ".join([TBD] * 6) + r" \\")
+    t += [r"\bottomrule", r"\end{tabular*}", r"\end{table*}", ""]
+    C.write("tab_loss.tex", "\n".join(t))
+
+
 # =========================================================================== pending: held-out family
 def tab_heldout():
     spec = dict(C.method_specs("BraTS"))
@@ -727,6 +769,7 @@ if __name__ == "__main__":
     facts["downstream"] = tab_downstream()
     facts["anchor"] = tab_anchor()
     tab_formulation()
+    tab_loss()
     tab_heldout()
     tab_realisations()
     facts["backbone"] = tab_backbone()
