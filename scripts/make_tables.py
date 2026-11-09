@@ -394,29 +394,6 @@ def tab_downstream():
                    for k in cols}, out
 
 
-# =========================================================================== pending: labelled seg
-def tab_labelled():
-    rows = ["Complete FLAIR (reference)", "Linear", "Bicubic", "ArSSR", "SAINT",
-            "IR3C (ours)"]
-    t = [r"\begin{table*}[t]",
-         r"\caption{\pendlabel\ Tumour segmentation accuracy against expert labels on a "
-         r"reconstruction-held-out BraTS-GLI cohort ($R=4$, U0 and pooled U1--U6). This "
-         r"requires a new subject-level split in which the labelled test subjects are excluded "
-         r"from reconstruction training, and retraining IR3C and the learned baselines on the "
-         r"remaining subjects (Section~\ref{sec:pending-labelled}).}",
-         r"\label{tab:labelled}",
-         r"\small",
-         r"\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lcccccc@{}}",
-         r"\toprule",
-         r"& \multicolumn{3}{c}{Dice $\uparrow$} & \multicolumn{3}{c}{HD95 (mm) $\downarrow$} \\",
-         r"\cmidrule(lr){2-4}\cmidrule(lr){5-7}",
-         r"Method & WT & TC & ET & WT & TC & ET \\", r"\midrule"]
-    for nm in rows:
-        t.append(r"\pendrow " + nm + " & " + " & ".join([TBD] * 6) + r" \\")
-    t += [r"\bottomrule", r"\end{tabular*}", r"\end{table*}", ""]
-    C.write("tab_labelled.tex", "\n".join(t))
-
-
 # =========================================================================== anchor ablation
 def tab_anchor():
     p = os.path.join(C.ROOT, "runs/IR3C_brats_ablation1/metrics/"
@@ -748,7 +725,6 @@ if __name__ == "__main__":
     facts["rejection"] = tab_rejection()
     tab_rejection_absolute()
     facts["downstream"] = tab_downstream()
-    tab_labelled()
     facts["anchor"] = tab_anchor()
     tab_formulation()
     tab_heldout()

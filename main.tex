@@ -450,7 +450,7 @@ study. Dice for whole tumour (WT), tumour core (TC) and enhancing tumour (ET) is
 against the same network's prediction on the complete input. Because the test subjects come
 from the BraTS validation release, which has no public labels, this endpoint measures how
 much a reconstruction changes the output of a fixed pipeline. It does not measure
-segmentation accuracy against expert labels (Section~\ref{sec:pending-labelled}).
+segmentation accuracy against expert labels.
 
 \subsection{Implementation}
 \label{sec:impl}
@@ -738,26 +738,6 @@ per-slice squared error and foreground voxel counts during re-scoring, so that e
 binned by $g_z$ and $d_z$; no model needs to be retrained.
 \end{pendingnote}
 
-\subsection{Segmentation accuracy against expert labels}
-\label{sec:pending-labelled}
-
-The downstream result in Section~\ref{sec:res-downstream} measures consistency with a fixed
-pipeline. A stronger test is segmentation accuracy against expert labels on subjects that the
-reconstruction models have never seen. The BraTS-GLI training release has labels, but all of
-its 1251 subjects were used to train the reconstruction models. This test therefore needs a
-new subject-level split (Table~\ref{tab:labelled}).
-
-\input{tables/tab_labelled.tex}
-
-\begin{pendingnote}{labelled downstream evaluation (Table~\ref{tab:labelled})}
-Hold out about 150 labelled BraTS-GLI training subjects. Retrain IR3C and the learned
-baselines (at least SAINT and ArSSR) on the remaining subjects under the same matched budget.
-Segment with the same frozen SegResNet and report Dice and HD95 against the expert labels at
-$R=4$, for U0 and pooled U1--U6. Note that the segmentation network may have seen some of
-these subjects during its own training; state this in the Methods. This is the most costly
-pending item.
-\end{pendingnote}
-
 \begin{pendingnote}{additional baselines (shaded rows of Tables~\ref{tab:uniform} and \ref{tab:families})}
 Add SA-INR \citep{wang2024sainr} under the matched protocol on all three datasets. It is the
 closest published arbitrary-spacing method and appeared in this journal. The
@@ -848,7 +828,9 @@ variation across subjects, not across training runs. (iii)~Checkpoint selection 
 BraTS-GLI uses only six validation subjects. (iv)~The irregular test families are drawn from
 the same generators as the training masks, and one mask per family is shared across subjects
 (Section~\ref{sec:pending-heldout}). (v)~The downstream endpoint is consistency with a frozen
-network rather than accuracy against expert labels. (vi)~In a voxel-based morphometry
+network rather than accuracy against expert labels. The labelled BraTS-GLI training release
+was used in full to train the reconstruction models, so an accuracy evaluation would require
+a new subject-level split and retraining every learned method. (vi)~In a voxel-based morphometry
 analysis on IXI-tiny (not shown), IR3C reduced the area of significant grey-matter
 differences compared with linear interpolation but introduced a one-signed underestimation
 of total grey-matter volume, which validation-based calibration removed; IR3C should not be

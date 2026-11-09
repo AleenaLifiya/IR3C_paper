@@ -55,7 +55,7 @@ Set `\showpendingfalse` in `main.tex` to hide the orange boxes.
 | P4 | Leave-one-family-out training (6 models) | Table 10 "Held out" | 6 trainings |
 | P5 | 5 subject-specific mask realisations per family, R=4 | Table 11 | inference only |
 | P6 | Per-slice error vs gap length / distance | Fig. 8 | re-scoring only (store per-slice SE) |
-| P7 | Labelled downstream: hold out ~150 labelled BraTS training subjects, retrain IR3C + SAINT + ArSSR | Table 12 | most costly |
+| P7 | Labelled downstream | – | **dropped 2026-11-09** (no expert labels; Table 12 removed) |
 | P8 | SA-INR baseline, all datasets | Table 2, Table 3 SA-INR rows | train + eval |
 
 ## Author-side fields (orange `[...]` in PDF)
