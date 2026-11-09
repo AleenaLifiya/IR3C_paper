@@ -1,0 +1,19 @@
+\begin{table*}[t]
+\caption{\pendlabel\ Tumour segmentation accuracy against expert labels on a reconstruction-held-out BraTS-GLI cohort ($R=4$, U0 and pooled U1--U6). This requires a new subject-level split in which the labelled test subjects are excluded from reconstruction training, and retraining IR3C and the learned baselines on the remaining subjects (Section~\ref{sec:pending-labelled}).}
+\label{tab:labelled}
+\small
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lcccccc@{}}
+\toprule
+& \multicolumn{3}{c}{Dice $\uparrow$} & \multicolumn{3}{c}{HD95 (mm) $\downarrow$} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+Method & WT & TC & ET & WT & TC & ET \\
+\midrule
+\pendrow Complete FLAIR (reference) & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
+\pendrow Linear & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
+\pendrow Bicubic & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
+\pendrow ArSSR & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
+\pendrow SAINT & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
+\pendrow IR3C (ours) & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
+\bottomrule
+\end{tabular*}
+\end{table*}

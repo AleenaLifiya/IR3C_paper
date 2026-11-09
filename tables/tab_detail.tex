@@ -1,0 +1,119 @@
+\begin{table}[pos=!htbp]
+\caption{BraTS-GLI, uniform sampling (U0), pooled over $R\in\{2,4,8\}$. Mean $\pm$ standard deviation across 88 test subjects, after averaging within subject. Bold marks the best method.}
+\label{tab:detail-brats}
+\small
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lcccc@{}}
+\toprule
+Method & PSNR (dB) $\uparrow$ & SSIM $\uparrow$ & NMSE $\downarrow$ & MAE $\downarrow$ \\
+\midrule
+Nearest & 22.80 $\pm$ 2.76 & 0.9463 $\pm$ 0.0215 & 0.0329 $\pm$ 0.0191 & 0.0463 $\pm$ 0.0187 \\
+Linear & 26.20 $\pm$ 3.21 & 0.9545 $\pm$ 0.0202 & 0.0186 $\pm$ 0.0129 & 0.0320 $\pm$ 0.0171 \\
+Cubic spline & 26.32 $\pm$ 3.31 & 0.9513 $\pm$ 0.0207 & 0.0191 $\pm$ 0.0140 & 0.0323 $\pm$ 0.0178 \\
+Bicubic & 26.37 $\pm$ 3.28 & 0.9566 $\pm$ 0.0200 & 0.0186 $\pm$ 0.0134 & 0.0314 $\pm$ 0.0174 \\
+DCSRN & 20.84 $\pm$ 1.79 & 0.8472 $\pm$ 0.0406 & 0.0467 $\pm$ 0.0297 & 0.0688 $\pm$ 0.0146 \\
+ArSSR & 23.43 $\pm$ 2.40 & 0.9590 $\pm$ 0.0186 & 0.0253 $\pm$ 0.0115 & 0.0561 $\pm$ 0.0147 \\
+I$^3$Net & 26.27 $\pm$ 3.01 & 0.9579 $\pm$ 0.0184 & 0.0179 $\pm$ 0.0116 & 0.0322 $\pm$ 0.0154 \\
+SAINT & 28.39 $\pm$ 3.45 & 0.9670 $\pm$ 0.0167 & 0.0134 $\pm$ 0.0094 & 0.0259 $\pm$ 0.0141 \\
+IR3C & \textbf{28.59 $\pm$ 3.59} & \textbf{0.9679 $\pm$ 0.0152} & \textbf{0.0118 $\pm$ 0.0089} & \textbf{0.0259 $\pm$ 0.0138} \\
+\bottomrule
+\end{tabular*}
+\end{table}
+
+\begin{table}[pos=!htbp]
+\caption{BraTS-GLI, PSNR (dB) by sampling family, pooled over $R\in\{2,4,8\}$. Mean $\pm$ standard deviation across test subjects.}
+\label{tab:detailfam-brats}
+\footnotesize
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lccccccc@{}}
+\toprule
+Method & U0 & U1 & U2 & U3 & U4 & U5 & U6 \\
+\midrule
+Nearest & 22.80 $\pm$ 2.76 & 22.35 $\pm$ 2.75 & 21.85 $\pm$ 2.65 & 20.73 $\pm$ 2.54 & 16.68 $\pm$ 2.11 & 20.79 $\pm$ 2.49 & 19.60 $\pm$ 2.34 \\
+Linear & 26.20 $\pm$ 3.21 & 25.03 $\pm$ 3.25 & 24.50 $\pm$ 3.10 & 23.12 $\pm$ 2.93 & 18.45 $\pm$ 2.36 & 23.37 $\pm$ 2.86 & 21.73 $\pm$ 2.66 \\
+Cubic spline & 26.32 $\pm$ 3.31 & 24.96 $\pm$ 3.37 & 24.36 $\pm$ 3.26 & 22.53 $\pm$ 3.10 & 17.01 $\pm$ 2.55 & 22.96 $\pm$ 3.08 & 20.82 $\pm$ 2.94 \\
+Bicubic & 26.37 $\pm$ 3.28 & 25.17 $\pm$ 3.33 & 24.61 $\pm$ 3.16 & 23.17 $\pm$ 2.99 & 18.46 $\pm$ 2.40 & 23.42 $\pm$ 2.90 & 21.78 $\pm$ 2.70 \\
+DCSRN & 20.84 $\pm$ 1.79 & 20.64 $\pm$ 1.86 & 20.34 $\pm$ 1.85 & 19.78 $\pm$ 1.87 & 17.02 $\pm$ 1.82 & 19.77 $\pm$ 1.82 & 18.83 $\pm$ 1.75 \\
+ArSSR & 23.43 $\pm$ 2.40 & 22.95 $\pm$ 2.51 & 22.65 $\pm$ 2.46 & 21.94 $\pm$ 2.46 & 18.14 $\pm$ 2.22 & 21.98 $\pm$ 2.39 & 20.51 $\pm$ 2.25 \\
+IR3C & \textbf{28.59 $\pm$ 3.59} & \textbf{27.37 $\pm$ 3.62} & \textbf{26.84 $\pm$ 3.39} & \textbf{25.59 $\pm$ 3.17} & \textbf{21.42 $\pm$ 2.44} & \textbf{25.87 $\pm$ 3.11} & \textbf{24.27 $\pm$ 2.88} \\
+\bottomrule
+\end{tabular*}
+\end{table}
+
+\begin{table}[pos=!htbp]
+\caption{OAIZIB, uniform sampling (U0), pooled over $R\in\{2,4,8\}$. Mean $\pm$ standard deviation across 103 test subjects, after averaging within subject. Bold marks the best method.}
+\label{tab:detail-oaizib}
+\small
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lcccc@{}}
+\toprule
+Method & PSNR (dB) $\uparrow$ & SSIM $\uparrow$ & NMSE $\downarrow$ & MAE $\downarrow$ \\
+\midrule
+Nearest & 17.57 $\pm$ 0.79 & 0.2676 $\pm$ 0.0228 & 0.1637 $\pm$ 0.0164 & 0.0915 $\pm$ 0.0099 \\
+Linear & 19.19 $\pm$ 0.82 & 0.3103 $\pm$ 0.0256 & 0.1165 $\pm$ 0.0122 & 0.0789 $\pm$ 0.0085 \\
+Cubic spline & 18.63 $\pm$ 0.84 & 0.2934 $\pm$ 0.0233 & 0.1322 $\pm$ 0.0140 & 0.0846 $\pm$ 0.0091 \\
+Bicubic & 18.90 $\pm$ 0.83 & 0.3028 $\pm$ 0.0243 & 0.1248 $\pm$ 0.0132 & 0.0818 $\pm$ 0.0088 \\
+DCSRN & 19.37 $\pm$ 0.72 & 0.2871 $\pm$ 0.0228 & 0.1089 $\pm$ 0.0117 & 0.0778 $\pm$ 0.0070 \\
+ArSSR & 20.44 $\pm$ 0.84 & 0.3600 $\pm$ 0.0325 & 0.0853 $\pm$ 0.0093 & 0.0677 $\pm$ 0.0074 \\
+I$^3$Net & 20.42 $\pm$ 0.84 & 0.3497 $\pm$ 0.0313 & 0.0867 $\pm$ 0.0097 & 0.0670 $\pm$ 0.0074 \\
+SAINT & 21.35 $\pm$ 0.90 & 0.3979 $\pm$ 0.0317 & 0.0701 $\pm$ 0.0092 & 0.0609 $\pm$ 0.0071 \\
+IR3C & \textbf{21.38 $\pm$ 0.90} & \textbf{0.4161 $\pm$ 0.0306} & \textbf{0.0684 $\pm$ 0.0091} & \textbf{0.0609 $\pm$ 0.0071} \\
+\bottomrule
+\end{tabular*}
+\end{table}
+
+\begin{table}[pos=!htbp]
+\caption{OAIZIB, PSNR (dB) by sampling family, pooled over $R\in\{2,4,8\}$. Mean $\pm$ standard deviation across test subjects.}
+\label{tab:detailfam-oaizib}
+\footnotesize
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lccccccc@{}}
+\toprule
+Method & U0 & U1 & U2 & U3 & U4 & U5 & U6 \\
+\midrule
+Nearest & 17.57 $\pm$ 0.79 & 17.38 $\pm$ 0.78 & 17.27 $\pm$ 0.78 & 16.78 $\pm$ 0.75 & 14.84 $\pm$ 0.66 & 16.81 $\pm$ 0.79 & 16.23 $\pm$ 0.71 \\
+Linear & 19.19 $\pm$ 0.82 & 18.68 $\pm$ 0.80 & 18.53 $\pm$ 0.80 & 18.03 $\pm$ 0.77 & 15.87 $\pm$ 0.68 & 18.07 $\pm$ 0.82 & 17.39 $\pm$ 0.72 \\
+Cubic spline & 18.63 $\pm$ 0.84 & 17.71 $\pm$ 0.82 & 17.24 $\pm$ 0.82 & 15.45 $\pm$ 0.75 & 10.57 $\pm$ 0.58 & 14.67 $\pm$ 0.70 & 14.29 $\pm$ 0.74 \\
+Bicubic & 18.90 $\pm$ 0.83 & 18.41 $\pm$ 0.81 & 18.27 $\pm$ 0.81 & 17.79 $\pm$ 0.78 & 15.71 $\pm$ 0.68 & 17.83 $\pm$ 0.82 & 17.18 $\pm$ 0.73 \\
+DCSRN & 19.37 $\pm$ 0.72 & 18.98 $\pm$ 0.71 & 18.84 $\pm$ 0.70 & 18.35 $\pm$ 0.68 & 16.38 $\pm$ 0.63 & 18.40 $\pm$ 0.72 & 17.81 $\pm$ 0.65 \\
+ArSSR & 20.44 $\pm$ 0.84 & 20.13 $\pm$ 0.83 & 19.99 $\pm$ 0.83 & 19.39 $\pm$ 0.80 & 16.90 $\pm$ 0.71 & 19.49 $\pm$ 0.86 & 18.78 $\pm$ 0.75 \\
+IR3C & \textbf{21.38 $\pm$ 0.90} & \textbf{20.99 $\pm$ 0.87} & \textbf{20.88 $\pm$ 0.87} & \textbf{20.46 $\pm$ 0.85} & \textbf{18.59 $\pm$ 0.74} & \textbf{20.59 $\pm$ 0.89} & \textbf{19.94 $\pm$ 0.79} \\
+\bottomrule
+\end{tabular*}
+\end{table}
+
+\begin{table}[pos=!htbp]
+\caption{IXI-tiny, uniform sampling (U0), pooled over $R\in\{2,4,8\}$. Mean $\pm$ standard deviation across 100 test subjects, after averaging within subject. Bold marks the best method.}
+\label{tab:detail-ixi}
+\small
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lcccc@{}}
+\toprule
+Method & PSNR (dB) $\uparrow$ & SSIM $\uparrow$ & NMSE $\downarrow$ & MAE $\downarrow$ \\
+\midrule
+Nearest & 19.85 $\pm$ 1.01 & 0.8097 $\pm$ 0.0119 & 0.0603 $\pm$ 0.0128 & 0.0621 $\pm$ 0.0111 \\
+Linear & 23.07 $\pm$ 1.07 & 0.8464 $\pm$ 0.0101 & 0.0364 $\pm$ 0.0081 & 0.0460 $\pm$ 0.0083 \\
+Cubic spline & 23.14 $\pm$ 1.15 & 0.8472 $\pm$ 0.0095 & 0.0394 $\pm$ 0.0081 & 0.0466 $\pm$ 0.0083 \\
+Bicubic & 23.37 $\pm$ 1.12 & 0.8554 $\pm$ 0.0093 & 0.0365 $\pm$ 0.0080 & 0.0446 $\pm$ 0.0081 \\
+DCSRN & 20.41 $\pm$ 0.93 & 0.7777 $\pm$ 0.0134 & 0.0579 $\pm$ 0.0152 & 0.0686 $\pm$ 0.0100 \\
+ArSSR & 23.84 $\pm$ 1.52 & 0.9221 $\pm$ 0.0078 & 0.0232 $\pm$ 0.0025 & 0.0454 $\pm$ 0.0083 \\
+I$^3$Net & 23.43 $\pm$ 1.09 & 0.8607 $\pm$ 0.0085 & 0.0335 $\pm$ 0.0070 & 0.0454 $\pm$ 0.0078 \\
+SAINT & \textbf{27.81 $\pm$ 1.79} & \textbf{0.9405 $\pm$ 0.0058} & \textbf{0.0128 $\pm$ 0.0018} & \textbf{0.0271 $\pm$ 0.0055} \\
+IR3C & 25.95 $\pm$ 1.41 & 0.9329 $\pm$ 0.0079 & 0.0154 $\pm$ 0.0023 & 0.0331 $\pm$ 0.0060 \\
+\bottomrule
+\end{tabular*}
+\end{table}
+
+\begin{table}[pos=!htbp]
+\caption{IXI-tiny, PSNR (dB) by sampling family, pooled over $R\in\{2,4,8\}$. Mean $\pm$ standard deviation across test subjects.}
+\label{tab:detailfam-ixi}
+\footnotesize
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lccccccc@{}}
+\toprule
+Method & U0 & U1 & U2 & U3 & U4 & U5 & U6 \\
+\midrule
+Nearest & 19.85 $\pm$ 1.01 & 19.38 $\pm$ 1.00 & 19.41 $\pm$ 1.00 & 18.15 $\pm$ 1.02 & 13.35 $\pm$ 0.88 & 17.46 $\pm$ 1.02 & 17.10 $\pm$ 1.11 \\
+Linear & 23.07 $\pm$ 1.07 & 21.45 $\pm$ 1.02 & 21.56 $\pm$ 1.03 & 19.93 $\pm$ 1.04 & 14.56 $\pm$ 0.85 & 19.25 $\pm$ 0.99 & 18.73 $\pm$ 1.23 \\
+Cubic spline & 23.14 $\pm$ 1.15 & 21.36 $\pm$ 1.08 & 21.32 $\pm$ 1.06 & 18.66 $\pm$ 0.92 & 13.04 $\pm$ 0.87 & 15.06 $\pm$ 0.63 & 16.70 $\pm$ 1.13 \\
+Bicubic & 23.37 $\pm$ 1.12 & 21.57 $\pm$ 1.03 & 21.69 $\pm$ 1.05 & 20.01 $\pm$ 1.04 & 14.56 $\pm$ 0.86 & 19.31 $\pm$ 1.00 & 18.72 $\pm$ 1.24 \\
+DCSRN & 20.41 $\pm$ 0.93 & 19.71 $\pm$ 0.94 & 19.69 $\pm$ 0.97 & 18.70 $\pm$ 0.99 & 14.46 $\pm$ 0.82 & 18.27 $\pm$ 0.93 & 17.93 $\pm$ 1.17 \\
+ArSSR & 23.84 $\pm$ 1.52 & 23.19 $\pm$ 1.54 & 23.12 $\pm$ 1.47 & 22.24 $\pm$ 1.44 & 17.36 $\pm$ 1.12 & 20.88 $\pm$ 1.46 & 21.86 $\pm$ 1.41 \\
+IR3C & \textbf{25.95 $\pm$ 1.41} & \textbf{24.66 $\pm$ 1.35} & \textbf{24.69 $\pm$ 1.34} & \textbf{23.90 $\pm$ 1.28} & \textbf{20.26 $\pm$ 1.03} & \textbf{22.89 $\pm$ 1.23} & \textbf{23.25 $\pm$ 1.24} \\
+\bottomrule
+\end{tabular*}
+\end{table}

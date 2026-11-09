@@ -1,0 +1,21 @@
+\begin{table*}[t]
+\caption{Datasets and subject-level partitions. ``Reconstruction axis'' is the axis along
+which slices are removed; its number of slices $D$ and spacing are given. OAIZIB and
+IXI-tiny models are fine-tuned on their own training partitions. Test subjects are never
+used for training, early stopping or checkpoint selection.}
+\label{tab:datasets}
+\small
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lllllrrr@{}}
+\toprule
+Dataset & Anatomy, contrast & Grid (voxels) & Spacing (mm) & Reconstruction axis & Train & Val. & Test \\
+\midrule
+BraTS-GLI & Brain, T2-FLAIR & $240\times240\times153^{a}$ & $1.0\times1.0\times1.0$ & axial; $D=153$, 1.0\,mm & 1251 & 6 & 88 \\
+OAIZIB & Knee, 3D DESS & $160\times384\times384$ & $0.70\times0.36\times0.36$ & sagittal; $D=160$, 0.70\,mm & 374 & 30 & 103 \\
+IXI-tiny & Brain, T1-weighted & $83\times44\times55$ & $2.18\times4.13\times3.95$ & axial; $D=83$, 2.18\,mm$^{b}$ & 436 & 30 & 100 \\
+\bottomrule
+\end{tabular*}
+\par\smallskip
+{\footnotesize $^{a}$Central crop of the native 155 axial slices. $^{b}$The reconstruction
+axis is the finest axis of this dataset, so $R=2$, 4 and 8 correspond to slice spacings of
+4.36, 8.72 and 17.44\,mm.}
+\end{table*}

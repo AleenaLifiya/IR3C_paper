@@ -1,0 +1,20 @@
+\begin{table*}[t]
+\caption{\pendlabel\ Formulation ablation on BraTS-GLI with the backbone, optimiser and training budget held fixed. PSNR (dB) on test subjects, $R\in\{2,4,8\}$ unless stated; the rejection column is $R=4$ with 30\% burst rejection. Arms named in typewriter font are already packaged for the HPC run (Section~\ref{sec:pending-form}); ``new arm'' must be added. Values for multi-seed arms are to be reported as mean $\pm$ standard deviation over seeds. Only the linear row is computed.}
+\label{tab:formulation}
+\footnotesize\setlength{\tabcolsep}{3pt}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}llccccccc@{}}
+\toprule
+Variant & Arm & Seeds & U0 & U1--U6 & U4 & $R=16$ & Rejection & $\Delta$ vs.\ IR3C (U1--U6) \\
+\midrule
+Linear interpolation only & --- & --- & 26.20 & 22.70 & 18.45 & 15.86 & \tbd & --- \\
+\pendrow Direct 3D U-Net (no anchor) & \texttt{A3\_direct} & 3 & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
+\pendrow Anchor, unbounded residual & \texttt{A1\_unbounded} & 1 & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
+\pendrow Anchor, non-zero output head & \texttt{A2\_nonzero\_init} & 1 & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
+\pendrow Anchor, no geometry profiles & \texttt{C2\_no\_positional} & 3 & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
+\pendrow Anchor, binary mask profile only & new arm & 1 & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
+\pendrow Anchor, uniform-only training & \texttt{C1\_uniform\_only} & 1 & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
+\pendrow Anchor, single factor ($R=4$) & \texttt{C3\_single\_R} & 1 & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
+\pendrow IR3C (full formulation) & \texttt{A0\_ir3c} & 3 & \tbd & \tbd & \tbd & \tbd & \tbd & --- \\
+\bottomrule
+\end{tabular*}
+\end{table*}

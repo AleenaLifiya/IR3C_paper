@@ -1,0 +1,15 @@
+\begin{table}[t]
+\caption{Backbone capacity (BraTS-GLI, $R\in\{2,4,8\}$, $n=88$, single seed). The anchor, input profiles, loss and training budget are identical; only the network that predicts the correction changes. $\Delta$ is the paired difference to the IR3C backbone on U1--U6. Parameter counts and multiply--accumulate operations (MACs) are for one full-volume forward pass.}
+\label{tab:backbone}
+\footnotesize\setlength{\tabcolsep}{3pt}
+\begin{tabular*}{\columnwidth}{@{\extracolsep{\fill}}lccccc@{}}
+\toprule
+Backbone & Param.\ (M) & GMACs & U0 & U1--U6 & $\Delta$ \\
+\midrule
+MONAI U-Net (IR3C) & 4.75 & 218 & 29.07 & 25.69 & --- \\
+Reduced bottleneck & 3.63 & 198 & 29.00 & 25.65 & $-$0.04 \\
+Depthwise separable & 0.98 & 41 & 27.59 & 24.51 & $-$1.17 \\
+nnU-Net config. & 45.44 & 2434 & 31.25 & 27.20 & $+$1.51 \\
+\bottomrule
+\end{tabular*}
+\end{table}

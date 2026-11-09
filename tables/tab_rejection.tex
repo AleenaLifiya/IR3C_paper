@@ -1,0 +1,33 @@
+\begin{table*}[t]
+\caption{Slice rejection. A uniform acquisition at base factor $R$ loses a fraction of its acquired interior slices, either independently (random) or in runs of two to three slices (burst). Each cell gives IR3C minus the strongest competitor in that condition (PSNR, dB) with its 95\% confidence interval; the strongest competitor is named underneath (A: rejected slices imputed linearly before inference; B: uniform stride-$2R$ subset). An asterisk marks $p<0.05$ after Holm correction over the conditions of one dataset. At 0\% the competitor runs in its native uniform regime. Absolute PSNR for every method is given in Appendix~\ref{app:reject}. Shaded rows have not yet been run.}
+\label{tab:rejection}
+\small
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lllcccc@{}}
+\toprule
+Dataset & Base & Pattern & 0\% & 10\% & 20\% & 30\% \\
+\midrule
+BraTS-GLI & $R=2$ & random & $-$0.81 [$-$1.03, $-$0.60]$^{\ast}$ & $+$0.40 [0.22, 0.59]$^{\ast}$ & $+$1.20 [1.04, 1.36]$^{\ast}$ & $+$1.62 [1.49, 1.76]$^{\ast}$ \\
+ & & & {\scriptsize\color{black!60}SAINT-A} & {\scriptsize\color{black!60}SAINT-A} & {\scriptsize\color{black!60}SAINT-A} & {\scriptsize\color{black!60}SAINT-A} \\[1pt]
+ & $R=2$ & burst & $-$0.81 [$-$1.03, $-$0.60]$^{\ast}$ & $+$0.60 [0.45, 0.76]$^{\ast}$ & $+$1.29 [1.15, 1.43]$^{\ast}$ & $+$1.72 [1.59, 1.85]$^{\ast}$ \\
+ & & & {\scriptsize\color{black!60}SAINT-A} & {\scriptsize\color{black!60}SAINT-A} & {\scriptsize\color{black!60}SAINT-A} & {\scriptsize\color{black!60}SAINT-A} \\[1pt]
+ & $R=4$ & random & $+$0.46 [0.32, 0.59]$^{\ast}$ & $+$1.35 [1.23, 1.48]$^{\ast}$ & $+$1.76 [1.63, 1.89]$^{\ast}$ & $+$2.08 [1.95, 2.21]$^{\ast}$ \\
+ & & & {\scriptsize\color{black!60}SAINT-A} & {\scriptsize\color{black!60}SAINT-A} & {\scriptsize\color{black!60}SAINT-A} & {\scriptsize\color{black!60}SAINT-A} \\[1pt]
+ & $R=4$ & burst & $+$0.46 [0.32, 0.59]$^{\ast}$ & $+$1.55 [1.39, 1.71]$^{\ast}$ & $+$2.16 [1.97, 2.35]$^{\ast}$ & $+$2.31 [2.14, 2.48]$^{\ast}$ \\
+ & & & {\scriptsize\color{black!60}SAINT-A} & {\scriptsize\color{black!60}SAINT-A} & {\scriptsize\color{black!60}SAINT-A} & {\scriptsize\color{black!60}SAINT-A} \\[1pt]
+\midrule
+\pendrow OAIZIB & $R=2$ & random & \tbd & \tbd & \tbd & \tbd \\
+\pendrow  & $R=2$ & burst & \tbd & \tbd & \tbd & \tbd \\
+\pendrow  & $R=4$ & random & \tbd & \tbd & \tbd & \tbd \\
+\pendrow  & $R=4$ & burst & \tbd & \tbd & \tbd & \tbd \\
+\midrule
+IXI-tiny & $R=2$ & random & $-$3.70 [$-$3.86, $-$3.53]$^{\ast}$ & $-$0.02 [$-$0.22, 0.18] & $+$1.22 [1.02, 1.42]$^{\ast}$ & $+$1.47 [1.34, 1.60]$^{\ast}$ \\
+ & & & {\scriptsize\color{black!60}SAINT-A} & {\scriptsize\color{black!60}SAINT-A} & {\scriptsize\color{black!60}SAINT-B} & {\scriptsize\color{black!60}ArSSR} \\[1pt]
+ & $R=2$ & burst & $-$3.70 [$-$3.86, $-$3.53]$^{\ast}$ & $+$0.78 [0.48, 1.09]$^{\ast}$ & $+$1.71 [1.55, 1.88]$^{\ast}$ & $+$1.70 [1.55, 1.84]$^{\ast}$ \\
+ & & & {\scriptsize\color{black!60}SAINT-A} & {\scriptsize\color{black!60}SAINT-A} & {\scriptsize\color{black!60}ArSSR} & {\scriptsize\color{black!60}ArSSR} \\[1pt]
+ & $R=4$ & random & $-$2.02 [$-$2.16, $-$1.88]$^{\ast}$ & $+$0.42 [0.25, 0.59]$^{\ast}$ & $+$1.64 [1.52, 1.76]$^{\ast}$ & $+$1.84 [1.70, 1.98]$^{\ast}$ \\
+ & & & {\scriptsize\color{black!60}SAINT-A} & {\scriptsize\color{black!60}SAINT-A} & {\scriptsize\color{black!60}ArSSR} & {\scriptsize\color{black!60}ArSSR} \\[1pt]
+ & $R=4$ & burst & $-$2.02 [$-$2.16, $-$1.88]$^{\ast}$ & $+$1.45 [1.19, 1.71]$^{\ast}$ & $+$1.92 [1.77, 2.07]$^{\ast}$ & $+$2.16 [1.98, 2.33]$^{\ast}$ \\
+ & & & {\scriptsize\color{black!60}SAINT-A} & {\scriptsize\color{black!60}SAINT-A} & {\scriptsize\color{black!60}ArSSR} & {\scriptsize\color{black!60}ArSSR} \\[1pt]
+\bottomrule
+\end{tabular*}
+\end{table*}

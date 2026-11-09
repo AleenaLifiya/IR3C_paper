@@ -1,0 +1,14 @@
+\begin{table}[pos=!htbp]
+\caption{Effect of the source training budget on IR3C (PSNR in dB, all families, $R\in\{2,4,8\}$). ``Matched'' stops source training at 12,510 steps, the largest budget given to any baseline, and is the model used in every comparison. ``Full'' uses the complete 25-epoch schedule (selected at step 28,773). For OAIZIB and IXI-tiny, the two rows differ only in the source checkpoint used to initialise fine-tuning.}
+\label{tab:budget}
+\footnotesize\setlength{\tabcolsep}{3pt}
+\begin{tabular*}{\columnwidth}{@{\extracolsep{\fill}}lccc@{}}
+\toprule
+Dataset & Matched & Full & Full $-$ matched \\
+\midrule
+BraTS-GLI & 25.71 & 26.16 & $+$0.45 [0.42, 0.48] \\
+OAIZIB & 20.40 & 20.40 & 0.00 [$-$0.01, 0.00] \\
+IXI-tiny & 23.66 & 23.75 & $+$0.10 [0.09, 0.10] \\
+\bottomrule
+\end{tabular*}
+\end{table}

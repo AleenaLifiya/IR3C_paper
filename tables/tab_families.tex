@@ -1,0 +1,40 @@
+\begin{table*}[t]
+\caption{PSNR (dB) by sampling family, pooled over $R\in\{2,4,8\}$. U0 is uniform; U1--U6 are irregular (Section~\ref{sec:families}). I$^3$Net and SAINT are not defined off a regular grid and are therefore absent. The last row of each block is the paired difference between IR3C and the strongest applicable comparator in that column, with its 95\% confidence interval. Bold marks the best method per column. Standard deviations are given in Appendix~\ref{app:detail}.}
+\label{tab:families}
+\small
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lcccccccc@{}}
+\toprule
+Method & U0 & U1 & U2 & U3 & U4 & U5 & U6 & U1--U6 \\
+\midrule
+\multicolumn{9}{@{}l}{\textit{BraTS-GLI}} \\
+Linear & 26.20 & 25.03 & 24.50 & 23.12 & 18.45 & 23.37 & 21.73 & 22.70 \\
+Cubic spline & 26.32 & 24.96 & 24.36 & 22.53 & 17.01 & 22.96 & 20.82 & 22.10 \\
+Bicubic & 26.37 & 25.17 & 24.61 & 23.17 & 18.46 & 23.42 & 21.78 & 22.77 \\
+DCSRN & 20.84 & 20.64 & 20.34 & 19.78 & 17.02 & 19.77 & 18.83 & 19.40 \\
+ArSSR & 23.43 & 22.95 & 22.65 & 21.94 & 18.14 & 21.98 & 20.51 & 21.36 \\
+\textbf{IR3C (ours)} & \textbf{28.59} & \textbf{27.37} & \textbf{26.84} & \textbf{25.59} & \textbf{21.42} & \textbf{25.87} & \textbf{24.27} & \textbf{25.23} \\
+\pendrow SA-INR & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
+$\Delta$ vs.\ best comparator & $+$2.23 & $+$2.21 & $+$2.23 & $+$2.42 & $+$2.97 & $+$2.45 & $+$2.49 & $+$2.46 \\
+\midrule
+\multicolumn{9}{@{}l}{\textit{OAIZIB}} \\
+Linear & 19.19 & 18.68 & 18.53 & 18.03 & 15.87 & 18.07 & 17.39 & 17.76 \\
+Cubic spline & 18.63 & 17.71 & 17.24 & 15.45 & 10.57 & 14.67 & 14.29 & 14.99 \\
+Bicubic & 18.90 & 18.41 & 18.27 & 17.79 & 15.71 & 17.83 & 17.18 & 17.53 \\
+DCSRN & 19.37 & 18.98 & 18.84 & 18.35 & 16.38 & 18.40 & 17.81 & 18.13 \\
+ArSSR & 20.44 & 20.13 & 19.99 & 19.39 & 16.90 & 19.49 & 18.78 & 19.11 \\
+\textbf{IR3C (ours)} & \textbf{21.38} & \textbf{20.99} & \textbf{20.88} & \textbf{20.46} & \textbf{18.59} & \textbf{20.59} & \textbf{19.94} & \textbf{20.24} \\
+\pendrow SA-INR & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
+$\Delta$ vs.\ best comparator & $+$0.94 & $+$0.86 & $+$0.89 & $+$1.06 & $+$1.69 & $+$1.10 & $+$1.16 & $+$1.13 \\
+\midrule
+\multicolumn{9}{@{}l}{\textit{IXI-tiny}} \\
+Linear & 23.07 & 21.45 & 21.56 & 19.93 & 14.56 & 19.25 & 18.73 & 19.25 \\
+Cubic spline & 23.14 & 21.36 & 21.32 & 18.66 & 13.04 & 15.06 & 16.70 & 17.69 \\
+Bicubic & 23.37 & 21.57 & 21.69 & 20.01 & 14.56 & 19.31 & 18.72 & 19.31 \\
+DCSRN & 20.41 & 19.71 & 19.69 & 18.70 & 14.46 & 18.27 & 17.93 & 18.13 \\
+ArSSR & 23.84 & 23.19 & 23.12 & 22.24 & 17.36 & 20.88 & 21.86 & 21.44 \\
+\textbf{IR3C (ours)} & \textbf{25.95} & \textbf{24.66} & \textbf{24.69} & \textbf{23.90} & \textbf{20.26} & \textbf{22.89} & \textbf{23.25} & \textbf{23.27} \\
+\pendrow SA-INR & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
+$\Delta$ vs.\ best comparator & $+$2.11 & $+$1.47 & $+$1.57 & $+$1.66 & $+$2.90 & $+$2.01 & $+$1.39 & $+$1.83 \\
+\bottomrule
+\end{tabular*}
+\end{table*}

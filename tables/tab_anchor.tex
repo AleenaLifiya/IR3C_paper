@@ -1,0 +1,15 @@
+\begin{table}[t]
+\caption{Choice of anchor (BraTS-GLI, all families, $R\in\{2,4,8\}$, $n=88$). Each model is trained from the same initial weights with identical data order; only the interpolant used as the anchor changes. $\Delta$ is the paired difference to the linear-anchored model with its 95\% confidence interval.}
+\label{tab:anchor}
+\footnotesize\setlength{\tabcolsep}{3pt}
+\begin{tabular*}{\columnwidth}{@{\extracolsep{\fill}}lccc@{}}
+\toprule
+Anchor & Alone & Corrected & $\Delta$ vs.\ linear anchor \\
+\midrule
+Nearest & 20.69 & 25.80 & $-$0.37 [$-$0.40, $-$0.34] \\
+Linear & 23.20 & 26.17 & --- \\
+Cubic spline & 22.71 & 26.13 & $-$0.04 [$-$0.06, $-$0.01] \\
+Bicubic & 23.28 & 26.05 & $-$0.12 [$-$0.14, $-$0.10] \\
+\bottomrule
+\end{tabular*}
+\end{table}

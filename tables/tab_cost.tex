@@ -1,0 +1,18 @@
+\begin{table}[t]
+\caption{Reconstruction time per BraTS-GLI volume ($240\times240\times153$), measured end to end on one NVIDIA GB10 GPU at fp32 with batch size 1. Times include patch extraction, sliding-window aggregation and output assembly, and are averaged over test volumes and three repetitions.}
+\label{tab:cost}
+\footnotesize\setlength{\tabcolsep}{3pt}
+\begin{tabular*}{\columnwidth}{@{\extracolsep{\fill}}lcccc@{}}
+\toprule
+& & \multicolumn{3}{c}{Seconds per volume} \\
+\cmidrule(lr){3-5}
+Method & Params (M) & $R=2$ & $R=4$ & $R=8$ \\
+\midrule
+IR3C (ours) & 4.75 & 0.26 & 0.26 & 0.26 \\
+DCSRN & 0.22 & 1.22 & 2.57 & 1.22 \\
+ArSSR & 6.28 & 11.02 & 6.19 & 3.64 \\
+I$^3$Net & 23.21 & 12.62 & 6.22 & 2.90 \\
+SAINT & 3.16 & 14.26 & 8.60 & 6.01 \\
+\bottomrule
+\end{tabular*}
+\end{table}

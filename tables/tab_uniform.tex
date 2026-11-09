@@ -1,0 +1,37 @@
+\begin{table*}[t]
+\caption{Reconstruction on uniform sampling (U0). Values are means across test subjects; standard deviations are given in Appendix~\ref{app:detail}. Only missing slices inside the foreground mask are scored. Bold marks the best method per column. The paired row reports IR3C minus SAINT in dB; an asterisk marks $p<0.05$ (Wilcoxon signed-rank, Holm-corrected over the nine columns). Shaded rows are baselines that have not yet been run.}
+\label{tab:uniform}
+\small
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lccccccccc@{}}
+\toprule
+& \multicolumn{3}{c}{BraTS-GLI ($n=88$)} & \multicolumn{3}{c}{OAIZIB ($n=103$)} & \multicolumn{3}{c}{IXI-tiny ($n=100$)} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}
+Method & $R=2$ & $R=4$ & $R=8$ & $R=2$ & $R=4$ & $R=8$ & $R=2$ & $R=4$ & $R=8$ \\
+\midrule
+\multicolumn{10}{@{}l}{\textit{PSNR (dB) $\uparrow$}} \\
+Linear & 30.17 & 26.33 & 22.11 & 21.03 & 19.00 & 17.53 & 28.17 & 22.52 & 18.53 \\
+Bicubic & 30.46 & 26.53 & 22.12 & 20.77 & 18.70 & 17.22 & 29.07 & 22.68 & 18.37 \\
+DCSRN & 19.73 & 22.53 & 20.27 & 20.58 & 19.40 & 18.13 & 23.53 & 20.85 & 16.85 \\
+ArSSR & 25.07 & 23.79 & 21.43 & 21.75 & 20.46 & 19.12 & 26.32 & 23.80 & 21.41 \\
+I$^3$Net & 30.37 & 26.32 & 22.12 & 22.02 & 20.26 & 18.98 & 28.63 & 22.72 & 18.95 \\
+SAINT & \textbf{33.37} & 28.56 & 23.23 & \textbf{22.89} & 21.34 & 19.83 & \textbf{33.27} & \textbf{27.30} & 22.86 \\
+\textbf{IR3C (ours)} & 32.56 & \textbf{29.01} & \textbf{24.21} & 22.52 & \textbf{21.35} & \textbf{20.27} & 29.57 & 25.27 & \textbf{23.00} \\
+\pendrow SA-INR & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
+\pendrow 3D U-Net, direct output & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
+\midrule
+\multicolumn{10}{@{}l}{\textit{SSIM $\uparrow$}} \\
+Linear & 0.984 & 0.962 & 0.918 & 0.410 & 0.293 & 0.228 & 0.963 & 0.871 & 0.705 \\
+Bicubic & 0.985 & 0.964 & 0.921 & 0.403 & 0.285 & 0.220 & 0.971 & 0.883 & 0.712 \\
+DCSRN & 0.925 & 0.743 & 0.874 & 0.363 & 0.278 & 0.220 & 0.910 & 0.841 & 0.582 \\
+ArSSR & 0.983 & 0.963 & 0.931 & 0.420 & 0.356 & 0.303 & 0.976 & 0.930 & 0.860 \\
+I$^3$Net & 0.985 & 0.966 & 0.922 & 0.427 & 0.339 & 0.283 & 0.967 & 0.882 & 0.733 \\
+SAINT & \textbf{0.991} & \textbf{0.975} & 0.935 & 0.473 & 0.393 & 0.328 & \textbf{0.990} & \textbf{0.956} & 0.876 \\
+\textbf{IR3C (ours)} & 0.987 & 0.973 & \textbf{0.944} & \textbf{0.479} & \textbf{0.412} & \textbf{0.358} & 0.973 & 0.934 & \textbf{0.892} \\
+\pendrow SA-INR & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
+\pendrow 3D U-Net, direct output & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
+\midrule
+$\Delta$PSNR, IR3C $-$ SAINT & $-$0.81$^{\ast}$ & $+$0.46$^{\ast}$ & $+$0.98$^{\ast}$ & $-$0.37$^{\ast}$ & $+$0.01$^{\ast}$ & $+$0.44$^{\ast}$ & $-$3.70$^{\ast}$ & $-$2.02$^{\ast}$ & $+$0.14$^{\ast}$ \\
+Subjects favouring IR3C (\%) & 27 & 74 & 100 & 0 & 59 & 100 & 0 & 0 & 63 \\
+\bottomrule
+\end{tabular*}
+\end{table*}

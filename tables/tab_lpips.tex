@@ -1,0 +1,17 @@
+\begin{table}[pos=!htbp]
+\caption{LPIPS (AlexNet features, lower is better) on uniform sampling, pooled over $R\in\{2,4,8\}$, mean across test subjects. Learned methods are not better than classical interpolation on this metric (Section~\ref{sec:disc-metrics}). $^{\ddagger}$Full-budget IR3C; LPIPS was not computed for the matched-budget transfer models.}
+\label{tab:lpips}
+\footnotesize\setlength{\tabcolsep}{3pt}
+\begin{tabular*}{\columnwidth}{@{\extracolsep{\fill}}lccc@{}}
+\toprule
+Method & BraTS-GLI & OAIZIB & IXI-tiny \\
+\midrule
+Linear & 0.0385 & 0.1916 & 0.0242 \\
+Bicubic & \textbf{0.0347} & \textbf{0.1836} & 0.0196 \\
+ArSSR & 0.0363 & 0.5491 & 0.0188 \\
+I$^3$Net & --- & 0.4912 & 0.0273 \\
+SAINT & 0.0388 & 0.4887 & \textbf{0.0176} \\
+IR3C & 0.0376 & 0.3854$^{\ddagger}$ & 0.0190$^{\ddagger}$ \\
+\bottomrule
+\end{tabular*}
+\end{table}

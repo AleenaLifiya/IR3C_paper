@@ -1,0 +1,114 @@
+U0 BraTS R2: IR3C-SAINT -0.813 [-1.030,-0.595] win 0.27 p 4.4e-09
+U0 BraTS R4: IR3C-SAINT +0.458 [+0.325,+0.592] win 0.74 p 4.9e-09
+U0 BraTS R8: IR3C-SAINT +0.982 [+0.909,+1.055] win 1.00 p 3.7e-16
+U0 OAIZIB R2: IR3C-SAINT -0.366 [-0.374,-0.357] win 0.00 p 1.2e-18
+U0 OAIZIB R4: IR3C-SAINT +0.009 [+0.002,+0.017] win 0.59 p 0.0096
+U0 OAIZIB R8: IR3C-SAINT +0.438 [+0.422,+0.454] win 1.00 p 1.2e-18
+U0 IXI R2: IR3C-SAINT -3.699 [-3.865,-3.533] win 0.00 p 3.9e-18
+U0 IXI R4: IR3C-SAINT -2.023 [-2.162,-1.883] win 0.00 p 3.9e-18
+U0 IXI R8: IR3C-SAINT +0.141 [+0.032,+0.250] win 0.63 p 0.007
+FAM BraTS U0: IR3C-Bicubic +2.227 [+2.047,+2.406] win 1.00
+FAM BraTS U1: IR3C-Bicubic +2.209 [+2.043,+2.375] win 1.00
+FAM BraTS U2: IR3C-Bicubic +2.232 [+2.079,+2.385] win 1.00
+FAM BraTS U3: IR3C-Bicubic +2.416 [+2.274,+2.557] win 1.00
+FAM BraTS U4: IR3C-Bicubic +2.965 [+2.824,+3.106] win 1.00
+FAM BraTS U5: IR3C-Bicubic +2.448 [+2.301,+2.596] win 1.00
+FAM BraTS U6: IR3C-Bicubic +2.490 [+2.356,+2.624] win 1.00
+FAM BraTS U1--U6: IR3C-Bicubic +2.460 [+2.319,+2.601] win 1.00
+FAM OAIZIB U0: IR3C-ArSSR +0.938 [+0.915,+0.961] win 1.00
+FAM OAIZIB U1: IR3C-ArSSR +0.861 [+0.839,+0.883] win 1.00
+FAM OAIZIB U2: IR3C-ArSSR +0.892 [+0.870,+0.914] win 1.00
+FAM OAIZIB U3: IR3C-ArSSR +1.063 [+1.037,+1.089] win 1.00
+FAM OAIZIB U4: IR3C-ArSSR +1.690 [+1.652,+1.727] win 1.00
+FAM OAIZIB U5: IR3C-ArSSR +1.095 [+1.068,+1.123] win 1.00
+FAM OAIZIB U6: IR3C-ArSSR +1.156 [+1.130,+1.182] win 1.00
+FAM OAIZIB U1--U6: IR3C-ArSSR +1.126 [+1.100,+1.151] win 1.00
+FAM IXI U0: IR3C-ArSSR +2.107 [+2.002,+2.211] win 1.00
+FAM IXI U1: IR3C-ArSSR +1.466 [+1.358,+1.574] win 0.99
+FAM IXI U2: IR3C-ArSSR +1.572 [+1.470,+1.674] win 1.00
+FAM IXI U3: IR3C-ArSSR +1.661 [+1.559,+1.763] win 1.00
+FAM IXI U4: IR3C-ArSSR +2.896 [+2.819,+2.972] win 1.00
+FAM IXI U5: IR3C-ArSSR +2.013 [+1.914,+2.111] win 1.00
+FAM IXI U6: IR3C-ArSSR +1.392 [+1.287,+1.496] win 1.00
+FAM IXI U1--U6: IR3C-ArSSR +1.833 [+1.742,+1.925] win 1.00
+R16 ('BraTS', 'U0'): IR3C 20.97 best other 18.70
+R16 ('BraTS', 'all'): IR3C 18.22 best other 15.89
+R16 ('OAIZIB', 'U0'): IR3C 18.85 best other 17.47
+R16 ('OAIZIB', 'all'): IR3C 16.99 best other 15.87
+R16 ('IXI', 'U0'): IR3C 20.81 best other 18.44
+R16 ('IXI', 'all'): IR3C 19.91 best other 16.99
+SR BraTS (2, 'random', 0.0): IR3C 32.56 best SAINT_impute 33.37 d -0.81 [-1.03,-0.60] win 0.27 padj 1.3e-08
+SR BraTS (2, 'random', 0.1): IR3C 30.14 best SAINT_impute 29.73 d +0.40 [+0.22,+0.59] win 0.65 padj 0.00014
+SR BraTS (2, 'random', 0.2): IR3C 29.03 best SAINT_impute 27.84 d +1.20 [+1.04,+1.36] win 0.98 padj 5.2e-15
+SR BraTS (2, 'random', 0.3): IR3C 27.99 best SAINT_impute 26.37 d +1.62 [+1.49,+1.76] win 1.00 padj 5.2e-15
+SR BraTS (2, 'burst', 0.0): IR3C 32.56 best SAINT_impute 33.37 d -0.81 [-1.03,-0.60] win 0.27 padj 1.3e-08
+SR BraTS (2, 'burst', 0.1): IR3C 28.74 best SAINT_impute 28.13 d +0.60 [+0.45,+0.76] win 0.82 padj 2.3e-09
+SR BraTS (2, 'burst', 0.2): IR3C 27.27 best SAINT_impute 25.99 d +1.29 [+1.15,+1.43] win 0.97 padj 5.2e-15
+SR BraTS (2, 'burst', 0.3): IR3C 26.09 best SAINT_impute 24.37 d +1.72 [+1.59,+1.85] win 1.00 padj 5.2e-15
+SR BraTS (4, 'random', 0.0): IR3C 29.01 best SAINT_impute 28.56 d +0.46 [+0.32,+0.59] win 0.74 padj 1.3e-08
+SR BraTS (4, 'random', 0.1): IR3C 27.21 best SAINT_impute 25.86 d +1.35 [+1.23,+1.48] win 1.00 padj 5.2e-15
+SR BraTS (4, 'random', 0.2): IR3C 26.06 best SAINT_impute 24.31 d +1.76 [+1.63,+1.89] win 1.00 padj 5.2e-15
+SR BraTS (4, 'random', 0.3): IR3C 24.86 best SAINT_impute 22.78 d +2.08 [+1.95,+2.21] win 1.00 padj 5.2e-15
+SR BraTS (4, 'burst', 0.0): IR3C 29.01 best SAINT_impute 28.56 d +0.46 [+0.32,+0.59] win 0.74 padj 1.3e-08
+SR BraTS (4, 'burst', 0.1): IR3C 26.60 best SAINT_impute 25.05 d +1.55 [+1.39,+1.71] win 0.99 padj 5.2e-15
+SR BraTS (4, 'burst', 0.2): IR3C 25.07 best SAINT_impute 22.90 d +2.16 [+1.97,+2.35] win 1.00 padj 5.2e-15
+SR BraTS (4, 'burst', 0.3): IR3C 23.69 best SAINT_impute 21.38 d +2.31 [+2.14,+2.48] win 1.00 padj 5.2e-15
+SR IXI (2, 'random', 0.0): IR3C 29.57 best SAINT_impute 33.27 d -3.70 [-3.86,-3.53] win 0.00 padj 5.5e-17
+SR IXI (2, 'random', 0.1): IR3C 27.54 best SAINT_impute 27.56 d -0.02 [-0.22,+0.18] win 0.43 padj 0.39
+SR IXI (2, 'random', 0.2): IR3C 26.29 best SAINT_subset 25.06 d +1.22 [+1.02,+1.42] win 0.92 padj 5.2e-15
+SR IXI (2, 'random', 0.3): IR3C 25.33 best ArSSR 23.86 d +1.47 [+1.34,+1.60] win 0.99 padj 5.5e-17
+SR IXI (2, 'burst', 0.0): IR3C 29.57 best SAINT_impute 33.27 d -3.70 [-3.86,-3.53] win 0.00 padj 5.5e-17
+SR IXI (2, 'burst', 0.1): IR3C 26.93 best SAINT_impute 26.15 d +0.78 [+0.48,+1.09] win 0.70 padj 3.1e-06
+SR IXI (2, 'burst', 0.2): IR3C 25.49 best ArSSR 23.78 d +1.71 [+1.55,+1.88] win 0.98 padj 1.1e-16
+SR IXI (2, 'burst', 0.3): IR3C 24.51 best ArSSR 22.81 d +1.70 [+1.55,+1.84] win 0.99 padj 5.5e-17
+SR IXI (4, 'random', 0.0): IR3C 25.27 best SAINT_impute 27.30 d -2.02 [-2.16,-1.88] win 0.00 padj 5.5e-17
+SR IXI (4, 'random', 0.1): IR3C 24.59 best SAINT_impute 24.17 d +0.42 [+0.25,+0.59] win 0.75 padj 4e-06
+SR IXI (4, 'random', 0.2): IR3C 23.97 best ArSSR 22.33 d +1.64 [+1.52,+1.76] win 1.00 padj 5.5e-17
+SR IXI (4, 'random', 0.3): IR3C 23.32 best ArSSR 21.48 d +1.84 [+1.70,+1.98] win 1.00 padj 5.5e-17
+SR IXI (4, 'burst', 0.0): IR3C 25.27 best SAINT_impute 27.30 d -2.02 [-2.16,-1.88] win 0.00 padj 5.5e-17
+SR IXI (4, 'burst', 0.1): IR3C 24.30 best SAINT_impute 22.85 d +1.45 [+1.19,+1.71] win 0.88 padj 1e-14
+SR IXI (4, 'burst', 0.2): IR3C 23.53 best ArSSR 21.62 d +1.92 [+1.77,+2.07] win 0.98 padj 5.5e-17
+SR IXI (4, 'burst', 0.3): IR3C 22.80 best ArSSR 20.65 d +2.16 [+1.98,+2.33] win 0.99 padj 5.5e-17
+DS floor {'WT': 0.9897245673629506, 'TC': 0.9909903940318451, 'ET': 0.9792571924260414}
+DS ('WT', 2): Linear=0.9910, Bicubic=0.9925, DCSRN=0.9696, ArSSR=0.9889, I$^3$Net=0.9227, SAINT=0.9860, IR3C (ours)$^{\dagger}$=0.9929
+DS ('WT', 4): Linear=0.9774, Bicubic=0.9811, DCSRN=0.7675, ArSSR=0.9767, I$^3$Net=0.6760, SAINT=0.8314, IR3C (ours)$^{\dagger}$=0.9853
+DS ('WT', 8): Linear=0.9474, Bicubic=0.9493, DCSRN=0.9150, ArSSR=0.9491, I$^3$Net=0.6456, SAINT=0.8155, IR3C (ours)$^{\dagger}$=0.9619
+DS ('TC', 2): Linear=0.9927, Bicubic=0.9931, DCSRN=0.9660, ArSSR=0.9882, I$^3$Net=0.9348, SAINT=0.9802, IR3C (ours)$^{\dagger}$=0.9929
+DS ('TC', 4): Linear=0.9812, Bicubic=0.9815, DCSRN=0.8634, ArSSR=0.9823, I$^3$Net=0.8354, SAINT=0.8944, IR3C (ours)$^{\dagger}$=0.9869
+DS ('TC', 8): Linear=0.9676, Bicubic=0.9665, DCSRN=0.9350, ArSSR=0.9768, I$^3$Net=0.8157, SAINT=0.8713, IR3C (ours)$^{\dagger}$=0.9766
+DS ('ET', 2): Linear=0.9867, Bicubic=0.9875, DCSRN=0.9445, ArSSR=0.9806, I$^3$Net=0.9033, SAINT=0.9606, IR3C (ours)$^{\dagger}$=0.9878
+DS ('ET', 4): Linear=0.9697, Bicubic=0.9716, DCSRN=0.8144, ArSSR=0.9705, I$^3$Net=0.7946, SAINT=0.8515, IR3C (ours)$^{\dagger}$=0.9764
+DS ('ET', 8): Linear=0.9413, Bicubic=0.9423, DCSRN=0.8941, ArSSR=0.9481, I$^3$Net=0.7840, SAINT=0.8278, IR3C (ours)$^{\dagger}$=0.9500
+DS WT R2: IR3-lin +0.0020 p 4.1e-12; IR3-SAINT +0.0070 p 5.4e-16
+DS WT R4: IR3-lin +0.0079 p 3.7e-16; IR3-SAINT +0.1539 p 3.7e-16
+DS WT R8: IR3-lin +0.0146 p 1.5e-14; IR3-SAINT +0.1465 p 3.7e-16
+ANCHOR nearest: raw 20.686 final 25.804
+ANCHOR linear: raw 23.201 final 26.171
+ANCHOR cubic: raw 22.705 final 26.133
+ANCHOR bicubic: raw 23.283 final 26.051
+BACKBONE simplified: -0.035 [-0.043,-0.028] win 0.15
+BACKBONE depthwise: -1.174 [-1.236,-1.111] win 0.00
+BACKBONE nnunet: +1.513 [+1.408,+1.619] win 1.00
+COST ('IR3C (ours)', 4.7467, 0.2642547486970822, 0.26456551495939495, 0.26210481369247035)
+COST ('DCSRN', 0.223248, 1.2228882888952892, 2.5657077034935356, 1.2237204224492113)
+COST ('ArSSR', 6.28346, 11.018470754474402, 6.1943751917531085, 3.6366017630323766)
+COST ('I$^3$Net', 23.212121, 12.6223626723513, 6.216756772436201, 2.8951935725286604)
+COST ('SAINT', 3.158817, 14.261231223804256, 8.599069670339425, 6.00683657253782)
+LPIPS ('Linear', 'BraTS'): 0.038469753530842254
+LPIPS ('Linear', 'OAIZIB'): 0.1915519198535177
+LPIPS ('Linear', 'IXI'): 0.02419034180677152
+LPIPS ('Bicubic', 'BraTS'): 0.03465615448699389
+LPIPS ('Bicubic', 'OAIZIB'): 0.1835937845572376
+LPIPS ('Bicubic', 'IXI'): 0.019572912681124075
+LPIPS ('ArSSR', 'BraTS'): 0.03625416399025052
+LPIPS ('ArSSR', 'OAIZIB'): 0.5491070479263529
+LPIPS ('ArSSR', 'IXI'): 0.018812809327244343
+LPIPS ('I$^3$Net', 'BraTS'): None
+LPIPS ('I$^3$Net', 'OAIZIB'): 0.4911730124948315
+LPIPS ('I$^3$Net', 'IXI'): 0.027301373184249564
+LPIPS ('SAINT', 'BraTS'): 0.038825200901260556
+LPIPS ('SAINT', 'OAIZIB'): 0.48870911569885
+LPIPS ('SAINT', 'IXI'): 0.017602932607949887
+LPIPS ('IR3C', 'BraTS'): 0.03761775478287259
+LPIPS ('IR3C', 'OAIZIB'): 0.3853866303315493
+LPIPS ('IR3C', 'IXI'): 0.01902959929489005

@@ -1,0 +1,18 @@
+{
+ "qualitative_subject": "BraTS-GLI-00047-000",
+ "x_sag": 123,
+ "vmax": 0.335179999470711,
+ "n_drop": 11,
+ "mae": {
+  "R4_none_p00:linear": 0.05981303006410599,
+  "R4_none_p00:ArSSR": 0.06971065700054169,
+  "R4_none_p00:I3Net_impute": 0.05833002179861069,
+  "R4_none_p00:SAINT_impute": 0.05127299949526787,
+  "R4_none_p00:IR3C": 0.05221271514892578,
+  "R4_burst_p30:linear": 0.07762528210878372,
+  "R4_burst_p30:ArSSR": 0.08439546823501587,
+  "R4_burst_p30:I3Net_impute": 0.07656279951334,
+  "R4_burst_p30:SAINT_impute": 0.07556930184364319,
+  "R4_burst_p30:IR3C": 0.06496253609657288
+ }
+}
