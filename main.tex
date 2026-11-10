@@ -730,36 +730,59 @@ Table~\ref{tab:downstream} (U0, $R\in\{2,4,8\}$, $n=88$) on each.
 The irregular families used at test time are also used, with different random seeds, during
 training. Results on U1--U6 therefore show robustness across the trained distribution of
 masks, not generalisation to an unseen geometry. Only $R=16$ and the subject-specific
-rejection masks lie outside the training distribution. Three further analyses are planned
-to close this gap. First, leave-one-family-out training (Table~\ref{tab:heldout}). Second,
-several mask realisations per subject instead of one shared mask
-(Table~\ref{tab:realisations}). Third, an analysis of error against the local geometry of
-each missing slice (Fig.~\ref{fig:gap}). The third analysis turns the named families into a
-statement about gap length and distance to the nearest kept slice, which applies to any
-mask.
+rejection masks lie outside the training distribution. We address this in three ways. Two
+are still planned: leave-one-family-out training (Table~\ref{tab:heldout}) and several mask
+realisations per subject instead of one shared mask (Table~\ref{tab:realisations}). The third
+is done: an analysis of error against the local geometry of each missing slice
+(Fig.~\ref{fig:gap}). It turns the named families into a statement about gap length and
+distance to the nearest kept slice, which applies to any mask.
+
+For every missing slice of the 88 BraTS-GLI test subjects we stored the foreground squared
+error and voxel count under the 21 U0--U6 test masks ($R\in\{2,4,8\}$) and the 12 BraTS
+rejection conditions. Per-volume PSNR re-assembled from these rows matches the archived
+per-volume PSNR in all 19{,}008 checked cells ($|\Delta|<3\times10^{-6}$\,dB). Fig.~\ref{fig:gap}
+bins the slices by the number of missing slices in their gap, $m_z=g_z-1$, and by the
+distance to the nearest kept slice $d_z$ (Section~\ref{sec:method})
+and reports PSNR relative to linear interpolation, paired within subject. IR3C is above
+linear interpolation in every bin, on both mask sets. On the U0--U6 masks its margin is
+2.2--2.5\,dB for gaps of up to 15 missing slices and rises to 2.9, 2.8 and 3.7\,dB for gaps of
+16--23, 24--35 and $\ge36$ slices; against $d_z$ it rises from 2.2\,dB at $d_z=1$ to 3.1\,dB at
+$d_z=10$--15 and 4.1\,dB at $d_z\ge16$. The other learned methods behave differently. DCSRN and
+ArSSR are far below linear interpolation next to kept slices ($-10.2$ and $-5.1$\,dB at
+$m_z=1$) and only reach it, within about $\pm0.2$\,dB, once the gap exceeds 15 slices. The
+cubic spline goes the other way, from $+0.2$\,dB at $m_z=1$ to $-2.1$\,dB for gaps of 24 slices or
+more. On the rejection masks the pattern is the same (IR3C $+1.7$ to $+2.8$\,dB in every bin).
+SAINT with imputation is the only method ahead of IR3C, and only in the shortest gaps
+($+2.9$ vs.\ $+1.7$\,dB at $m_z=1$). From $m_z=4$ on it stays within 0.1\,dB of linear
+interpolation, because those slices are filled by the linear imputation. The stride-subset
+workaround is below linear for $m_z\le3$ and within 0.4\,dB of it beyond. So IR3C's advantage
+does not come from one region of the gap distribution: it holds where kept slices are
+adjacent, and it grows where every other method falls back to linear interpolation.
 
 \input{tables/tab_heldout.tex}
 \input{tables/tab_realisations.tex}
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=\textwidth]{figs/fig8_gap_pending.pdf}
-\caption{\pendlabel\ Reconstruction error against local slice geometry. Per-slice PSNR on
-BraTS-GLI is to be binned by (a)~local gap length $g_z$ and (b)~distance to the nearest kept
-slice $d_z$, pooling U0--U6 and the rejection masks, for every method that can be run on
-irregular grids and for SAINT under both workarounds. Lines will show the bin mean with 95\%
-confidence intervals across subjects.}
+\includegraphics[width=\textwidth]{figs/fig8_gap.pdf}
+\caption{Reconstruction error against local slice geometry on BraTS-GLI ($n=88$). Each
+point is PSNR over the foreground of the missing slices in a bin, minus linear interpolation
+on the same slices; squared error and voxel counts are pooled per subject and bin first, and
+bars are 95\% confidence intervals across subjects. Rows: (a,b)~the 21 U0--U6 test masks at
+$R\in\{2,4,8\}$; (c,d)~the 12 subject-specific rejection conditions. Columns: (a,c)~number of missing
+slices in the gap, $m_z=g_z-1$; (b,d)~distance to the nearest kept slice $d_z$. Slices outside the outermost
+kept slices and slices without foreground are excluded, and a bin is drawn only when at
+least 20 subjects contribute. SAINT and I3Net run only on U0, so they are not drawn in (a,b);
+on U0 alone SAINT is $+3.2$\,dB at $m_z=1$ (IR3C $+2.2$) and $+0.9$\,dB at $m_z=6$--7 (IR3C $+2.3$).}
 \label{fig:gap}
 \end{figure*}
 
-\begin{pendingnote}{held-out geometry (Tables~\ref{tab:heldout}, \ref{tab:realisations}; Fig.~\ref{fig:gap})}
+\begin{pendingnote}{held-out geometry (Tables~\ref{tab:heldout} and \ref{tab:realisations})}
 (i)~Train six IR3C models, each with one irregular family removed from the training
 distribution, at the matched budget; evaluate each on its held-out family. The
 ``uniform-only'' column is the \texttt{C1\_uniform\_only} arm. (ii)~Generate five
 subject-specific masks per family at $R=4$ (seed from the subject identifier and realisation
-index) and re-score linear, bicubic, ArSSR, DCSRN and IR3C; inference only. (iii)~Store
-per-slice squared error and foreground voxel counts during re-scoring, so that error can be
-binned by $g_z$ and $d_z$; no model needs to be retrained.
+index) and re-score linear, bicubic, ArSSR, DCSRN and IR3C; inference only.
 \end{pendingnote}
 
 \begin{pendingnote}{additional baselines (shaded rows of Tables~\ref{tab:uniform} and \ref{tab:families})}

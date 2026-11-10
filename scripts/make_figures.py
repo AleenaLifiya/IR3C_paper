@@ -479,27 +479,96 @@ def fig_qualitative():
 
 
 # =========================================================================== placeholder
-def fig_pending_gap():
-    """Placeholder panel layout for the pending error-versus-local-gap analysis. Draws
-    the axes and the analysis plan only; no data."""
-    fig, axs = plt.subplots(1, 2, figsize=(DOUBLE, 2.0))
-    for j, (ax, xl) in enumerate(zip(axs, ("Local gap length $g_z$ (slices)",
-                                           "Distance to nearest kept slice $d_z$ (slices)"))):
-        ax.set_xlim(0, 24 if j == 0 else 12)
-        ax.set_ylim(0, 1)
-        ax.set_yticks([])
-        ax.set_xlabel(xl)
-        ax.set_ylabel("Per-slice PSNR (dB)" if j == 0 else "")
-        ax.grid(False)
-        ax.add_patch(Rectangle((0, 0), 1, 1, transform=ax.transAxes, facecolor="#fff3e0",
-                               edgecolor="#e0a050", lw=0.8, ls="--", zorder=0))
-        ax.text(0.5, 0.5, "PENDING\nper-slice errors binned by gap geometry,\n"
-                          "all methods, U0--U6 and rejection masks pooled",
-                transform=ax.transAxes, ha="center", va="center", fontsize=7,
-                color="#9a5b12")
-        panel(ax, "ab"[j], x=-0.04)
-    fig.subplots_adjust(wspace=0.18)
-    save(fig, "fig8_gap_pending")
+# =========================================================================== Fig. 8
+P6_DIR = os.path.join(C.ROOT, "runs/IR3C_MedIA_P6_gap_error")
+G_BINS = [(1, 1), (2, 2), (3, 3), (4, 5), (6, 7), (8, 11), (12, 15), (16, 23), (24, 35),
+          (36, 999)]
+D_BINS = [(1, 1), (2, 2), (3, 3), (4, 4), (5, 6), (7, 9), (10, 15), (16, 999)]
+GAP_MIN_SUBJ = 20      # a bin is drawn only if at least this many subjects contribute
+
+
+def _bin_label(lo, hi):
+    return str(lo) if lo == hi else (f"{lo}+" if hi >= 999 else f"{lo}\u2013{hi}")
+
+
+def gap_table(min_subj=GAP_MIN_SUBJ):
+    """Per (mask set, method, geometry variable, bin): PSNR pooled within subject over the
+    slices of that bin (SE and foreground counts summed first), then the paired difference
+    to linear interpolation, mean and 95% CI across subjects. Slices with no foreground and
+    edge slices (no kept slice on one side) are excluded."""
+    import glob
+    import pandas as pd
+    fs = sorted(glob.glob(os.path.join(P6_DIR, "per_slice", "*.csv.gz")))
+    d = pd.concat([pd.read_csv(f) for f in fs], ignore_index=True)
+    d = d[(d.n_fg > 0) & (d.edge == 0)]
+    d["set"] = d.kind.map({"grid": "families", "reject": "rejection"})
+    out = []
+    for var, bins in (("g_z", G_BINS), ("d_z", D_BINS)):
+        b = np.full(len(d), -1)
+        for k, (lo, hi) in enumerate(bins):
+            b[(d[var] >= lo).values & (d[var] <= hi).values] = k
+        d["bin"] = b
+        g = d.groupby(["set", "method", "subject", "bin"])[["se_sum", "n_fg"]].sum()
+        g["psnr"] = 10 * np.log10(1.0 / (g.se_sum / g.n_fg + 1e-12))
+        g = g.psnr.unstack("method")
+        for (st, k), sub in g.groupby(level=["set", "bin"]):
+            for m in sub.columns:
+                pair = (sub[m] - sub["linear"]).dropna()
+                if m == "linear" or len(pair) < min_subj:
+                    continue
+                out.append(dict(set=st, var=var, bin=int(k),
+                                label=_bin_label(*bins[int(k)]), method=m,
+                                n_subj=len(pair), psnr=float(sub[m].dropna().mean()),
+                                psnr_linear=float(sub["linear"].dropna().mean()),
+                                delta=float(pair.mean()),
+                                ci=ci(pair) if len(pair) > 1 else np.nan))
+    t = pd.DataFrame(out)
+    t.to_csv(os.path.join(P6_DIR, "gap_bins_summary.csv"), index=False)
+    return t, len(fs)
+
+
+def fig_gap(min_subj=GAP_MIN_SUBJ):
+    """Job: show that IR3C's margin over linear interpolation grows with the local gap, on
+    the protocol families and on the rejection masks, for every applicable method."""
+    t, n_subj = gap_table(min_subj)
+    meth = {"families": [("cubic", "Cubic spline"), ("bicubic", "Bicubic"),
+                         ("DCSRNmix", "DCSRN"), ("ArSSR", "ArSSR"), ("IR3C", "IR3C")],
+            "rejection": [("bicubic", "Bicubic"), ("DCSRNmix", "DCSRN"), ("ArSSR", "ArSSR"),
+                          ("SAINT_impute", "SAINT"), ("SAINT_subset", "SAINT-B"),
+                          ("IR3C", "IR3C")]}
+    rows = [("families", "U0\u2013U6 test masks"), ("rejection", "rejection masks")]
+    cols = [("g_z", "Missing slices in the gap, $m_z=g_z-1$", G_BINS),
+            ("d_z", "Distance to nearest kept slice $d_z$ (slices)", D_BINS)]
+    fig, axs = plt.subplots(2, 2, figsize=(DOUBLE, 3.9))
+    for i, (st, rl) in enumerate(rows):
+        for j, (var, xl, bins) in enumerate(cols):
+            ax = axs[i, j]
+            ax.axhline(0, color=GREY, lw=1.0, zorder=1)
+            ms = meth[st]
+            for k_i, (m, key) in enumerate(ms):
+                z = t[(t.set == st) & (t["var"] == var) & (t.method == m)].sort_values("bin")
+                if z.empty:
+                    continue
+                plot_series(ax, z.bin.values, z.delta.values, z.ci.values, key,
+                            label=("SAINT + imputation" if key == "SAINT" else None),
+                            dx=(k_i - (len(ms) - 1) / 2) * 0.07)
+            used = sorted(t[(t.set == st) & (t["var"] == var)].bin.unique())
+            ax.set_xticks(used)
+            ax.set_xticklabels([_bin_label(*bins[k]) for k in used], fontsize=6.2)
+            ax.set_xlim(min(used) - 0.4, max(used) + 0.4)
+            if i == 1:
+                ax.set_xlabel(xl)
+            if j == 0:
+                ax.set_ylabel(f"{rl}\n\u0394PSNR vs. linear (dB)")
+            panel(ax, "abcd"[i * 2 + j], x=-0.04)
+    hs = legend_handles(["Linear", "Cubic spline", "Bicubic", "DCSRN", "ArSSR", "SAINT",
+                         "SAINT-B", "IR3C"])
+    hs[0].set_label("Linear (zero line)"); hs[5].set_label("SAINT + imputation")
+    fig.legend(handles=hs, ncol=8, loc="lower center", bbox_to_anchor=(0.5, -0.04),
+               columnspacing=1.0)
+    fig.subplots_adjust(wspace=0.2, hspace=0.25, bottom=0.15)
+    save(fig, "fig8_gap")
+    return n_subj
 
 
 if __name__ == "__main__":
@@ -509,6 +578,6 @@ if __name__ == "__main__":
     fig_rejection()
     fig_downstream()
     info = fig_qualitative()
-    fig_pending_gap()
+    fig_gap()
     with open(os.path.join(C.PAPER, "scripts", "figure_provenance.json"), "w") as fh:
         json.dump(dict(qualitative_subject=QUAL_SUBJ, **info), fh, indent=1)
