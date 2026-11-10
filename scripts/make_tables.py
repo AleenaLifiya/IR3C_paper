@@ -542,23 +542,69 @@ def tab_heldout():
     C.write("tab_heldout.tex", "\n".join(t))
 
 
-# =========================================================================== pending: mask realisations
+# =========================================================================== mask realisations
+P5_CELLS = os.path.join(C.ROOT, "runs/IR3C_MedIA_P5_realisations/cells_all.csv")
+P5_ROWS = [("linear", "Linear"), ("bicubic", "Bicubic"), ("ArSSR", "ArSSR"),
+           ("DCSRNmix", "DCSRN"), ("IR3C", "IR3C (ours)")]
+
+
 def tab_realisations():
-    rows = ["Linear", "Bicubic", "ArSSR", "DCSRN", "IR3C (ours)"]
+    fams = C.NONUNIFORM
+    c = pd.read_csv(P5_CELLS)
+    c = c[c.k >= 0]
+    g = c.groupby(["method", "family", "subject"]).psnr
+    mu, sd = g.mean(), g.std(ddof=1)            # within-subject mean / SD over realisations
     t = [r"\begin{table*}[t]",
-         r"\caption{\pendlabel\ Sensitivity to the mask realisation (BraTS-GLI, $R=4$). Each "
-         r"subject receives five independent masks per family instead of one mask shared by "
-         r"all subjects. Each cell is to hold the mean PSNR (dB) with the within-subject "
-         r"standard deviation across realisations in parentheses.}",
+         r"\caption{Sensitivity to the mask realisation (BraTS-GLI, $R=4$, $n=88$). Each "
+         r"subject receives five independent masks per family, drawn with seeds disjoint from "
+         r"the training and test seeds, instead of one mask shared by all subjects. Cells are "
+         r"the mean over subjects of the within-subject mean PSNR (dB); parentheses give the "
+         r"mean within-subject standard deviation across the five realisations. $\Delta$ is "
+         r"the paired difference between IR3C and the strongest comparator in that column, "
+         r"with its 95\% confidence interval across subjects; the shared-mask row repeats it "
+         r"for the single test mask of Table~\ref{tab:families} at $R=4$. ``IR3C wins'' is the "
+         r"fraction of the 440 (subject, realisation) pairs in which IR3C has the highest "
+         r"PSNR. Bold marks the best method per column.}",
          r"\label{tab:realisations}",
          r"\small",
          r"\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lcccccc@{}}",
          r"\toprule",
-         r"Method & U1 & U2 & U3 & U4 & U5 & U6 \\", r"\midrule"]
-    for nm in rows:
-        t.append(r"\pendrow " + nm + " & " + " & ".join([TBD] * 6) + r" \\")
+         "Method & " + " & ".join(fams) + r" \\", r"\midrule"]
+    best = {f: bold_idx([mu[(m, f)].mean() for m, _ in P5_ROWS]) for f in fams}
+    for i, (m, nm) in enumerate(P5_ROWS):
+        cells = []
+        for f in fams:
+            v = f"{mu[(m, f)].mean():.2f}"
+            v = r"\textbf{" + v + "}" if best[f] == i else v
+            cells.append(f"{v} ({sd[(m, f)].mean():.2f})")
+        t.append((r"\textbf{" + nm + "}" if m == "IR3C" else nm) + " & " + " & ".join(cells) + r" \\")
+    t.append(r"\midrule")
+    w = c.pivot_table(index=["subject", "family", "k"], columns="method", values="psnr")
+    others = [m for m, _ in P5_ROWS if m != "IR3C"]
+    specs = dict(C.method_specs("BraTS"))
+    shared_names = {"linear": "Linear", "bicubic": "Bicubic", "ArSSR": "ArSSR",
+                    "DCSRNmix": "DCSRN", "IR3C": "IR3C"}
+    d_real, ci, d_shared, wins, summary = [], [], [], [], {}
+    for f in fams:
+        ref = max(others, key=lambda m: mu[(m, f)].mean())
+        pr = C.paired(mu[("IR3C", f)], mu[(ref, f)])
+        sh = {m: C.per_subject("BraTS", specs[shared_names[m]], [f], [4]) for m, _ in P5_ROWS}
+        sref = max(others, key=lambda m: sh[m].mean())
+        ps = C.paired(sh["IR3C"], sh[sref])
+        wf = w.xs(f, level="family")
+        win = float((wf["IR3C"] > wf[others].max(axis=1)).mean())
+        d_real.append(C.signed(pr["mean"]))
+        ci.append(f"[{pr['lo']:.2f}, {pr['hi']:.2f}]")
+        d_shared.append(f"{C.signed(ps['mean'])}")
+        wins.append(f"{100 * win:.1f}\\%")
+        summary[f] = dict(ref=ref, delta=pr, shared_ref=sref, shared=ps, win=win)
+    t.append(r"$\Delta$ vs.\ best comparator & " + " & ".join(d_real) + r" \\")
+    t.append(r"\quad 95\% CI & " + " & ".join(ci) + r" \\")
+    t.append(r"$\Delta$, shared test mask & " + " & ".join(d_shared) + r" \\")
+    t.append(r"IR3C wins & " + " & ".join(wins) + r" \\")
     t += [r"\bottomrule", r"\end{tabular*}", r"\end{table*}", ""]
     C.write("tab_realisations.tex", "\n".join(t))
+    return summary
 
 
 # =========================================================================== backbone

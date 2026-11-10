@@ -731,11 +731,11 @@ Table~\ref{tab:downstream} (U0, $R\in\{2,4,8\}$, $n=88$) on each.
 The irregular families used at test time are also used, with different random seeds, during
 training. Results on U1--U6 therefore show robustness across the trained distribution of
 masks, not generalisation to an unseen geometry. Only $R=16$ and the subject-specific
-rejection masks lie outside the training distribution. We address this in three ways. Two
-are still planned: leave-one-family-out training (Table~\ref{tab:heldout}) and several mask
-realisations per subject instead of one shared mask (Table~\ref{tab:realisations}). The third
-is done: an analysis of error against the local geometry of each missing slice
-(Fig.~\ref{fig:gap}). It turns the named families into a statement about gap length and
+rejection masks lie outside the training distribution. We address this in three ways. One
+is still planned: leave-one-family-out training (Table~\ref{tab:heldout}). Two are done:
+several mask realisations per subject instead of one shared mask
+(Table~\ref{tab:realisations}), and an analysis of error against the local geometry of each
+missing slice (Fig.~\ref{fig:gap}). The second analysis turns the named families into a statement about gap length and
 distance to the nearest kept slice, which applies to any mask.
 
 For every missing slice of the 88 BraTS-GLI test subjects we stored the foreground squared
@@ -760,6 +760,20 @@ workaround is below linear for $m_z\le3$ and within 0.4\,dB of it beyond. So IR3
 does not come from one region of the gap distribution: it holds where kept slices are
 adjacent, and it grows where every other method falls back to linear interpolation.
 
+The shared test masks of Table~\ref{tab:families} are one draw per family. To test whether
+the ranking depends on that draw, every BraTS-GLI test subject received five new masks per
+irregular family at $R=4$, from the same generators with seeds disjoint from the training
+and test seeds (2{,}640 masks, frozen before any method was run). Re-scoring the shared test
+mask on three subjects through the same code reproduces the archived PSNR in all 90 cells
+($|\Delta|<2\times10^{-6}$\,dB). IR3C is best in every family (Table~\ref{tab:realisations}). Its
+margin over the strongest comparator, bicubic interpolation in every family, is
+$+2.19$ to $+2.78$\,dB, against $+2.31$ to $+2.73$\,dB on the shared mask, and it has the highest
+PSNR in 2{,}638 of the 2{,}640 (subject, realisation) pairs; the two exceptions are in U5. The
+spread across realisations of one subject is similar for all methods. It is small for the
+evenly spread families (0.1--0.4\,dB on U1 and U2) and largest for the clustered family U4
+(1.3--1.7\,dB), whose draws differ most in where the long gaps fall.
+The results on U1--U6 are therefore not a property of one favourable mask.
+
 \input{tables/tab_heldout.tex}
 \input{tables/tab_realisations.tex}
 
@@ -778,12 +792,10 @@ on U0 alone SAINT is $+3.2$\,dB at $m_z=1$ (IR3C $+2.2$) and $+0.9$\,dB at $m_z=
 \label{fig:gap}
 \end{figure*}
 
-\begin{pendingnote}{held-out geometry (Tables~\ref{tab:heldout} and \ref{tab:realisations})}
-(i)~Train six IR3C models, each with one irregular family removed from the training
+\begin{pendingnote}{held-out geometry (Table~\ref{tab:heldout})}
+Train six IR3C models, each with one irregular family removed from the training
 distribution, at the matched budget; evaluate each on its held-out family. The
-``uniform-only'' column is the \texttt{C1\_uniform\_only} arm. (ii)~Generate five
-subject-specific masks per family at $R=4$ (seed from the subject identifier and realisation
-index) and re-score linear, bicubic, ArSSR, DCSRN and IR3C; inference only.
+``uniform-only'' column is the \texttt{C1\_uniform\_only} arm.
 \end{pendingnote}
 
 \begin{pendingnote}{additional baselines (shaded rows of Tables~\ref{tab:uniform} and \ref{tab:families})}
@@ -877,8 +889,9 @@ results concern slice imputation, not physical thick-slice super-resolution. (ii
 principal models use one training seed, so the paired confidence intervals describe
 variation across subjects, not across training runs. (iii)~Checkpoint selection on
 BraTS-GLI uses only six validation subjects. (iv)~The irregular test families are drawn from
-the same generators as the training masks, and one mask per family is shared across subjects
-(Section~\ref{sec:pending-heldout}). (v)~The downstream endpoint is consistency with a frozen
+the same generators as the training masks; drawing five masks per subject instead of one
+shared mask did not change the ranking (Table~\ref{tab:realisations}), but no family is held
+out of training yet (Section~\ref{sec:pending-heldout}). (v)~The downstream endpoint is consistency with a frozen
 network rather than accuracy against expert labels. The labelled BraTS-GLI training release
 was used in full to train the reconstruction models, so an accuracy evaluation would require
 a new subject-level split and retraining every learned method. (vi)~In a voxel-based morphometry

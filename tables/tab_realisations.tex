@@ -1,16 +1,21 @@
 \begin{table*}[t]
-\caption{\pendlabel\ Sensitivity to the mask realisation (BraTS-GLI, $R=4$). Each subject receives five independent masks per family instead of one mask shared by all subjects. Each cell is to hold the mean PSNR (dB) with the within-subject standard deviation across realisations in parentheses.}
+\caption{Sensitivity to the mask realisation (BraTS-GLI, $R=4$, $n=88$). Each subject receives five independent masks per family, drawn with seeds disjoint from the training and test seeds, instead of one mask shared by all subjects. Cells are the mean over subjects of the within-subject mean PSNR (dB); parentheses give the mean within-subject standard deviation across the five realisations. $\Delta$ is the paired difference between IR3C and the strongest comparator in that column, with its 95\% confidence interval across subjects; the shared-mask row repeats it for the single test mask of Table~\ref{tab:families} at $R=4$. ``IR3C wins'' is the fraction of the 440 (subject, realisation) pairs in which IR3C has the highest PSNR. Bold marks the best method per column.}
 \label{tab:realisations}
 \small
 \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lcccccc@{}}
 \toprule
 Method & U1 & U2 & U3 & U4 & U5 & U6 \\
 \midrule
-\pendrow Linear & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
-\pendrow Bicubic & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
-\pendrow ArSSR & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
-\pendrow DCSRN & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
-\pendrow IR3C (ours) & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
+Linear & 25.61 (0.20) & 24.67 (0.34) & 22.16 (0.87) & 19.38 (1.63) & 22.26 (0.95) & 21.52 (0.66) \\
+Bicubic & 25.79 (0.21) & 24.82 (0.35) & 22.20 (0.90) & 19.40 (1.68) & 22.30 (0.99) & 21.55 (0.68) \\
+ArSSR & 23.44 (0.11) & 22.93 (0.20) & 21.36 (0.62) & 19.24 (1.35) & 21.50 (0.67) & 20.93 (0.48) \\
+DCSRN & 22.28 (0.09) & 21.90 (0.15) & 20.58 (0.53) & 18.74 (1.29) & 20.51 (0.60) & 20.20 (0.42) \\
+\textbf{IR3C (ours)} & \textbf{28.13} (0.19) & \textbf{27.01} (0.33) & \textbf{24.59} (0.80) & \textbf{22.18} (1.44) & \textbf{24.85} (0.79) & \textbf{23.98} (0.60) \\
+\midrule
+$\Delta$ vs.\ best comparator & $+$2.34 & $+$2.19 & $+$2.39 & $+$2.78 & $+$2.55 & $+$2.43 \\
+\quad 95\% CI & [2.13, 2.55] & [2.03, 2.35] & [2.27, 2.50] & [2.66, 2.90] & [2.40, 2.70] & [2.33, 2.54] \\
+$\Delta$, shared test mask & $+$2.36 & $+$2.32 & $+$2.31 & $+$2.73 & $+$2.47 & $+$2.52 \\
+IR3C wins & 100.0\% & 100.0\% & 100.0\% & 100.0\% & 99.5\% & 100.0\% \\
 \bottomrule
 \end{tabular*}
 \end{table*}
