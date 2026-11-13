@@ -86,7 +86,8 @@ On uniform sampling, the strongest specialist baseline, SAINT, is better at $R=2
 datasets, whereas IR3C is better at $R=8$. On irregular sampling, IR3C exceeds the strongest
 applicable method by 2.2--3.0\,dB on BraTS-GLI, 0.9--1.7\,dB on OAIZIB and 1.4--2.9\,dB on
 IXI-tiny. When 20--30\% of acquired slices are rejected, IR3C exceeds the best competitor,
-including SAINT with two prespecified workarounds, by 1.2--2.3\,dB on both brain datasets.
+including SAINT with two prespecified workarounds, by 1.2--2.3\,dB on both brain datasets
+and by 0.8--1.3\,dB on OAIZIB.
 IR3C also gives the highest whole-tumour agreement with the complete-input output of a frozen segmentation network at every factor, and reconstructs a volume in 0.26\,s. These results show that conditioning on the acquisition geometry and
 correcting a deterministic estimate, rather than a new backbone, decide robustness once the
 slice pattern departs from a uniform grid.
@@ -553,18 +554,23 @@ sparsity.
 
 Table~\ref{tab:rejection} and Fig.~\ref{fig:rejection} report the rejection experiment.
 Without rejection, the uniform-grid specialists retain their advantage where they had it on
-U0: SAINT is better than IR3C at $R=2$ on BraTS-GLI and at both base factors on IXI-tiny.
+U0: SAINT is better than IR3C at $R=2$ on BraTS-GLI and OAIZIB and at both base factors on
+IXI-tiny; at $R=4$ on OAIZIB the two are practically equal ($+0.01$\,dB, 95\% CI 0.00 to 0.02).
 Rejection reverses this ordering. On BraTS-GLI, IR3C is better than the strongest competitor
 in every rejection condition, by 0.40--2.31\,dB. On IXI-tiny, the two methods are equal after
 10\% random rejection at $R=2$ ($-0.02$\,dB, 95\% CI $-0.22$ to $0.18$), and IR3C is better in
 every other rejection condition; after 20--30\% rejection its advantage is 1.22--2.16\,dB and
-it is better in 92--100\% of subjects. The crossover therefore lies at about 10\% rejection
-on both brain datasets.
+it is better in 92--100\% of subjects. On OAIZIB, IR3C is better than the strongest
+competitor in every rejection condition and in every one of the 103 subjects, by
+0.37--1.30\,dB; after 20--30\% rejection the advantage is 0.78--1.30\,dB. The margins are
+smaller in decibels than on the brain datasets, as they are on irregular sampling
+(Table~\ref{tab:families}), which is consistent with the narrower PSNR range in which all
+methods lie on the knee volumes. The crossover therefore lies at or below 10\% rejection on all three datasets.
 
 The advantage grows with the rejected fraction and is larger for burst than for random
 rejection, because bursts create longer gaps. The imputation workaround was the stronger of
-the two SAINT workarounds in most conditions, but at 20--30\% rejection on IXI-tiny the
-strongest competitor was ArSSR, which, like IR3C, accepts the irregular mask directly. Both
+the two SAINT workarounds in most conditions, but at 20--30\% rejection on IXI-tiny and
+OAIZIB the strongest competitor was usually ArSSR, which, like IR3C, accepts the irregular mask directly. Both
 workarounds amount to presenting the specialist with an input that differs from its training
 distribution: imputed slices are smooth linear estimates rather than acquired data, and the
 uniform subset discards acquired slices. Fig.~\ref{fig:qual} shows the visible consequence on
@@ -575,7 +581,7 @@ a typical subject: horizontal discontinuities at the positions of rejected slice
 \begin{figure*}[t]
 \centering
 \includegraphics[width=\textwidth]{figs/fig5_rejection.pdf}
-\caption{Slice rejection on BraTS-GLI (a--d) and IXI-tiny (e--h). PSNR on missing slices
+\caption{Slice rejection on BraTS-GLI (a--d), OAIZIB (e--h) and IXI-tiny (i--l). PSNR on missing slices
 against the fraction of acquired interior slices rejected, for base factors $R=2$ and $R=4$
 and random or burst rejection. Error bars are 95\% confidence intervals of the cohort mean;
 the paired differences, which are much tighter, are given in Table~\ref{tab:rejection}.
@@ -584,13 +590,6 @@ uniform-subset workaround are omitted for clarity and are reported in
 Appendix~\ref{app:reject}.}
 \label{fig:rejection}
 \end{figure*}
-
-\begin{pendingnote}{OAIZIB slice rejection}
-Run the OAIZIB arm of \texttt{IR3C\_SliceReject\_all} (it stopped after BraTS-GLI; smoke test
-passed). It takes about 2.5 days on one GPU. It fills the shaded OAIZIB rows of
-Table~\ref{tab:rejection} and adds a row to Fig.~\ref{fig:rejection}. This shows whether the
-crossover also holds outside the brain.
-\end{pendingnote}
 
 \subsection{Downstream segmentation consistency}
 \label{sec:res-downstream}
@@ -826,7 +825,7 @@ the slice pattern. SAINT remains the better method at low sparsity on a uniform 
 clearly so on IXI-tiny. Once some acquired slices are rejected, however, the specialist
 needs a workaround, and both workarounds give it an input that differs from what it was
 trained on. IR3C applies the same inference procedure to whatever slices survive. Its
-advantage appears at about 10\% rejection and grows with the rejected fraction. This is more
+advantage appears at or below 10\% rejection on all three datasets and grows with the rejected fraction. This is more
 informative than marking an inapplicable method as ``not available'': both workarounds were
 implemented and evaluated on identical missing slices.
 
@@ -898,8 +897,7 @@ a new subject-level split and retraining every learned method. (vi)~In a voxel-b
 analysis on IXI-tiny (not shown), IR3C reduced the area of significant grey-matter
 differences compared with linear interpolation but introduced a one-signed underestimation
 of total grey-matter volume, which validation-based calibration removed; IR3C should not be
-used for volumetry without such calibration. (vii)~The rejection experiment covers the two
-brain datasets; the knee arm is pending.
+used for volumetry without such calibration.
 
 %% ================================================================= 7 CONCLUSION
 \section{Conclusion}
@@ -968,7 +966,7 @@ Table~\ref{tab:lpips} gives LPIPS.
 \section{Slice rejection: absolute results}
 \label{app:reject}
 
-Tables~\ref{tab:reject-abs-brats} and \ref{tab:reject-abs-ixi} give the absolute PSNR of every
+Tables~\ref{tab:reject-abs-brats}, \ref{tab:reject-abs-oaizib} and \ref{tab:reject-abs-ixi} give the absolute PSNR of every
 method in every rejection condition, including bicubic interpolation, DCSRN and both
 workarounds for \Ithree and SAINT.
 

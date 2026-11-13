@@ -262,8 +262,7 @@ def tab_rejection():
          r"named underneath (A: rejected slices imputed linearly before inference; B: "
          r"uniform stride-$2R$ subset). An asterisk marks $p<0.05$ after Holm correction over "
          r"the conditions of one dataset. At 0\% the competitor runs in its native uniform "
-         r"regime. Absolute PSNR for every method is given in Appendix~\ref{app:reject}. "
-         r"Shaded rows have not yet been run.}",
+         r"regime. Absolute PSNR for every method is given in Appendix~\ref{app:reject}.}",
          r"\label{tab:rejection}",
          r"\small",
          r"\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lllcccc@{}}",
@@ -299,7 +298,7 @@ def tab_rejection():
 def tab_rejection_absolute():
     """Appendix: absolute PSNR of every method in every rejection condition."""
     t = []
-    for ds in ("BraTS", "IXI"):
+    for ds in ("BraTS", "OAIZIB", "IXI"):
         d = C.load_sr(ds)
         conds = [(R, pat, p) for R in (2, 4) for pat, ps in (("none", [0.0]),
                  ("random", PS[1:]), ("burst", PS[1:])) for p in ps]

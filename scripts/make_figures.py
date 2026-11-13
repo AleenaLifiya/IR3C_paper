@@ -298,8 +298,8 @@ def fig_rejection():
             ("SAINT_impute", "SAINT"), ("SAINT_subset", "SAINT-B"), ("IR3C", "IR3C")]
     ps = [0.0, 0.1, 0.2, 0.3]
     combos = [(2, "random"), (2, "burst"), (4, "random"), (4, "burst")]
-    dss = ["BraTS", "IXI"]
-    fig, axs = plt.subplots(len(dss), 4, figsize=(DOUBLE, 3.9), sharex=True)
+    dss = ["BraTS", "OAIZIB", "IXI"]
+    fig, axs = plt.subplots(len(dss), 4, figsize=(DOUBLE, 5.6), sharex=True)
     for i, ds in enumerate(dss):
         for j, (R, pat) in enumerate(combos):
             ax = axs[i, j]
@@ -320,12 +320,12 @@ def fig_rejection():
                 ax.set_ylabel(f"{C.DS_LABEL[ds]}\nPSNR (dB)")
             if i == 0:
                 ax.set_title(f"$R={R}$, {pat}", fontsize=7.5, color=INK)
-            panel(ax, "abcdefgh"[i * 4 + j], x=-0.06)
+            panel(ax, "abcdefghijkl"[i * 4 + j], x=-0.06)
     hs = legend_handles(["Linear", "ArSSR", "I3Net", "SAINT", "SAINT-B", "IR3C"])
     hs[2].set_label("I$^3$Net + imputation"); hs[3].set_label("SAINT + imputation")
-    fig.legend(handles=hs, ncol=6, loc="lower center", bbox_to_anchor=(0.5, -0.035),
+    fig.legend(handles=hs, ncol=6, loc="lower center", bbox_to_anchor=(0.5, -0.025),
                columnspacing=1.2)
-    fig.subplots_adjust(wspace=0.32, hspace=0.22, bottom=0.14)
+    fig.subplots_adjust(wspace=0.32, hspace=0.22, bottom=0.10)
     save(fig, "fig5_rejection")
 
 
