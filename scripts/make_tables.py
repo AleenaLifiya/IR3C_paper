@@ -65,8 +65,20 @@ axis is the finest axis of this dataset, so $R=2$, 4 and 8 correspond to slice s
 
 # =========================================================================== Table 2
 UNIFORM_ROWS = ["Linear", "Bicubic", "DCSRN", "ArSSR", "I$^3$Net", "SAINT", "IR3C"]
-PENDING_BASELINES = [("SA-INR", "Arbitrary-spacing INR baseline (Wang et al., 2024)"),
-                     ("3D U-Net, direct output", "Same backbone and budget, no anchor")]
+PENDING_BASELINES = [("SA-INR", "Arbitrary-spacing INR baseline (Wang et al., 2024)")]
+DIRECT_ROW = "3D U-Net, direct output"
+
+
+def direct_u0(ds, R, metric):
+    """A3_direct (seed 42) on U0 at factor R: the P3 BraTS scoring, or the fine-tuned run on
+    OAIZIB / IXI-tiny. None while that run is pending."""
+    if ds == "BraTS":
+        return C.p3_per_subject("A3_direct", ["U0"], [R], metric)
+    d = C.load_a3ft(ds)
+    if d is None:
+        return None
+    sub = d[(d.mask_family == "U0") & (d.R == R)]
+    return sub.groupby("subject")[metric].mean()
 
 
 def tab_uniform():
@@ -95,6 +107,10 @@ def tab_uniform():
                 cells.append(r"\textbf{" + s + "}" if best[c] == i else s)
             name = r"\textbf{IR3C (ours)}" if nm == "IR3C" else nm
             lines.append(name + " & " + " & ".join(cells) + r" \\")
+        dv = [direct_u0(ds, R, metric) for ds, R in cols]
+        dcells = [TBD if v is None else f"{v.mean():.{dec}f}" for v in dv]
+        lines.append((r"\pendrow " if any(v is None for v in dv) else "") + DIRECT_ROW +
+                     r"$^{\dagger}$ & " + " & ".join(dcells) + r" \\")
         for nm, _ in PENDING_BASELINES:
             lines.append(r"\pendrow " + nm + " & " + " & ".join([TBD] * len(cols)) + r" \\")
         return lines
@@ -115,8 +131,10 @@ def tab_uniform():
          r"subjects; standard deviations are given in Appendix~\ref{app:detail}. Only missing "
          r"slices inside the foreground mask are scored. Bold marks the best method per "
          r"column. The paired row reports IR3C minus SAINT in dB; an asterisk marks "
-         r"$p<0.05$ (Wilcoxon signed-rank, Holm-corrected over the nine columns). Shaded rows "
-         r"are baselines that have not yet been run.}",
+         r"$p<0.05$ (Wilcoxon signed-rank, Holm-corrected over the nine columns). "
+         r"$^{\dagger}$The IR3C backbone trained to output the image directly (no anchor; "
+         r"\texttt{A3\_direct} of Table~\ref{tab:formulation}, seed 42), fine-tuned on OAIZIB "
+         r"and IXI-tiny with the IR3C protocol; it is not ranked. Shaded cells are pending.}",
          r"\label{tab:uniform}",
          r"\small",
          r"\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lccccccccc@{}}",
@@ -433,89 +451,167 @@ def tab_anchor():
     return info
 
 
-# =========================================================================== pending: formulation
+# =========================================================================== formulation (P3)
+P3_SEEDS = {"A0_ir3c": ["A0_ir3c", "A0_ir3c_s43", "A0_ir3c_s44"],
+            "A3_direct": ["A3_direct", "A3_direct_s43", "A3_direct_s44"],
+            "C2_no_positional": ["C2_no_positional", "C2_no_positional_s43",
+                                 "C2_no_positional_s44"]}
+# Table 9 columns: (key, families, factors, rejection)
+P3_COLS = [("U0", ["U0"], C.TRAIN_R, False), ("irr", C.NONUNIFORM, C.TRAIN_R, False),
+           ("U4", ["U4"], C.TRAIN_R, False), ("R16", C.FAMILIES, [16], False),
+           ("rej", None, None, True)]
+
+
+def _p3_col(tag, col, metric="psnr_masked"):
+    _, fams, Rs, rej = col
+    if rej:
+        return C.p3_per_subject(tag, metric=metric, rejection=True)
+    return C.p3_per_subject(tag, fams, Rs, metric)
+
+
+def _p3_seedavg(arm, col, metric="psnr_masked"):
+    """Per-subject value averaged over seeds, and the per-seed means."""
+    tags = P3_SEEDS.get(arm, [arm])
+    per = [_p3_col(t, col, metric) for t in tags]
+    return pd.concat(per, axis=1).mean(axis=1), [float(x.mean()) for x in per]
+
+
 def tab_formulation():
-    """Backbone-matched formulation ablation. Arms marked [HPC] are packaged already."""
-    spec = dict(C.method_specs("BraTS"))
-    lin = {f: C.per_subject("BraTS", spec["Linear"], fams).mean()
-           for f, fams in (("U0", ["U0"]), ("irr", C.NONUNIFORM), ("U4", ["U4"]))}
-    lin16 = C.per_subject("BraTS", spec["Linear"], C.FAMILIES, [16]).mean()
-    rows = [
-        ("Linear interpolation only", "---", "---", None),
-        ("Direct 3D U-Net (no anchor)", r"\texttt{A3\_direct}", "3", "pend"),
-        ("Anchor, unbounded residual", r"\texttt{A1\_unbounded}", "1", "pend"),
-        ("Anchor, non-zero output head", r"\texttt{A2\_nonzero\_init}", "1", "pend"),
-        ("Anchor, no geometry profiles", r"\texttt{C2\_no\_positional}", "3", "pend"),
-        ("Anchor, binary mask profile only", "new arm", "1", "pend"),
-        ("Anchor, uniform-only training", r"\texttt{C1\_uniform\_only}", "1", "pend"),
-        ("Anchor, single factor ($R=4$)", r"\texttt{C3\_single\_R}", "1", "pend"),
-        ("IR3C (full formulation)", r"\texttt{A0\_ir3c}", "3", "pend"),
-    ]
+    """Formulation ablation (P3): every arm trained by p3_train_arm.py at the matched budget
+    (epochs 1-10 of the 25-epoch schedule) and scored by p3_evaluate.py."""
+    rows = [("Direct 3D U-Net (no anchor)", "A3_direct", r"\texttt{A3\_direct}$^{a}$"),
+            ("Anchor, unbounded residual", "A1_unbounded", r"\texttt{A1\_unbounded}"),
+            ("Anchor, non-zero output head", "A2_nonzero_init", r"\texttt{A2\_nonzero\_init}"),
+            ("Anchor, no geometry profiles", "C2_no_positional", r"\texttt{C2\_no\_positional}"),
+            ("Anchor, binary mask profile only", "C4_binary_mask", r"\texttt{C4\_binary\_mask}"),
+            ("Anchor, uniform-only training", "C1_uniform_only", r"\texttt{C1\_uniform\_only}$^{b}$"),
+            ("Anchor, single factor ($R=4$)", "C3_single_R", r"\texttt{C3\_single\_R}"),
+            ("IR3C (full formulation)", "A0_ir3c", r"\texttt{A0\_ir3c}")]
+    lin = {c[0]: _p3_col("A0_ir3c", c, "x0_psnr_masked").mean() for c in P3_COLS}
+    ref = {c[0]: _p3_seedavg("A0_ir3c", c)[0] for c in P3_COLS}
+    C1_best = C.p3_per_subject("C1_uniform_only@best").mean()
+    lin_all = C.p3_per_subject("A0_ir3c", metric="x0_psnr_masked").mean()
     t = [r"\begin{table*}[t]",
-         r"\caption{\pendlabel\ Formulation ablation on BraTS-GLI with the backbone, optimiser "
-         r"and training budget held fixed. PSNR (dB) on test subjects, $R\in\{2,4,8\}$ unless "
-         r"stated; the rejection column is $R=4$ with 30\% burst rejection. Arms named in "
-         r"typewriter font are already packaged for the HPC run (Section~\ref{sec:pending-form}); "
-         r"``new arm'' must be added. Values for multi-seed arms are to be reported as mean $\pm$ "
-         r"standard deviation over seeds. Only the linear row is computed.}",
+         r"\caption{Formulation ablation on BraTS-GLI ($n=88$). Every arm uses the IR3C backbone, "
+         r"optimiser, data order and matched training budget (12,510 steps) and changes one "
+         r"component. PSNR (dB) over missing-slice foreground, $R\in\{2,4,8\}$, except the "
+         r"$R=16$ column (all families, out of distribution) and the rejection column ($R=4$ "
+         r"uniform base, 30\% of interior acquired slices rejected in bursts). Arms with three "
+         r"seeds are given as the mean over seeds, with the range of the seed means in "
+         r"brackets. $\Delta$ is the paired per-subject difference to IR3C on U1--U6, with its "
+         r"95\% confidence interval. The IR3C row is retrained in the ablation harness and is "
+         r"therefore not the same weights as the IR3C of the other tables. "
+         r"$^{a}$No trained checkpoint of the direct model meets the validation SSIM "
+         r"guardrail, so the checkpoint with the best validation PSNR is reported; its "
+         r"training loss is computed on the unclamped output. "
+         r"$^{b}$The selection rule returns the initial weights, which equal linear "
+         r"interpolation exactly; the best trained checkpoint (epoch 1) gives "
+         + f"{C1_best:.2f}" + r"\,dB pooled over all families and factors (linear: "
+         + f"{lin_all:.2f}" + r"\,dB).}",
          r"\label{tab:formulation}",
-         r"\small",
-         r"\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}llccccccc@{}}",
+         r"\footnotesize\setlength{\tabcolsep}{3pt}",
+         r"\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}llcccccccc@{}}",
          r"\toprule",
-         r"Variant & Arm & Seeds & U0 & U1--U6 & U4 & $R=16$ & Rejection & $\Delta$ vs.\ IR3C (U1--U6) \\",
-         r"\midrule"]
-    for nm, arm, seeds, kind in rows:
-        if kind is None:
-            t.append(f"{nm} & {arm} & {seeds} & {lin['U0']:.2f} & {lin['irr']:.2f} & "
-                     f"{lin['U4']:.2f} & {lin16:.2f} & " + TBD + r" & --- \\")
+         r"Variant & Arm & Seeds & U0 & U1--U6 & U4 & $R=16$ & Rejection & "
+         r"$\Delta$ vs.\ IR3C (U1--U6) \\",
+         r"\midrule",
+         "Linear interpolation only & --- & --- & " +
+         " & ".join(f"{lin[c[0]]:.2f}" for c in P3_COLS) + r" & --- \\"]
+    info = {}
+    for nm, arm, lab in rows:
+        nseed = len(P3_SEEDS.get(arm, [arm]))
+        cells = []
+        for c in P3_COLS:
+            v, seeds = _p3_seedavg(arm, c)
+            cell = f"{v.mean():.2f}"
+            if nseed > 1:
+                cell += r"\,{\scriptsize[" + f"{min(seeds):.2f}, {max(seeds):.2f}" + "]}"
+            cells.append(cell)
+            info[(arm, c[0])] = v.mean()
+        if arm == "A0_ir3c":
+            dcell = "---"
         else:
-            last = "---" if nm.startswith("IR3C") else TBD
-            t.append(r"\pendrow " + f"{nm} & {arm} & {seeds} & " +
-                     " & ".join([TBD] * 5) + f" & {last}" + r" \\")
+            v, _ = _p3_seedavg(arm, P3_COLS[1])
+            pr = C.paired(v, ref["irr"])
+            info[(arm, "d_irr")] = pr
+            dcell = (f"{C.signed(pr['mean'])} [{pr['lo']:.2f}, {pr['hi']:.2f}]"
+                     .replace("[-", "[$-$").replace(", -", ", $-$"))
+        name = r"\textbf{" + nm + "}" if arm == "A0_ir3c" else nm
+        t.append(f"{name} & {lab} & {nseed} & " + " & ".join(cells) + f" & {dcell}" + r" \\")
     t += [r"\bottomrule", r"\end{tabular*}", r"\end{table*}", ""]
     C.write("tab_formulation.tex", "\n".join(t))
+    info["linear"] = lin
+    return info
 
 
-# =========================================================================== pending: loss terms
+# =========================================================================== loss terms (P3)
 def tab_loss():
-    """Loss-term leave-one-out (HPC package Ablation B). Scored on image metrics AND downstream
-    Dice, because the hypothesis is that the background term matters for the second only."""
-    spec = dict(C.method_specs("BraTS"))
-    lin_u0 = C.per_subject("BraTS", spec["Linear"], ["U0"]).mean()
-    lin_irr = C.per_subject("BraTS", spec["Linear"], C.NONUNIFORM).mean()
-    lin_bg = C.per_subject("BraTS", spec["Linear"], ["U0"], metric="bg_haze").mean()
+    """Loss-term leave-one-out (Ablation B), scored on image metrics AND downstream Dice,
+    because the hypothesis is that the background term matters for the second only.
+    B0 = A0_ir3c seed 42. Dice comes from p3_loss_downstream.py; cells stay \tbd until then."""
     d = pd.read_csv(os.path.join(C.ROOT, DS_CSV))
     lin_wt = [d[(d.method == "linear") & (d.R == R)]["WT_Dice"].mean() for R in C.TRAIN_R]
+    dd = (pd.read_csv(C.P3_DOWNSTREAM, low_memory=False)
+          if os.path.exists(os.path.join(os.path.dirname(C.P3_DOWNSTREAM), "STATUS.txt"))
+          and "DONE" in open(os.path.join(os.path.dirname(C.P3_DOWNSTREAM), "STATUS.txt")).read()
+          else None)
     rows = [
-        ("Full objective (Eq.~\\ref{eq:loss})", r"\texttt{B0\_ir3c}", "---"),
-        ("No background term", r"\texttt{B1\_no\_background}", r"$0.30\,\mathcal{L}_{\mathrm{C}}^{\mathrm{bg}}$"),
-        ("No structural term", r"\texttt{B2\_no\_structure}", r"$0.10\,(1-\mathrm{SSIM})$"),
-        ("No gradient term", r"\texttt{B3\_no\_gradient}", r"$0.05\,\mathcal{L}_{\nabla_z}^{\mathrm{fg}}$"),
+        ("Full objective (Eq.~\\ref{eq:loss})", "A0_ir3c", r"\texttt{B0\_ir3c}", "---"),
+        ("No background term", "B1_no_background", r"\texttt{B1\_no\_background}",
+         r"$0.30\,\mathcal{L}_{\mathrm{C}}^{\mathrm{bg}}$"),
+        ("No structural term", "B2_no_structure", r"\texttt{B2\_no\_structure}",
+         r"$0.10\,(1-\mathrm{SSIM})$"),
+        ("No gradient term", "B3_no_gradient", r"\texttt{B3\_no\_gradient}",
+         r"$0.05\,\mathcal{L}_{\nabla_z}^{\mathrm{fg}}$"),
     ]
+    lin = dict(u0=C.p3_per_subject("A0_ir3c", ["U0"], metric="x0_psnr_masked").mean(),
+               irr=C.p3_per_subject("A0_ir3c", C.NONUNIFORM, metric="x0_psnr_masked").mean(),
+               ssim=C.p3_per_subject("A0_ir3c", metric="x0_ssim").mean(),
+               bg=C.p3_per_subject("A0_ir3c", ["U0"], metric="x0_bg_haze").mean())
     t = [r"\begin{table*}[t]",
-         r"\caption{\pendlabel\ Loss-term ablation on BraTS-GLI: each arm removes one term of "
+         r"\caption{" + ("" if dd is not None else r"\pendlabel\ ") +
+         r"Loss-term ablation on BraTS-GLI ($n=88$): each arm removes one term of "
          r"Eq.~(\ref{eq:loss}) and keeps everything else, including the $0.001\,\lVert\delta"
-         r"\rVert_1$ term, the backbone, the initial weights, the data order and the budget. "
-         r"PSNR (dB) is over missing-slice foreground, $R\in\{2,4,8\}$. Background haze is the "
-         r"mean predicted intensity on missing-slice background voxels, U0 ($\times10^{-3}$). WT Dice is the "
-         r"downstream consistency of Table~\ref{tab:downstream} (U0, $n=88$). The control "
-         r"\texttt{B0\_ir3c} is the same trained model as \texttt{A0\_ir3c} in "
-         r"Table~\ref{tab:formulation}. Only the linear row is computed.}",
+         r"\rVert_1$ term, the backbone, the initial weights, the data order and the matched "
+         r"budget; one seed per arm. PSNR (dB) and SSIM are over missing-slice foreground, "
+         r"$R\in\{2,4,8\}$; SSIM is pooled over all families. Background haze is the mean "
+         r"predicted intensity on missing-slice background voxels, U0 ($\times10^{-3}$). WT "
+         r"Dice is the downstream consistency of Table~\ref{tab:downstream} (U0, $n=88$). The "
+         r"control \texttt{B0\_ir3c} is the same trained model as \texttt{A0\_ir3c} (seed 42) "
+         r"in Table~\ref{tab:formulation}." +
+         ("" if dd is not None else r" WT Dice of the ablation arms is pending.") + "}",
          r"\label{tab:loss}",
          r"\small",
-         r"\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lllccccccc@{}}",
+         r"\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lllcccccccc@{}}",
          r"\toprule",
-         r"& & & \multicolumn{2}{c}{PSNR $\uparrow$} & Bg.\ haze $\downarrow$ & "
+         r"& & & \multicolumn{2}{c}{PSNR $\uparrow$} & SSIM $\uparrow$ & Bg.\ haze $\downarrow$ & "
          r"\multicolumn{3}{c}{WT Dice $\uparrow$} \\",
-         r"\cmidrule(lr){4-5}\cmidrule(lr){7-9}",
-         r"Variant & Arm & Removed term & U0 & U1--U6 & U0 & $R=2$ & $R=4$ & $R=8$ \\",
+         r"\cmidrule(lr){4-5}\cmidrule(lr){8-10}",
+         r"Variant & Arm & Removed term & U0 & U1--U6 & all & U0 & $R=2$ & $R=4$ & $R=8$ \\",
          r"\midrule",
-         f"Linear interpolation only & --- & --- & {lin_u0:.2f} & {lin_irr:.2f} & "
-         f"{1e3 * lin_bg:.2f} & " + " & ".join(f"{v:.3f}" for v in lin_wt) + r" \\"]
-    for nm, arm, term in rows:
-        t.append(r"\pendrow " + f"{nm} & {arm} & {term} & " + " & ".join([TBD] * 6) + r" \\")
+         f"Linear interpolation only & --- & --- & {lin['u0']:.2f} & {lin['irr']:.2f} & "
+         f"{lin['ssim']:.3f} & {1e3 * lin['bg']:.2f} & " +
+         " & ".join(f"{v:.3f}" for v in lin_wt) + r" \\"]
+    info = {}
+    for nm, arm, lab, term in rows:
+        u0 = C.p3_per_subject(arm, ["U0"]).mean()
+        irr = C.p3_per_subject(arm, C.NONUNIFORM).mean()
+        ss = C.p3_per_subject(arm, metric="ssim").mean()
+        bg = C.p3_per_subject(arm, ["U0"], metric="bg_haze").mean()
+        if dd is not None:
+            key = f"P3_{arm}"
+            wt = [dd[(dd.method == key) & (dd.R == R)]["WT_Dice"].mean() for R in C.TRAIN_R]
+            wcells = [f"{v:.3f}" for v in wt]
+            info[(arm, "wt")] = wt
+        else:
+            wcells = [TBD] * 3
+        info[arm] = dict(u0=u0, irr=irr, ssim=ss, bg=bg)
+        t.append(f"{nm} & {lab} & {term} & {u0:.2f} & {irr:.2f} & {ss:.3f} & {1e3 * bg:.2f} & "
+                 + " & ".join(wcells) + r" \\")
     t += [r"\bottomrule", r"\end{tabular*}", r"\end{table*}", ""]
     C.write("tab_loss.tex", "\n".join(t))
+    info["linear"] = lin
+    return info
 
 
 # =========================================================================== pending: held-out family

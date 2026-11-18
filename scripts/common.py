@@ -178,6 +178,47 @@ def sr_per_subject(ds, method, R, pattern, p, metric="psnr"):
 
 
 # ------------------------------------------------------------------ LaTeX helpers
+# ------------------------------------------------------------------ P3 ablations
+# BraTS test scoring of every ablation arm (IR3C_MedIA_experiments/p3_evaluate.py): one CSV
+# per tag, missing + whole region, 88 subjects x U0..U6 x R {2,4,8,16} + the R=4 30% burst
+# rejection condition (cond "R4_burst_p30"). x0_* columns are the linear anchor.
+P3_EVAL = os.path.join(ROOT, "runs/IR3C_MedIA_P3_ablations/eval")
+P3_REJ = "R4_burst_p30"
+# A3_direct fine-tuned on the transfer datasets (p3_a3_finetune.py); test-stage CSVs
+P3_A3FT = {
+    "OAIZIB": os.path.join(ROOT, "runs/IR3C_MedIA_P3_A3direct_OAIZIB/metrics/"
+                                 "results_IR3C_OAIZIB.csv"),
+    "IXI": os.path.join(ROOT, "runs/IR3C_MedIA_P3_A3direct_IXI/metrics/results_IR3C_IXI.csv"),
+}
+P3_DOWNSTREAM = os.path.join(ROOT, "runs/IR3C_MedIA_P3_loss_downstream/"
+                                   "downstream_segmentation_per_volume.csv")
+
+
+def load_p3(tag):
+    key = ("p3", tag)
+    if key not in _cache:
+        d = pd.read_csv(os.path.join(P3_EVAL, f"results_{tag}.csv"), low_memory=False)
+        _cache[key] = d[d.region == "missing"].copy()
+    return _cache[key]
+
+
+def p3_per_subject(tag, families=FAMILIES, Rs=TRAIN_R, metric="psnr_masked", rejection=False):
+    """Per-subject mean over the grid cells (or the rejection cell) of one P3 tag."""
+    d = load_p3(tag)
+    sub = (d[d.cond == P3_REJ] if rejection else
+           d[(d.cond != P3_REJ) & d.mask_family.isin(families) & d.R.isin(Rs)])
+    return sub.groupby("subject")[metric].mean()
+
+
+def load_a3ft(ds):
+    """A3_direct fine-tuned on `ds`, missing region, or None until the run has finished."""
+    p = P3_A3FT.get(ds)
+    if p is None or not os.path.exists(p):
+        return None
+    d = pd.read_csv(p, low_memory=False).rename(columns={"nominal_R": "R"})
+    return d[d.region == "missing"]
+
+
 def f2(v, dec=2):
     return "" if v is None or (isinstance(v, float) and np.isnan(v)) else f"{v:.{dec}f}"
 

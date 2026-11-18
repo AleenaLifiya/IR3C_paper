@@ -1,20 +1,20 @@
 \begin{table*}[t]
-\caption{\pendlabel\ Formulation ablation on BraTS-GLI with the backbone, optimiser and training budget held fixed. PSNR (dB) on test subjects, $R\in\{2,4,8\}$ unless stated; the rejection column is $R=4$ with 30\% burst rejection. Arms named in typewriter font are already packaged for the HPC run (Section~\ref{sec:pending-form}); ``new arm'' must be added. Values for multi-seed arms are to be reported as mean $\pm$ standard deviation over seeds. Only the linear row is computed.}
+\caption{Formulation ablation on BraTS-GLI ($n=88$). Every arm uses the IR3C backbone, optimiser, data order and matched training budget (12,510 steps) and changes one component. PSNR (dB) over missing-slice foreground, $R\in\{2,4,8\}$, except the $R=16$ column (all families, out of distribution) and the rejection column ($R=4$ uniform base, 30\% of interior acquired slices rejected in bursts). Arms with three seeds are given as the mean over seeds, with the range of the seed means in brackets. $\Delta$ is the paired per-subject difference to IR3C on U1--U6, with its 95\% confidence interval. The IR3C row is retrained in the ablation harness and is therefore not the same weights as the IR3C of the other tables. $^{a}$No trained checkpoint of the direct model meets the validation SSIM guardrail, so the checkpoint with the best validation PSNR is reported; its training loss is computed on the unclamped output. $^{b}$The selection rule returns the initial weights, which equal linear interpolation exactly; the best trained checkpoint (epoch 1) gives 23.15\,dB pooled over all families and factors (linear: 23.20\,dB).}
 \label{tab:formulation}
 \footnotesize\setlength{\tabcolsep}{3pt}
-\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}llccccccc@{}}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}llcccccccc@{}}
 \toprule
 Variant & Arm & Seeds & U0 & U1--U6 & U4 & $R=16$ & Rejection & $\Delta$ vs.\ IR3C (U1--U6) \\
 \midrule
-Linear interpolation only & --- & --- & 26.20 & 22.70 & 18.45 & 15.86 & \tbd & --- \\
-\pendrow Direct 3D U-Net (no anchor) & \texttt{A3\_direct} & 3 & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
-\pendrow Anchor, unbounded residual & \texttt{A1\_unbounded} & 1 & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
-\pendrow Anchor, non-zero output head & \texttt{A2\_nonzero\_init} & 1 & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
-\pendrow Anchor, no geometry profiles & \texttt{C2\_no\_positional} & 3 & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
-\pendrow Anchor, binary mask profile only & new arm & 1 & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
-\pendrow Anchor, uniform-only training & \texttt{C1\_uniform\_only} & 1 & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
-\pendrow Anchor, single factor ($R=4$) & \texttt{C3\_single\_R} & 1 & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
-\pendrow IR3C (full formulation) & \texttt{A0\_ir3c} & 3 & \tbd & \tbd & \tbd & \tbd & \tbd & --- \\
+Linear interpolation only & --- & --- & 26.20 & 22.70 & 18.45 & 15.86 & 21.10 & --- \\
+Direct 3D U-Net (no anchor) & \texttt{A3\_direct}$^{a}$ & 3 & 26.75\,{\scriptsize[26.40, 27.29]} & 23.57\,{\scriptsize[23.19, 24.15]} & 20.26\,{\scriptsize[19.99, 20.63]} & 17.57\,{\scriptsize[17.37, 17.88]} & 22.52\,{\scriptsize[22.24, 23.00]} & $-$1.72 [$-$1.83, $-$1.61] \\
+Anchor, unbounded residual & \texttt{A1\_unbounded} & 1 & 28.69 & 25.28 & 21.45 & 18.22 & 23.66 & $-$0.01 [$-$0.02, 0.00] \\
+Anchor, non-zero output head & \texttt{A2\_nonzero\_init} & 1 & 27.85 & 24.42 & 20.73 & 17.84 & 22.90 & $-$0.87 [$-$0.93, $-$0.81] \\
+Anchor, no geometry profiles & \texttt{C2\_no\_positional} & 3 & 28.75\,{\scriptsize[28.67, 28.85]} & 25.37\,{\scriptsize[25.32, 25.43]} & 21.54\,{\scriptsize[21.52, 21.57]} & 18.24\,{\scriptsize[18.20, 18.30]} & 23.76\,{\scriptsize[23.71, 23.80]} & $+$0.08 [0.06, 0.09] \\
+Anchor, binary mask profile only & \texttt{C4\_binary\_mask} & 1 & 28.70 & 25.31 & 21.49 & 18.23 & 23.77 & $+$0.01 [0.00, 0.03] \\
+Anchor, uniform-only training & \texttt{C1\_uniform\_only}$^{b}$ & 1 & 26.20 & 22.70 & 18.45 & 15.86 & 21.10 & $-$2.59 [$-$2.74, $-$2.44] \\
+Anchor, single factor ($R=4$) & \texttt{C3\_single\_R} & 1 & 27.62 & 24.60 & 20.32 & 16.90 & 23.71 & $-$0.69 [$-$0.74, $-$0.64] \\
+\textbf{IR3C (full formulation)} & \texttt{A0\_ir3c} & 3 & 28.64\,{\scriptsize[28.59, 28.68]} & 25.29\,{\scriptsize[25.24, 25.33]} & 21.50\,{\scriptsize[21.46, 21.55]} & 18.27\,{\scriptsize[18.21, 18.35]} & 23.71\,{\scriptsize[23.68, 23.75]} & --- \\
 \bottomrule
 \end{tabular*}
 \end{table*}

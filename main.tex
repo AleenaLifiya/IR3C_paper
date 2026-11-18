@@ -521,8 +521,9 @@ global cubic spline is close to linear interpolation on U0 but falls below it on
 spaced knots overshoots. Local bicubic interpolation remains close to linear interpolation.
 Among the learned methods, DCSRN gains little over linear interpolation even though it was
 trained on the same mixed masks as IR3C, which indicates that training on irregular masks
-alone is not sufficient. The formulation ablation in Section~\ref{sec:pending-form} is
-designed to separate the contributions of the anchor and of the geometry profiles.
+alone is not sufficient. The formulation ablation (Section~\ref{sec:pending-form}) confirms
+this with the IR3C backbone itself: trained on the same masks without the anchor, it loses
+1.7\,dB of IR3C's 2.6\,dB gain over linear interpolation on U1--U6.
 
 \input{tables/tab_families.tex}
 
@@ -678,27 +679,48 @@ improves with capacity. All rows use a single training seed.
 \subsubsection{Formulation ablation}
 \label{sec:pending-form}
 
-The experiments above show the performance pattern of IR3C but do not show which part of the
-formulation produces its robustness. Table~\ref{tab:formulation} is designed to answer this
-with the backbone, optimiser and budget held fixed. The key comparisons are the same network
-predicting the image directly (no anchor), the anchored model without geometry profiles, and
-the anchored model trained on uniform masks only. If robustness comes from anchoring and
-geometry conditioning rather than from the backbone, the direct model and the model without
-profiles should lose most of IR3C's advantage on U1--U6, on U4 and under rejection, while
-remaining competitive on U0.
+Table~\ref{tab:formulation} changes one component of the formulation at a time, with the
+backbone, optimiser, data order and budget held fixed. All arms are retrained in the same
+harness, so the IR3C row (\texttt{A0\_ir3c}) is the appropriate reference here. Three seeds
+of IR3C differ by at most 0.09\,dB on U1--U6, which we take as the resolution of the
+single-seed arms.
+
+\paragraph{Anchor and initialisation.} Removing the anchor costs the most. The same network
+trained to output the image directly is 1.72\,dB [1.61, 1.83] below IR3C on U1--U6 and below
+it in every column, including U0, $R=16$ and rejection. It remains above linear
+interpolation everywhere, by 0.9\,dB on U1--U6 and 1.8\,dB on U4, so a 3D U-Net trained on
+mixed masks does learn something about irregular sampling; the anchor makes that learning
+much more effective. The direct model is also the least stable: its three seeds span
+0.96\,dB on U1--U6, against 0.09\,dB for IR3C. A non-zero initial output layer, so that the
+untrained model is no longer exactly linear interpolation, costs 0.87\,dB. Removing the
+$\tanh$ bound changes nothing measurable ($-0.01$\,dB). Fewer than 0.5\% of missing-slice
+voxels reach the bound in IR3C, or exceed it in the unbounded model, so the bound is a
+safeguard on rare large corrections rather than a source of accuracy.
+
+\paragraph{Geometry profiles.} Removing all four profiles (\texttt{C2\_no\_positional}) or
+keeping only the binary kept-slice indicator (\texttt{C4\_binary\_mask}) leaves the accuracy
+unchanged: $+0.08$ and $+0.01$\,dB on U1--U6, with no measurable loss at $R=16$ or under
+rejection, and
+the same result for all three seeds of \texttt{C2}. On BraTS-GLI the explicit profiles are
+therefore redundant. A likely reason is that the network can read the geometry from its
+image inputs. Missing slices are zero in the sparse volume $x_s$ and are straight lines
+between kept slices in $x_{\mathrm{lin}}$, and the receptive field of the U-Net spans the
+gaps that occur in training. We keep the profiles in IR3C because they cost nothing and make
+the geometry explicit, but we do not attribute IR3C's robustness to them.
+
+\paragraph{Training distribution.} What the network is trained on matters more than how the
+geometry is presented. Trained on uniform masks only, no checkpoint improves on linear
+interpolation on the validation set without failing the SSIM guardrail. The selected
+model is therefore linear interpolation, and its best trained checkpoint is no better
+either. Trained at a single factor ($R=4$), the model is the best of all arms at $R=4$ but
+loses 1.8\,dB at $R=2$ and 1.4\,dB at the unseen $R=16$. Under rejection on the $R=4$ base
+grid it matches IR3C, because that condition stays close to its training factor.
+
+Taken together, the robustness of IR3C to the slice pattern comes from the anchor and the
+zero-initialised correction, combined with training on mixed families and factors. It does
+not come from the explicit geometry profiles.
 
 \input{tables/tab_formulation.tex}
-
-\begin{pendingnote}{formulation ablation (Table~\ref{tab:formulation})}
-Seven of the eight arms already exist in the HPC package
-\texttt{hpc\_ir3c\_ablations\_v2.tar.gz} (\texttt{A0}--\texttt{A3}, \texttt{C1}--\texttt{C3};
-see \texttt{HANDOVER\_IR3C\_ABLATIONS.md}). Two additions are needed: (i)~a new arm that keeps
-only the binary kept-slice profile $k_z$, and (ii)~seeds 43 and 44 for \texttt{A0\_ir3c},
-\texttt{A3\_direct} and \texttt{C2\_no\_positional}. Evaluate every arm on the BraTS-GLI test
-masks, at $R=16$, and on the rejection condition $R=4$, 30\% burst. The loss-term arms
-\texttt{B1}--\texttt{B3} are reported separately in Table~\ref{tab:loss}. Report
-\texttt{A1\_unbounded} as it is, even if it diverges.
-\end{pendingnote}
 
 \subsubsection{Loss terms}
 \label{sec:pending-loss}
@@ -714,14 +736,19 @@ to have smaller effects on both endpoints.
 
 \input{tables/tab_loss.tex}
 
-\begin{pendingnote}{loss-term ablation (Table~\ref{tab:loss})}
-The three arms \texttt{B1\_no\_background}, \texttt{B2\_no\_structure} and
-\texttt{B3\_no\_gradient} are already defined in the HPC package
-(\texttt{ir3c\_ablations\_v2/arms.py}, Ablation~B) and will be trained locally with the
-formulation ablation. The residual term ($0.001\,\lVert\delta\rVert_1$) is kept in every
-arm. The control \texttt{B0\_ir3c} is \texttt{A0\_ir3c}, not a new training. Evaluate every
-arm on the BraTS-GLI test masks and run the downstream segmentation of
-Table~\ref{tab:downstream} (U0, $R\in\{2,4,8\}$, $n=88$) on each.
+On the image metrics, no single term is necessary for PSNR. Removing the gradient term
+changes nothing ($-0.04$\,dB on U1--U6). Removing the background term or the structural
+term raises PSNR slightly, by 0.09 and 0.17\,dB, which is at most two seed ranges. Both
+removals, however, raise background haze, by 13\% and 47\% (U0), and removing the
+structural term also lowers SSIM from 0.948 to 0.942. PSNR alone would therefore favour
+dropping both terms. Whether the added background intensity changes the downstream
+segmentation is what the Dice columns test.
+
+\begin{pendingnote}{loss-term ablation, WT Dice (Table~\ref{tab:loss})}
+Image metrics are final; checkpoints follow Table~\ref{tab:formulation}. The downstream segmentation of \texttt{B0}--\texttt{B3} (U0,
+$R\in\{2,4,8\}$, $n=88$, same frozen reference predictions as Table~\ref{tab:downstream}) is
+running in \texttt{runs/IR3C\_MedIA\_P3\_loss\_downstream/}; the Dice columns fill in when
+it finishes. Revise the paragraph above once they are in.
 \end{pendingnote}
 
 \subsection{Generalisation to unseen sampling geometry}
@@ -800,7 +827,9 @@ distribution, at the matched budget; evaluate each on its held-out family. The
 \begin{pendingnote}{additional baselines (shaded rows of Tables~\ref{tab:uniform} and \ref{tab:families})}
 Add SA-INR \citep{wang2024sainr} under the matched protocol on all three datasets. It is the
 closest published arbitrary-spacing method and appeared in this journal. The
-``3D U-Net, direct output'' row is the \texttt{A3\_direct} arm, evaluated on all datasets.
+``3D U-Net, direct output'' row is \texttt{A3\_direct} (seed 42): its BraTS-GLI cells are
+final; the OAIZIB and IXI-tiny cells fill in when its fine-tunes (IR3C protocol, from the
+P3 checkpoint) finish.
 \end{pendingnote}
 
 \subsection{Computational cost}
@@ -836,13 +865,16 @@ Two properties of the formulation explain what we observe. First, linear interpo
 already provides a good estimate in smooth regions and is exact at the kept slices, so the
 network only needs to learn the departure from local linearity. The anchor ablation supports
 this: the network absorbs most of a poor starting estimate, and the simplest anchor gives the
-best final model. Second, the geometry profiles tell the network how far each missing slice
-is from its neighbours and how long its gap is. The size of the correction a missing slice
-needs depends on these quantities, and a network that sees them can adapt one set of weights
-to any mask. DCSRN, which was trained on the same mixed masks without an anchor or explicit
-geometry, gains little over linear interpolation. This suggests that mixed-mask training is
-not sufficient on its own. A causal attribution to each component, however, requires the
-formulation ablation in Table~\ref{tab:formulation}, which is pending.
+best final model. The formulation ablation confirms it directly: without the anchor, the
+same network on the same masks loses two thirds of IR3C's gain over linear interpolation,
+and a non-zero initial correction also costs accuracy. Second, the network must be trained
+on the variety of sampling it will meet. Uniform-only training gives no gain on irregular
+masks, and single-factor training does not extend to other factors. DCSRN, trained on the
+same mixed masks without an anchor, gains little over linear interpolation, so mixed-mask
+training is necessary but not sufficient. Contrary to our design intent, the explicit
+geometry profiles are not needed on BraTS-GLI: removing them leaves the accuracy unchanged
+in all three seeds, most likely because the sparse input and its linear interpolant already
+show where the gaps are. Whether this also holds on the transfer datasets was not tested.
 
 The bound on the residual should be interpreted with care. It limits how far the output can
 move from the anchor, but it does not guarantee a smaller error than linear interpolation. We
@@ -886,7 +918,9 @@ This study has the following limitations. (i)~The degradation removes slices fro
 reference and does not model slice profile, partial-volume averaging or slice gap; the
 results concern slice imputation, not physical thick-slice super-resolution. (ii)~The
 principal models use one training seed, so the paired confidence intervals describe
-variation across subjects, not across training runs. (iii)~Checkpoint selection on
+variation across subjects, not across training runs. In the formulation ablation, three
+seeds of IR3C differ by at most 0.09\,dB on U1--U6 (0.14\,dB at $R=16$), but the direct
+model varies by almost 1\,dB. (iii)~Checkpoint selection on
 BraTS-GLI uses only six validation subjects. (iv)~The irregular test families are drawn from
 the same generators as the training masks; drawing five masks per subject instead of one
 shared mask did not change the ranking (Table~\ref{tab:realisations}), but no family is held
