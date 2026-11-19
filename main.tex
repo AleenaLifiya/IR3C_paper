@@ -727,12 +727,11 @@ not come from the explicit geometry profiles.
 
 Table~\ref{tab:loss} removes one term of Eq.~(\ref{eq:loss}) at a time, with the backbone,
 initial weights, data order and budget held fixed, and scores each model on image metrics
-and on downstream segmentation consistency. The background term is the main test case. It
-acts only outside the anatomy, where PSNR is not measured, so removing it should cost little
-PSNR. If the network then adds low-level intensity to the background, the intensity
-normalisation of the segmentation network shifts, and Dice should fall, as it does for
-\Ithree\ (Section~\ref{sec:res-downstream}). The structural and gradient terms are expected
-to have smaller effects on both endpoints.
+and on downstream segmentation consistency. The background term acts only outside the
+anatomy, where PSNR is not measured, so its effect cannot show in PSNR. If a model adds
+low-level intensity to the background, the intensity normalisation of the segmentation
+network shifts and Dice can fall, as it does for \Ithree\
+(Section~\ref{sec:res-downstream}).
 
 \input{tables/tab_loss.tex}
 
@@ -741,15 +740,21 @@ changes nothing ($-0.04$\,dB on U1--U6). Removing the background term or the str
 term raises PSNR slightly, by 0.09 and 0.17\,dB, which is at most two seed ranges. Both
 removals, however, raise background haze, by 13\% and 47\% (U0), and removing the
 structural term also lowers SSIM from 0.948 to 0.942. PSNR alone would therefore favour
-dropping both terms. Whether the added background intensity changes the downstream
-segmentation is what the Dice columns test.
+dropping both terms.
 
-\begin{pendingnote}{loss-term ablation, WT Dice (Table~\ref{tab:loss})}
-Image metrics are final; checkpoints follow Table~\ref{tab:formulation}. The downstream segmentation of \texttt{B0}--\texttt{B3} (U0,
-$R\in\{2,4,8\}$, $n=88$, same frozen reference predictions as Table~\ref{tab:downstream}) is
-running in \texttt{runs/IR3C\_MedIA\_P3\_loss\_downstream/}; the Dice columns fill in when
-it finishes. Revise the paragraph above once they are in.
-\end{pendingnote}
+The downstream segmentation reverses this choice for the structural term. Without it, WT
+Dice falls at every factor (by 0.003, 0.004 and 0.003 at $R=2,4,8$), and the tumour core
+and enhancing tumour fall more (by 0.006--0.008). The drop is consistent across subjects:
+the model without the structural term has lower Dice than the full objective in 76 to 87
+of the 88 subjects for every factor and region (paired Wilcoxon $p<10^{-9}$). The model
+with the highest PSNR is therefore the worst of the four for the segmenter. Removing the
+background term, in contrast, leaves Dice essentially unchanged (at most $-0.0014$ for any
+region and factor) despite its 13\% higher background haze, and removing the gradient term
+has no consistent effect. These are single-seed results; the structural-term effect is
+nevertheless larger than the WT Dice gap between linear interpolation and IR3C at $R=2$
+(0.002). The structural term is the one that matters downstream, and the evidence for the
+background term is weaker than its motivation suggested: at the haze level of
+\texttt{B1} the segmenter is not affected.
 
 \subsection{Generalisation to unseen sampling geometry}
 \label{sec:pending-heldout}
@@ -898,10 +903,10 @@ geometry within a trained or adapted anatomy; it is not anatomy-invariant.
 The segmentation experiment shows that PSNR should not be the only endpoint. SAINT and
 \Ithree have reasonable PSNR but change the downstream segmentation substantially. The
 classical interpolants trail by more than 2\,dB in PSNR yet remain close to IR3C on Dice,
-because their errors are smooth. The loss-term ablation (Table~\ref{tab:loss}, pending)
-tests the same point from the training side: if removing the background term leaves PSNR
-almost unchanged but lowers Dice, PSNR is also an unreliable criterion for choosing the
-training objective. The endpoint has a clear limitation: it measures
+because their errors are smooth. The loss-term ablation (Table~\ref{tab:loss}) shows the
+same from the training side: removing the structural term gives the highest PSNR of the
+four objectives and the lowest Dice, so PSNR would also have chosen the wrong training
+objective. The endpoint has a clear limitation: it measures
 consistency with another model's prediction, not accuracy against expert labels.
 
 LPIPS ranks the methods differently from every pixel metric (Table~\ref{tab:lpips}). On
