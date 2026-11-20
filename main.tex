@@ -492,6 +492,15 @@ super-resolution on interleaved phases was designed. The other learned methods v
 below linear interpolation at $R=2$ on BraTS-GLI. Among the methods that can be run on
 irregular masks, IR3C is the best in every column of Table~\ref{tab:uniform}.
 
+The ``direct output'' row isolates the anchor on all three datasets. It is the IR3C network,
+trained on the same masks and fine-tuned with the same protocol, but asked to output the
+image instead of a correction to linear interpolation. It is below IR3C in every column of
+Table~\ref{tab:uniform}: by 1.2--2.9\,dB on BraTS-GLI, 1.6--2.4\,dB on IXI-tiny and
+0.3\,dB on OAIZIB, and it falls below linear interpolation at $R=2$ on both brain
+datasets. On OAIZIB the gap is small but it is consistent: IR3C is better in every subject
+and condition at $R\in\{2,4,8\}$. The anchor therefore helps on all three datasets, most on
+the two brain datasets.
+
 \input{tables/tab_uniform.tex}
 
 \begin{figure*}[t]
@@ -683,7 +692,15 @@ Table~\ref{tab:formulation} changes one component of the formulation at a time, 
 backbone, optimiser, data order and budget held fixed. All arms are retrained in the same
 harness, so the IR3C row (\texttt{A0\_ir3c}) is the appropriate reference here. Three seeds
 of IR3C differ by at most 0.09\,dB on U1--U6, which we take as the resolution of the
-single-seed arms.
+single-seed arms. Every arm is trained for the matched budget of 12,510 steps and its
+checkpoint is chosen by the rule of Section~\ref{sec:impl}, with the untrained model (step 0)
+as a candidate. The rule needed two exceptions, both reported in Table~\ref{tab:formulation}.
+For the direct-output arm, no trained checkpoint meets the SSIM guardrail, and its step-0
+model is a randomly initialised network rather than an interpolant; we report its trained
+checkpoint with the highest validation PSNR. This arm is also trained without clamping its
+output to $[0,1]$, because a clamped direct output receives no gradient at voxels predicted
+outside that range; it is clamped at inference like every other arm. For uniform-only training, the rule selects step~0,
+which is exactly linear interpolation; the best trained checkpoint is given as a footnote.
 
 \paragraph{Anchor and initialisation.} Removing the anchor costs the most. The same network
 trained to output the image directly is 1.72\,dB [1.61, 1.83] below IR3C on U1--U6 and below
@@ -831,10 +848,7 @@ distribution, at the matched budget; evaluate each on its held-out family. The
 
 \begin{pendingnote}{additional baselines (shaded rows of Tables~\ref{tab:uniform} and \ref{tab:families})}
 Add SA-INR \citep{wang2024sainr} under the matched protocol on all three datasets. It is the
-closest published arbitrary-spacing method and appeared in this journal. The
-``3D U-Net, direct output'' row is \texttt{A3\_direct} (seed 42): its BraTS-GLI cells are
-final; the OAIZIB and IXI-tiny cells fill in when its fine-tunes (IR3C protocol, from the
-P3 checkpoint) finish.
+closest published arbitrary-spacing method and appeared in this journal.
 \end{pendingnote}
 
 \subsection{Computational cost}
