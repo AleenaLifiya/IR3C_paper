@@ -718,8 +718,12 @@ safeguard on rare large corrections rather than a source of accuracy.
 keeping only the binary kept-slice indicator (\texttt{C4\_binary\_mask}) leaves the accuracy
 unchanged: $+0.08$ and $+0.01$\,dB on U1--U6, with no measurable loss at $R=16$ or under
 rejection, and
-the same result for all three seeds of \texttt{C2}. On BraTS-GLI the explicit profiles are
-therefore redundant. A likely reason is that the network can read the geometry from its
+the same result for all three seeds of \texttt{C2}. The result holds on the transfer
+datasets. Fine-tuned on OAIZIB and IXI-tiny with the IR3C protocol, the BraTS-GLI
+\texttt{C2} model is within 0.1\,dB of the matched IR3C: $+0.005$\,dB [0.004, 0.007] on
+OAIZIB and $+0.04$\,dB [0.03, 0.04] on IXI-tiny on U1--U6, and $+0.004$ and $+0.09$\,dB on
+U0 (mean over subjects at $R\in\{2,4,8\}$, 95\% bootstrap interval; one seed). The explicit
+profiles are therefore redundant on all three datasets. A likely reason is that the network can read the geometry from its
 image inputs. Missing slices are zero in the sparse volume $x_s$ and are straight lines
 between kept slices in $x_{\mathrm{lin}}$, and the receptive field of the U-Net spans the
 gaps that occur in training. We keep the profiles in IR3C because they cost nothing and make
@@ -891,9 +895,9 @@ on the variety of sampling it will meet. Uniform-only training gives no gain on 
 masks, and single-factor training does not extend to other factors. DCSRN, trained on the
 same mixed masks without an anchor, gains little over linear interpolation, so mixed-mask
 training is necessary but not sufficient. Contrary to our design intent, the explicit
-geometry profiles are not needed on BraTS-GLI: removing them leaves the accuracy unchanged
-in all three seeds, most likely because the sparse input and its linear interpolant already
-show where the gaps are. Whether this also holds on the transfer datasets was not tested.
+geometry profiles are not needed: removing them leaves the accuracy unchanged in all three
+BraTS-GLI seeds and on both transfer datasets, most likely because the sparse input and its
+linear interpolant already show where the gaps are.
 
 The bound on the residual should be interpreted with care. It limits how far the output can
 move from the anchor, but it does not guarantee a smaller error than linear interpolation. We
