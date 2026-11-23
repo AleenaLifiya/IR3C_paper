@@ -64,8 +64,7 @@ axis is the finest axis of this dataset, so $R=2$, 4 and 8 correspond to slice s
 
 
 # =========================================================================== Table 2
-UNIFORM_ROWS = ["Linear", "Bicubic", "DCSRN", "ArSSR", "I$^3$Net", "SAINT", "IR3C"]
-PENDING_BASELINES = [("SA-INR", "Arbitrary-spacing INR baseline (Wang et al., 2024)")]
+UNIFORM_ROWS = ["Linear", "Bicubic", "DCSRN", "ArSSR", "SA-INR", "I$^3$Net", "SAINT", "IR3C"]
 DIRECT_ROW = "3D U-Net, direct output"
 
 
@@ -98,21 +97,22 @@ def tab_uniform():
     def block(metric, dec):
         tab = out[metric]
         lines = []
-        best = {c: bold_idx([tab[(nm,) + c].mean() for nm in UNIFORM_ROWS]) for c in cols}
+        best = {c: bold_idx([C.mean(tab[(nm,) + c]) for nm in UNIFORM_ROWS]) for c in cols}
         for i, nm in enumerate(UNIFORM_ROWS):
             cells = []
             for c in cols:
-                v = tab[(nm,) + c].mean()
-                s = f"{v:.{dec}f}"
+                if tab[(nm,) + c] is None:
+                    cells.append(TBD)
+                    continue
+                s = f"{C.mean(tab[(nm,) + c]):.{dec}f}"
                 cells.append(r"\textbf{" + s + "}" if best[c] == i else s)
             name = r"\textbf{IR3C (ours)}" if nm == "IR3C" else nm
-            lines.append(name + " & " + " & ".join(cells) + r" \\")
+            pend = r"\pendrow " if TBD in cells else ""
+            lines.append(pend + name + " & " + " & ".join(cells) + r" \\")
         dv = [direct_u0(ds, R, metric) for ds, R in cols]
         dcells = [TBD if v is None else f"{v.mean():.{dec}f}" for v in dv]
         lines.append((r"\pendrow " if any(v is None for v in dv) else "") + DIRECT_ROW +
                      r"$^{\dagger}$ & " + " & ".join(dcells) + r" \\")
-        for nm, _ in PENDING_BASELINES:
-            lines.append(r"\pendrow " + nm + " & " + " & ".join([TBD] * len(cols)) + r" \\")
         return lines
 
     # paired IR3C - SAINT on PSNR, Holm over the nine columns
@@ -152,7 +152,7 @@ def tab_uniform():
 
 
 # =========================================================================== Table 3
-FAM_ROWS = ["Linear", "Cubic spline", "Bicubic", "DCSRN", "ArSSR", "IR3C"]
+FAM_ROWS = ["Linear", "Cubic spline", "Bicubic", "DCSRN", "ArSSR", "SA-INR", "IR3C"]
 
 
 def tab_families():
@@ -163,7 +163,8 @@ def tab_families():
          r"are not defined off a regular grid and are therefore absent. The last row of each "
          r"block is the paired difference between IR3C and the strongest applicable "
          r"comparator in that column, with its 95\% confidence interval. Bold marks the best "
-         r"method per column. Standard deviations are given in Appendix~\ref{app:detail}.}",
+         r"method per column. Standard deviations are given in Appendix~\ref{app:detail}. "
+         r"Shaded cells are pending.}",
          r"\label{tab:families}",
          r"\small",
          r"\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lcccccccc@{}}",
@@ -181,19 +182,23 @@ def tab_families():
         if k:
             t.append(r"\midrule")
         t.append(r"\multicolumn{9}{@{}l}{\textit{" + C.DS_LABEL[ds] + r"}} \\")
-        best = {c: bold_idx([grid[(nm, c)].mean() for nm in FAM_ROWS]) for c in cols}
+        best = {c: bold_idx([C.mean(grid[(nm, c)]) for nm in FAM_ROWS]) for c in cols}
         for i, nm in enumerate(FAM_ROWS):
             cells = []
             for c in cols:
-                s = f"{grid[(nm, c)].mean():.2f}"
+                if grid[(nm, c)] is None:
+                    cells.append(TBD)
+                    continue
+                s = f"{C.mean(grid[(nm, c)]):.2f}"
                 cells.append(r"\textbf{" + s + "}" if best[c] == i else s)
             name = r"\textbf{IR3C (ours)}" if nm == "IR3C" else nm
-            t.append(name + " & " + " & ".join(cells) + r" \\")
-        t.append(r"\pendrow SA-INR & " + " & ".join([TBD] * len(cols)) + r" \\")
+            pend = r"\pendrow " if TBD in cells else ""
+            t.append(pend + name + " & " + " & ".join(cells) + r" \\")
         dcells = []
         for c in cols:
-            others = [nm for nm in FAM_ROWS if nm != "IR3C"]
-            ref = max(others, key=lambda nm: grid[(nm, c)].mean())
+            # strongest finished comparator (a pending baseline cannot be the reference)
+            others = [nm for nm in FAM_ROWS if nm != "IR3C" and grid[(nm, c)] is not None]
+            ref = max(others, key=lambda nm: C.mean(grid[(nm, c)]))
             p = C.paired(grid[("IR3C", c)], grid[(ref, c)])
             dcells.append(f"{C.signed(p['mean'])}")
             summary[(ds, c)] = (ref, p)
@@ -782,8 +787,8 @@ def tab_cost():
 def tab_detail():
     """Per-dataset U0 table with all metrics (mean +/- sd), and family table with sd."""
     t = []
-    rows = ["Nearest", "Linear", "Cubic spline", "Bicubic", "DCSRN", "ArSSR", "I$^3$Net",
-            "SAINT", "IR3C"]
+    rows = ["Nearest", "Linear", "Cubic spline", "Bicubic", "DCSRN", "ArSSR", "SA-INR",
+            "I$^3$Net", "SAINT", "IR3C"]
     mets = [("psnr_masked", r"PSNR (dB) $\uparrow$", True, 2),
             ("ssim", r"SSIM $\uparrow$", True, 4),
             ("nmse", r"NMSE $\downarrow$", False, 4),
@@ -801,8 +806,11 @@ def tab_detail():
               r"\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lcccc@{}}",
               r"\toprule", "Method & " + " & ".join(h for _, h, _, _ in mets) + r" \\",
               r"\midrule"]
-        best = {m: bold_idx([vals[(nm, m)].mean() for nm in rows], hi) for m, _, hi, _ in mets}
+        best = {m: bold_idx([C.mean(vals[(nm, m)]) for nm in rows], hi) for m, _, hi, _ in mets}
         for i, nm in enumerate(rows):
+            if vals[(nm, "psnr_masked")] is None:
+                t.append(r"\pendrow " + nm + " & " + " & ".join([TBD] * len(mets)) + r" \\")
+                continue
             cells = []
             for m, _, _, dec in mets:
                 mu, sd = C.mean_sd(vals[(nm, m)])
@@ -811,7 +819,8 @@ def tab_detail():
             t.append(nm + " & " + " & ".join(cells) + r" \\")
         t += [r"\bottomrule", r"\end{tabular*}", r"\end{table*}", ""]
 
-        frows = ["Nearest", "Linear", "Cubic spline", "Bicubic", "DCSRN", "ArSSR", "IR3C"]
+        frows = ["Nearest", "Linear", "Cubic spline", "Bicubic", "DCSRN", "ArSSR", "SA-INR",
+                 "IR3C"]
         fv = {(nm, f): C.per_subject(ds, specs[nm], [f]) for nm in frows for f in C.FAMILIES}
         t += [r"\begin{table*}[t]",
               r"\caption{" + C.DS_LABEL[ds] + r", PSNR (dB) by sampling family, pooled over "
@@ -820,8 +829,11 @@ def tab_detail():
               r"\footnotesize",
               r"\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lccccccc@{}}",
               r"\toprule", "Method & " + " & ".join(C.FAMILIES) + r" \\", r"\midrule"]
-        best = {f: bold_idx([fv[(nm, f)].mean() for nm in frows]) for f in C.FAMILIES}
+        best = {f: bold_idx([C.mean(fv[(nm, f)]) for nm in frows]) for f in C.FAMILIES}
         for i, nm in enumerate(frows):
+            if fv[(nm, "U0")] is None:
+                t.append(r"\pendrow " + nm + " & " + " & ".join([TBD] * len(C.FAMILIES)) + r" \\")
+                continue
             cells = []
             for f in C.FAMILIES:
                 mu, sd = C.mean_sd(fv[(nm, f)])

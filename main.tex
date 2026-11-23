@@ -83,7 +83,7 @@ MRI under uniform sampling, six irregular sampling families, an unseen reduction
 post-acquisition slice rejection, with every learned baseline trained under a matched budget.
 On uniform sampling, the strongest specialist baseline, SAINT, is better at $R=2$ on all three
 datasets, whereas IR3C is better at $R=8$. On irregular sampling, IR3C exceeds the strongest
-applicable method by 2.2--3.0\,dB on BraTS-GLI, 0.9--1.7\,dB on OAIZIB and 1.4--2.9\,dB on
+applicable method by 1.9--2.6\,dB on BraTS-GLI, 0.9--1.7\,dB on OAIZIB and 0.6--2.9\,dB on
 IXI-tiny. When 20--30\% of acquired slices are rejected, IR3C exceeds the best competitor,
 including SAINT with two prespecified workarounds, by 1.2--2.3\,dB on both brain datasets
 and by 0.8--1.3\,dB on OAIZIB.
@@ -396,10 +396,19 @@ bicubic interpolation along the reconstruction axis. The cubic spline is fitted 
 complete through-plane line and can overshoot when knots are irregular; bicubic uses a local
 kernel.
 
-\paragraph{Learned methods.} DCSRN \citep{chen2018dcsrn}, ArSSR \citep{wu2023arssr}, SAINT
-\citep{peng2020saint} and \Ithree \citep{song2024i3net}. DCSRN is fully convolutional and is
-trained on the same mixed uniform and irregular masks as IR3C, so it can be evaluated on
-every family. ArSSR queries continuous coordinates and also accepts irregular masks. SAINT and
+\paragraph{Learned methods.} DCSRN \citep{chen2018dcsrn}, ArSSR \citep{wu2023arssr}, SA-INR
+\citep{wang2024sainr}, SAINT \citep{peng2020saint} and \Ithree \citep{song2024i3net}. DCSRN is
+fully convolutional and is trained on the same mixed uniform and irregular masks as IR3C, so
+it can be evaluated on every family. ArSSR queries continuous coordinates and also accepts
+irregular masks. SA-INR adds local attention over neighbouring slices to an implicit
+representation and predicts a residual on trilinear interpolation of the kept slices. We use
+the authors' network unmodified (official repository, commit 3321392) and map each missing
+slice to its fractional position between the two kept slices that bracket it, as for ArSSR.
+On a uniform grid this mapping reproduces the authors' own query coordinates exactly, and it
+lets SA-INR accept irregular masks. Like ArSSR and DCSRN, it is trained on the mixed masks
+with the shared trainer, using the authors' loss, optimiser and learning rate, with their step
+schedule rescaled to the common budget; the released training script does not run as
+published. SAINT and
 \Ithree construct their inputs from a regular stride. They are evaluated on U0, and under
 rejection through the two workarounds described below; we do not assign them scores on
 patterns for which their inference is undefined.
@@ -494,8 +503,12 @@ the finest axis of the volume, so missing slices at $R=2$ and $R=4$ are spaced 4
 apart and closely resemble their neighbours. This is the regime for which slice-wise
 super-resolution on interleaved phases was designed. The other learned methods vary widely:
 \Ithree is close to linear interpolation on both brain datasets, and ArSSR and DCSRN are
-below linear interpolation at $R=2$ on BraTS-GLI. Among the methods that can be run on
-irregular masks, IR3C is the best in every column of Table~\ref{tab:uniform}.
+below linear interpolation at $R=2$ on BraTS-GLI. SA-INR is above linear interpolation in
+every finished column, by 0.2--0.4\,dB on BraTS-GLI and 1.5--2.7\,dB on IXI-tiny. Among the
+methods that can be run on irregular masks, IR3C is the best in every column of
+Table~\ref{tab:uniform} except IXI-tiny at $R=2$, where it and SA-INR are tied
+($-0.06$\,dB [$-0.14$, 0.03], $p=0.22$). It is 1.7--2.3\,dB above SA-INR on BraTS-GLI and
+0.4 and 1.7\,dB above it on IXI-tiny at $R=4$ and $R=8$.
 
 The ``direct output'' row isolates the anchor on all three datasets. It is the IR3C network,
 trained on the same masks and fine-tuned with the same protocol, but asked to output the
@@ -524,11 +537,13 @@ different vertical scales.}
 
 Table~\ref{tab:families} and Fig.~\ref{fig:families} report PSNR by sampling family. SAINT and
 \Ithree are absent because they are not defined on irregular grids. On every family and
-dataset, IR3C is better than every applicable method, and it is better in at least 99\% of
+dataset, IR3C is better than every applicable method, and it is better in at least 96\% of
 subjects in each column. On the irregular families U1--U6, its margin over the strongest
-applicable comparator is 2.21--2.97\,dB on BraTS-GLI (over bicubic interpolation),
-0.86--1.69\,dB on OAIZIB (over ArSSR) and 1.39--2.90\,dB on IXI-tiny (over ArSSR). The margin is
-largest on the clustered family U4, which has the longest gaps, on all three datasets.
+applicable comparator is 1.91--2.65\,dB on BraTS-GLI (over SA-INR), 0.86--1.69\,dB on OAIZIB
+(over ArSSR; SA-INR pending) and 0.64--2.90\,dB on IXI-tiny (over SA-INR, or ArSSR on U4 and
+U6). The margin is largest on the clustered family U4, which has the longest gaps, on all
+three datasets. The smallest margins are on IXI-tiny U1 and U2, the two families that
+jitter a uniform grid, where SA-INR is 2.4--2.6\,dB above linear interpolation.
 
 The classical methods behave differently from one another under irregular sampling. The
 global cubic spline is close to linear interpolation on U0 but falls below it on every irregular family of every dataset, by up to 5.3\,dB on OAIZIB U4, because a spline through irregularly
@@ -855,9 +870,9 @@ distribution, at the matched budget; evaluate each on its held-out family. The
 ``uniform-only'' column is the \texttt{C1\_uniform\_only} arm.
 \end{pendingnote}
 
-\begin{pendingnote}{additional baselines (shaded rows of Tables~\ref{tab:uniform} and \ref{tab:families})}
-Add SA-INR \citep{wang2024sainr} under the matched protocol on all three datasets. It is the
-closest published arbitrary-spacing method and appeared in this journal.
+\begin{pendingnote}{SA-INR on OAIZIB (shaded cells of Tables~\ref{tab:uniform} and \ref{tab:families})}
+SA-INR \citep{wang2024sainr} is complete on BraTS-GLI and IXI-tiny; the OAIZIB fine-tune is
+running. Its cost, $R=16$ results and figure markers are not yet added.
 \end{pendingnote}
 
 \subsection{Computational cost}

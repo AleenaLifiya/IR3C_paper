@@ -53,6 +53,14 @@ MATCHED = {
     "IXI": os.path.join(ROOT, "runs/IR3C_IXItiny_08Sept_matchedinit/"
                               "IR3C_IXItiny_08Sept_matchedinit_results_per_volume.csv"),
 }
+# SA-INR (P8, IR3C_MedIA_experiments/p8_sainr/): BraTS trained under the matched protocol,
+# IXI and OAIZIB fine-tuned from it. Same test grid as the sources above (K_retained checked
+# cell by cell). A dataset whose run has not finished has no file; its cells print as pending.
+SAINR = {
+    "BraTS": os.path.join(ROOT, "runs/IR3C_MedIA_P8_sainr/metrics/results_SA-INR.csv"),
+    "OAIZIB": os.path.join(ROOT, "runs/IR3C_MedIA_P8_sainr/OAIZIB/metrics/results_SA-INR.csv"),
+    "IXI": os.path.join(ROOT, "runs/IR3C_MedIA_P8_sainr/IXI/metrics/results_SA-INR.csv"),
+}
 
 # display name -> method selector. ``per_R`` picks one checkpoint per factor.
 def method_specs(ds):
@@ -63,6 +71,7 @@ def method_specs(ds):
                 ("Bicubic", {"m": "bicubic"}),
                 ("DCSRN", {"m": "DCSRN_mixed"}),
                 ("ArSSR", {"m": "ArSSR_slowlr"}),
+                ("SA-INR", {"m": "SA-INR"}),
                 ("I$^3$Net", {"m": "I3Net"}),
                 ("SAINT", {"m": "SAINT"}),
                 ("IR3C", {"m": "IR3_matched"})]
@@ -76,6 +85,7 @@ def method_specs(ds):
             ("Bicubic", {"m": "bicubic"}),
             ("DCSRN", {"per_R": mix}),
             ("ArSSR", {"m": "ArSSR_slowlr"}),
+            ("SA-INR", {"m": "SA-INR"}),
             ("I$^3$Net", {"m": "I3Net"}),
             ("SAINT", {"m": "SAINT_rfn"}),
             ("IR3C", {"m": "IR3C_matched"})]
@@ -98,6 +108,9 @@ def load(ds):
         m = m[(m.region == "missing") & (m.method == f"IR3C_{ds}")].copy()
         m["method"] = "IR3C_matched"
         d = pd.concat([d, m], ignore_index=True, sort=False)
+    if os.path.exists(SAINR[ds]):
+        s = pd.read_csv(SAINR[ds], low_memory=False)
+        d = pd.concat([d, s[s.region == "missing"]], ignore_index=True, sort=False)
     _cache[ds] = d
     return d
 
@@ -117,6 +130,11 @@ def per_subject(ds, spec, families=FAMILIES, Rs=TRAIN_R, metric="psnr_masked"):
     if sub.empty:
         return None
     return sub.groupby("subject")[metric].mean()
+
+
+def mean(s):
+    """Mean of a per-subject Series; NaN for a pending (None) cell."""
+    return np.nan if s is None else float(s.mean())
 
 
 def mean_sd(s):
