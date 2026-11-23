@@ -56,7 +56,7 @@ Set `\showpendingfalse` in `main.tex` to hide the orange boxes.
 | P5 | 5 subject-specific mask realisations per family, R=4 | Table 12 | inference only |
 | P6 | Per-slice error vs gap length / distance | Fig. 8 | re-scoring only (store per-slice SE) |
 | P7 | Labelled downstream | – | **dropped 2026-11-09** (no expert labels; Table 12 removed) |
-| P8 | SA-INR baseline, all datasets | Table 2, Table 3 SA-INR rows | train + eval |
+| P8 | SA-INR baseline | removed from manuscript 2026-11-23 | results kept; `C.USE_SAINR = True` restores the rows |
 
 ## Author-side fields (orange `[...]` in PDF)
 

@@ -64,7 +64,8 @@ axis is the finest axis of this dataset, so $R=2$, 4 and 8 correspond to slice s
 
 
 # =========================================================================== Table 2
-UNIFORM_ROWS = ["Linear", "Bicubic", "DCSRN", "ArSSR", "SA-INR", "I$^3$Net", "SAINT", "IR3C"]
+UNIFORM_ROWS = C.active(["Linear", "Bicubic", "DCSRN", "ArSSR", "SA-INR", "I$^3$Net", "SAINT",
+                         "IR3C"])
 DIRECT_ROW = "3D U-Net, direct output"
 
 
@@ -152,7 +153,7 @@ def tab_uniform():
 
 
 # =========================================================================== Table 3
-FAM_ROWS = ["Linear", "Cubic spline", "Bicubic", "DCSRN", "ArSSR", "SA-INR", "IR3C"]
+FAM_ROWS = C.active(["Linear", "Cubic spline", "Bicubic", "DCSRN", "ArSSR", "SA-INR", "IR3C"])
 
 
 def tab_families():
@@ -163,8 +164,8 @@ def tab_families():
          r"are not defined off a regular grid and are therefore absent. The last row of each "
          r"block is the paired difference between IR3C and the strongest applicable "
          r"comparator in that column, with its 95\% confidence interval. Bold marks the best "
-         r"method per column. Standard deviations are given in Appendix~\ref{app:detail}. "
-         r"Shaded cells are pending.}",
+         r"method per column. Standard deviations are given in Appendix~\ref{app:detail}." +
+         (r" Shaded cells are pending.}" if C.USE_SAINR else "}"),
          r"\label{tab:families}",
          r"\small",
          r"\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lcccccccc@{}}",
@@ -802,8 +803,8 @@ def tab_cost():
 def tab_detail():
     """Per-dataset U0 table with all metrics (mean +/- sd), and family table with sd."""
     t = []
-    rows = ["Nearest", "Linear", "Cubic spline", "Bicubic", "DCSRN", "ArSSR", "SA-INR",
-            "I$^3$Net", "SAINT", "IR3C"]
+    rows = C.active(["Nearest", "Linear", "Cubic spline", "Bicubic", "DCSRN", "ArSSR", "SA-INR",
+                     "I$^3$Net", "SAINT", "IR3C"])
     mets = [("psnr_masked", r"PSNR (dB) $\uparrow$", True, 2),
             ("ssim", r"SSIM $\uparrow$", True, 4),
             ("nmse", r"NMSE $\downarrow$", False, 4),
@@ -834,8 +835,8 @@ def tab_detail():
             t.append(nm + " & " + " & ".join(cells) + r" \\")
         t += [r"\bottomrule", r"\end{tabular*}", r"\end{table*}", ""]
 
-        frows = ["Nearest", "Linear", "Cubic spline", "Bicubic", "DCSRN", "ArSSR", "SA-INR",
-                 "IR3C"]
+        frows = C.active(["Nearest", "Linear", "Cubic spline", "Bicubic", "DCSRN", "ArSSR", "SA-INR",
+                          "IR3C"])
         fv = {(nm, f): C.per_subject(ds, specs[nm], [f]) for nm in frows for f in C.FAMILIES}
         t += [r"\begin{table*}[t]",
               r"\caption{" + C.DS_LABEL[ds] + r", PSNR (dB) by sampling family, pooled over "

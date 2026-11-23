@@ -62,8 +62,20 @@ SAINR = {
     "IXI": os.path.join(ROOT, "runs/IR3C_MedIA_P8_sainr/IXI/metrics/results_SA-INR.csv"),
 }
 
+# SA-INR is out of the manuscript (2026-11-23). Its results and code are kept; True restores it.
+USE_SAINR = False
+
+
+def active(rows):
+    return [r for r in rows if USE_SAINR or r != "SA-INR"]
+
+
 # display name -> method selector. ``per_R`` picks one checkpoint per factor.
 def method_specs(ds):
+    return [x for x in _method_specs(ds) if x[0] in active([x[0]])]
+
+
+def _method_specs(ds):
     if ds == "BraTS":
         return [("Nearest", {"m": "nearest"}),
                 ("Linear", {"m": "linear"}),
@@ -108,7 +120,7 @@ def load(ds):
         m = m[(m.region == "missing") & (m.method == f"IR3C_{ds}")].copy()
         m["method"] = "IR3C_matched"
         d = pd.concat([d, m], ignore_index=True, sort=False)
-    if os.path.exists(SAINR[ds]):
+    if USE_SAINR and os.path.exists(SAINR[ds]):
         s = pd.read_csv(SAINR[ds], low_memory=False)
         d = pd.concat([d, s[s.region == "missing"]], ignore_index=True, sort=False)
     _cache[ds] = d
