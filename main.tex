@@ -543,7 +543,9 @@ applicable comparator is 1.91--2.65\,dB on BraTS-GLI (over SA-INR), 0.86--1.69\,
 (over ArSSR; SA-INR pending) and 0.64--2.90\,dB on IXI-tiny (over SA-INR, or ArSSR on U4 and
 U6). The margin is largest on the clustered family U4, which has the longest gaps, on all
 three datasets. The smallest margins are on IXI-tiny U1 and U2, the two families that
-jitter a uniform grid, where SA-INR is 2.4--2.6\,dB above linear interpolation.
+jitter a uniform grid, where SA-INR is 2.4--2.6\,dB above linear interpolation. Pooling over
+factors hides one exception: at $R=2$ on these two families SA-INR is 0.15 and 0.21\,dB better
+than IR3C (Section~\ref{sec:disc-prefer}).
 
 The classical methods behave differently from one another under irregular sampling. The
 global cubic spline is close to linear interpolation on U0 but falls below it on every irregular family of every dataset, by up to 5.3\,dB on OAIZIB U4, because a spline through irregularly
@@ -872,7 +874,9 @@ distribution, at the matched budget; evaluate each on its held-out family. The
 
 \begin{pendingnote}{SA-INR on OAIZIB (shaded cells of Tables~\ref{tab:uniform} and \ref{tab:families})}
 SA-INR \citep{wang2024sainr} is complete on BraTS-GLI and IXI-tiny; the OAIZIB fine-tune is
-running. Its cost, $R=16$ results and figure markers are not yet added.
+running. Its cost, $R=16$ results and figure markers are not yet added. The comparison in
+Section~\ref{sec:disc-prefer} rests on the two brain datasets; OAIZIB will show whether
+SA-INR also comes close on thick knee slices.
 \end{pendingnote}
 
 \subsection{Computational cost}
@@ -924,12 +928,32 @@ move from the anchor, but it does not guarantee a smaller error than linear inte
 do not claim formal safety or non-degradation.
 
 \subsection{Where IR3C should not be preferred}
+\label{sec:disc-prefer}
 
 On a uniform grid at low sparsity, a specialist such as SAINT is more accurate, by up to
 3.7\,dB on IXI-tiny at $R=2$. If the slice pattern is guaranteed to be uniform and the
 reduction factor is small, such a method is the better choice. IR3C should be preferred when
 the slice pattern is irregular, when acquired slices may be rejected, when $R$ is large, or
 when a reconstruction must be fast and feed a downstream analysis.
+
+A published arbitrary-spacing method also comes close when the gaps are short. On IXI-tiny,
+whose reconstruction axis is already the finest axis of the volume, SA-INR is level with
+IR3C on uniform sampling at $R=2$ ($-0.06$\,dB, $p=0.22$) and slightly better on the two
+jittered families U1 and U2 (by 0.15 and 0.21\,dB; Holm-corrected $p<0.01$ over the 21
+IXI-tiny cells at $R\in\{2,4,8\}$). IR3C's lead grows with the length of the gaps. On IXI-tiny
+it is 0.4\,dB on U0--U2 at $R=4$, 1.5--4.1\,dB on the other families at $R=4$ and
+1.6--3.9\,dB on every family at $R=8$, and it is largest on the clustered family U4 at every
+factor. On BraTS-GLI, whose reconstruction axis is the coarsest, IR3C leads SA-INR by
+1.6--3.3\,dB in every family at every trained factor. SA-INR, as trained here, shares two of
+IR3C's ingredients: it predicts a correction to interpolation of the kept slices, and it was
+trained on the same mixed masks. Its competitiveness at short gaps is therefore consistent
+with the formulation argument above, and IR3C's advantage over it is a matter of the network
+that predicts the correction. We have not isolated which property of that network matters;
+the larger through-plane receptive field of the 3D U-Net, compared with SA-INR's local
+attention window, is a plausible explanation for the growth of the margin with gap length,
+but it is untested. In practice, for brain data with short gaps the choice between the two
+methods is close on accuracy, and IR3C's case rests on large factors, clustered gaps and cost
+(0.26 versus about 15\,s per BraTS-GLI volume). SA-INR was not evaluated under slice rejection.
 
 Brain-trained IR3C also does not transfer to knee MRI without fine-tuning; applied zero-shot,
 it is worse than linear interpolation. The method is therefore flexible with respect to slice
@@ -986,7 +1010,8 @@ most accurate method on that grid and still lose its advantage once a modest fra
 acquired slices is rejected. IR3C combines a standard 3D U-Net with three simple ingredients:
 linear interpolation as an anchor with a zero-initialised correction, training across slice
 patterns and factors, and exact preservation of acquired slices. Across brain and knee MRI it is competitive on uniform
-sampling, better than every applicable method on irregular sampling, more robust under slice
+sampling, better than every applicable method on irregular sampling at $R\ge4$ and on most
+irregular families at $R=2$, more robust under slice
 rejection, least disruptive to a downstream segmentation pipeline and 5--55 times faster than
 the learned baselines. These results suggest that the slice patterns a method is trained and
 tested on deserve as much attention as network architecture in missing-slice reconstruction.
