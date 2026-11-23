@@ -867,14 +867,14 @@ on U0 alone SAINT is $+3.2$\,dB at $m_z=1$ (IR3C $+2.2$) and $+0.9$\,dB at $m_z=
 \end{figure*}
 
 \begin{pendingnote}{held-out geometry (Table~\ref{tab:heldout})}
-Train six IR3C models, each with one irregular family removed from the training
-distribution, at the matched budget; evaluate each on its held-out family. The
-``uniform-only'' column is the \texttt{C1\_uniform\_only} arm.
+Six IR3C models, each with one irregular family removed from the training masks and from
+the validation cells used for checkpoint selection, are being trained at the matched budget.
+Each will be evaluated on its held-out family.
 \end{pendingnote}
 
 \begin{pendingnote}{SA-INR on OAIZIB (shaded cells of Tables~\ref{tab:uniform} and \ref{tab:families})}
 SA-INR \citep{wang2024sainr} is complete on BraTS-GLI and IXI-tiny; the OAIZIB fine-tune is
-running. Its cost, $R=16$ results and figure markers are not yet added. The comparison in
+on hold. Its cost, $R=16$ results and figure markers are not yet added. The comparison in
 Section~\ref{sec:disc-prefer} rests on the two brain datasets; OAIZIB will show whether
 SA-INR also comes close on thick knee slices.
 \end{pendingnote}

@@ -237,6 +237,21 @@ def load_a3ft(ds):
     return d[d.region == "missing"]
 
 
+# ------------------------------------------------------------------ P4 leave-one-family-out
+# One IR3C per held-out family (IR3C_MedIA_experiments/p4_lofo.py), scored by p3_evaluate.py.
+P4_EVAL = os.path.join(ROOT, "runs/IR3C_MedIA_P4_lofo/eval")
+
+
+def p4_per_subject(fam, Rs=TRAIN_R, metric="psnr_masked"):
+    """Model trained without `fam`, scored on `fam`; None until its evaluation has finished."""
+    p = os.path.join(P4_EVAL, f"results_LOFO_{fam}.csv")
+    if not os.path.exists(p):
+        return None
+    d = pd.read_csv(p, low_memory=False)
+    d = d[(d.region == "missing") & (d.cond != P3_REJ) & (d.mask_family == fam) & d.R.isin(Rs)]
+    return d.groupby("subject")[metric].mean()
+
+
 def f2(v, dec=2):
     return "" if v is None or (isinstance(v, float) and np.isnan(v)) else f"{v:.{dec}f}"
 

@@ -621,23 +621,38 @@ def tab_loss():
 
 # =========================================================================== pending: held-out family
 def tab_heldout():
-    spec = dict(C.method_specs("BraTS"))
+    """Leave-one-family-out (P4). Seen = A0 (same harness, seed and budget as the held-out
+    models); uniform-only = best trained C1 checkpoint (its selection rule returns linear)."""
+    pend = r"\cellcolor{pendbg}" + TBD
+    held = {f: C.p4_per_subject(f) for f in C.NONUNIFORM}
+    done = all(v is not None for v in held.values())
     t = [r"\begin{table}[t]",
-         r"\caption{\pendlabel\ Generalisation to an unseen sampling family (BraTS-GLI, "
-         r"$R\in\{2,4,8\}$, PSNR in dB). ``Seen'' is the reported IR3C, whose training "
-         r"distribution contains all six irregular families. ``Held out'' is retrained with "
-         r"that family removed. ``Uniform-only'' is trained on U0 alone. Linear and seen IR3C "
-         r"are computed; the other columns are pending.}",
+         r"\caption{" + ("" if done else r"\pendlabel\ ") +
+         r"Generalisation to an unseen sampling family (BraTS-GLI, $n=88$, $R\in\{2,4,8\}$, "
+         r"PSNR in dB). ``Seen'' is IR3C retrained in the ablation harness with all six "
+         r"irregular families (\texttt{A0\_ir3c}, seed 42). ``Held out'' uses the same harness, "
+         r"seed and budget, with that family removed from both the training masks and the "
+         r"validation cells used for checkpoint selection. $\Delta$ is held out minus seen, "
+         r"paired by subject, with its 95\% confidence interval. ``U0 only'' is trained "
+         r"on U0 alone and reported at its best trained checkpoint, because the selection "
+         r"rule returns the initial weights, which equal linear interpolation." +
+         ("" if done else " Shaded cells are pending.") + "}",
          r"\label{tab:heldout}",
          r"\small",
-         r"\begin{tabular*}{\columnwidth}{@{\extracolsep{\fill}}lcccc@{}}",
+         r"\begin{tabular*}{\columnwidth}{@{\extracolsep{\fill}}lccccc@{}}",
          r"\toprule",
-         r"Test family & Linear & Seen & Held out & Uniform-only \\", r"\midrule"]
+         r"Family & Linear & Seen & Held out & $\Delta$ [95\% CI] & U0 only \\", r"\midrule"]
     for f in C.NONUNIFORM:
-        lv = C.per_subject("BraTS", spec["Linear"], [f]).mean()
-        iv = C.per_subject("BraTS", spec["IR3C"], [f]).mean()
-        t.append(f"{f} & {lv:.2f} & {iv:.2f} & " + r"\cellcolor{pendbg}" + TBD +
-                 r" & \cellcolor{pendbg}" + TBD + r" \\")
+        lv = C.p3_per_subject("A0_ir3c", [f], metric="x0_psnr_masked").mean()
+        seen = C.p3_per_subject("A0_ir3c", [f])
+        uni = C.p3_per_subject("C1_uniform_only@best", [f]).mean()
+        if held[f] is None:
+            hv, dv = pend, pend
+        else:
+            p = C.paired(held[f], seen)
+            hv = f"{held[f].mean():.2f}"
+            dv = f"{C.signed(p['mean'])} [{C.signed(p['lo'])}, {C.signed(p['hi'])}]"
+        t.append(f"{f} & {lv:.2f} & {seen.mean():.2f} & {hv} & {dv} & {uni:.2f}" + r" \\")
     t += [r"\bottomrule", r"\end{tabular*}", r"\end{table}", ""]
     C.write("tab_heldout.tex", "\n".join(t))
 
