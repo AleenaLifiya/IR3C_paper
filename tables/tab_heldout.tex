@@ -1,17 +1,17 @@
 \begin{table}[t]
-\caption{\pendlabel\ Generalisation to an unseen sampling family (BraTS-GLI, $n=88$, $R\in\{2,4,8\}$, PSNR in dB). ``Seen'' is IR3C retrained in the ablation harness with all six irregular families (\texttt{A0\_ir3c}, seed 42). ``Held out'' uses the same harness, seed and budget, with that family removed from both the training masks and the validation cells used for checkpoint selection. $\Delta$ is held out minus seen, paired by subject, with its 95\% confidence interval. ``U0 only'' is trained on U0 alone and reported at its best trained checkpoint, because the selection rule returns the initial weights, which equal linear interpolation. Shaded cells are pending.}
+\caption{Generalisation to an unseen sampling family (BraTS-GLI, $n=88$, $R\in\{2,4,8\}$, PSNR in dB). ``Seen'' is IR3C retrained in the ablation harness with all six irregular families (\texttt{A0\_ir3c}, seed 42). ``Held out'' uses the same harness, seed and budget, with that family removed from both the training masks and the validation cells used for checkpoint selection. $\Delta$ is held out minus seen, paired by subject, with its 95\% confidence interval. ``U0 only'' is trained on U0 alone and reported at its best trained checkpoint, because the selection rule returns the initial weights, which equal linear interpolation.}
 \label{tab:heldout}
 \footnotesize\setlength{\tabcolsep}{3pt}
 \begin{tabular*}{\columnwidth}{@{\extracolsep{\fill}}lccccc@{}}
 \toprule
 Family & Linear & Seen & Held out & $\Delta$ [95\% CI] & U0 only \\
 \midrule
-U1 & 25.03 & 27.44 & \cellcolor{pendbg}\tbd & \cellcolor{pendbg}\tbd & 24.68 \\
-U2 & 24.50 & 26.91 & \cellcolor{pendbg}\tbd & \cellcolor{pendbg}\tbd & 24.09 \\
-U3 & 23.12 & 25.69 & \cellcolor{pendbg}\tbd & \cellcolor{pendbg}\tbd & 22.85 \\
-U4 & 18.45 & 21.49 & \cellcolor{pendbg}\tbd & \cellcolor{pendbg}\tbd & 18.36 \\
-U5 & 23.37 & 25.95 & \cellcolor{pendbg}\tbd & \cellcolor{pendbg}\tbd & 23.14 \\
-U6 & 21.73 & 24.36 & \cellcolor{pendbg}\tbd & \cellcolor{pendbg}\tbd & 21.53 \\
+U1 & 25.03 & 27.44 & 27.39 & $-$0.04 [$-$0.05, $-$0.03] & 24.68 \\
+U2 & 24.50 & 26.91 & 26.88 & $-$0.03 [$-$0.04, $-$0.02] & 24.09 \\
+U3 & 23.12 & 25.69 & 25.68 & $-$0.01 [$-$0.02, 0.00] & 22.85 \\
+U4 & 18.45 & 21.49 & 21.01 & $-$0.48 [$-$0.55, $-$0.41] & 18.36 \\
+U5 & 23.37 & 25.95 & 26.03 & $+$0.08 [$+$0.06, $+$0.10] & 23.14 \\
+U6 & 21.73 & 24.36 & 24.36 & $-$0.01 [$-$0.02, $+$0.01] & 21.53 \\
 \bottomrule
 \end{tabular*}
 \end{table}

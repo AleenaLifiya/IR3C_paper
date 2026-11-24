@@ -788,11 +788,10 @@ background term is weaker than its motivation suggested: at the haze level of
 The irregular families used at test time are also used, with different random seeds, during
 training. Results on U1--U6 therefore show robustness across the trained distribution of
 masks, not generalisation to an unseen geometry. Only $R=16$ and the subject-specific
-rejection masks lie outside the training distribution. We address this in three ways. One
-is still planned: leave-one-family-out training (Table~\ref{tab:heldout}). Two are done:
-several mask realisations per subject instead of one shared mask
-(Table~\ref{tab:realisations}), and an analysis of error against the local geometry of each
-missing slice (Fig.~\ref{fig:gap}). The second analysis turns the named families into a statement about gap length and
+rejection masks lie outside the training distribution. We address this in three ways:
+leave-one-family-out training (Table~\ref{tab:heldout}), several mask realisations per
+subject instead of one shared mask (Table~\ref{tab:realisations}), and an analysis of error
+against the local geometry of each missing slice (Fig.~\ref{fig:gap}). The last analysis turns the named families into a statement about gap length and
 distance to the nearest kept slice, which applies to any mask.
 
 For every missing slice of the 88 BraTS-GLI test subjects we stored the foreground squared
@@ -831,6 +830,25 @@ evenly spread families (0.1--0.4\,dB on U1 and U2) and largest for the clustered
 (1.3--1.7\,dB), whose draws differ most in where the long gaps fall.
 The results on U1--U6 are therefore not a property of one favourable mask.
 
+For leave-one-family-out training, six IR3C models were trained in the ablation harness with
+the same initialisation, seed, data and budget as \texttt{A0\_ir3c}. Each had one irregular
+family removed from its training masks and from the validation cells used for checkpoint
+selection, so that family played no part in training or model choice. Each model was then
+tested on its held-out family (Table~\ref{tab:heldout}). For five of the six families,
+leaving the family out makes little difference. On U1, U2, U3, U5 and U6 the held-out model
+is within 0.08\,dB of the model that saw the family, pooled over $R\in\{2,4,8\}$. This is
+within the 0.06--0.13\,dB range between three training seeds of the seen model on the same
+families, and on U5 the held-out model is slightly better. Each held-out model is
+2.4--2.7\,dB above linear interpolation on the family it never saw, and above it in every
+subject. A model trained on U0 alone is 0.1--0.4\,dB below linear interpolation on every
+family. The exception is U4, the clustered family with the longest gaps. Held out, it loses
+0.48\,dB [0.41, 0.55], almost all of it at $R=8$ ($-1.42$\,dB [$-1.60$, $-1.23$]); the loss
+is 0.15\,dB at $R=4$, and at $R=2$ the held-out model is 0.12\,dB better. Even at $R=8$ it
+remains 2.1\,dB above linear interpolation and is above it in 84 of 88 subjects. Training on
+a variety of irregular patterns therefore transfers to a pattern not seen in training, which
+training on uniform sampling alone does not. Long clustered gaps are the exception: they
+benefit from being represented in training.
+
 \input{tables/tab_heldout.tex}
 \input{tables/tab_realisations.tex}
 
@@ -848,12 +866,6 @@ least 20 subjects contribute. SAINT and I3Net run only on U0, so they are not dr
 on U0 alone SAINT is $+3.2$\,dB at $m_z=1$ (IR3C $+2.2$) and $+0.9$\,dB at $m_z=6$--7 (IR3C $+2.3$).}
 \label{fig:gap}
 \end{figure*}
-
-\begin{pendingnote}{held-out geometry (Table~\ref{tab:heldout})}
-Six IR3C models, each with one irregular family removed from the training masks and from
-the validation cells used for checkpoint selection, are being trained at the matched budget.
-Each will be evaluated on its held-out family.
-\end{pendingnote}
 
 \subsection{Computational cost}
 \label{sec:res-cost}
@@ -946,8 +958,10 @@ seeds of IR3C differ by at most 0.09\,dB on U1--U6 (0.14\,dB at $R=16$), but the
 model varies by almost 1\,dB. (iii)~Checkpoint selection on
 BraTS-GLI uses only six validation subjects. (iv)~The irregular test families are drawn from
 the same generators as the training masks; drawing five masks per subject instead of one
-shared mask did not change the ranking (Table~\ref{tab:realisations}), but no family is held
-out of training yet (Section~\ref{sec:pending-heldout}). (v)~The downstream endpoint is consistency with a frozen
+shared mask did not change the ranking (Table~\ref{tab:realisations}). Holding a family out
+of training costs at most 0.08\,dB, except for the clustered family U4, which loses 1.4\,dB at
+$R=8$ (Section~\ref{sec:pending-heldout}). This was tested on BraTS-GLI with one seed per
+held-out family, and patterns outside all six generators were not tested. (v)~The downstream endpoint is consistency with a frozen
 network rather than accuracy against expert labels. The labelled BraTS-GLI training release
 was used in full to train the reconstruction models, so an accuracy evaluation would require
 a new subject-level split and retraining every learned method. (vi)~In a voxel-based morphometry
