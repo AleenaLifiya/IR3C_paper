@@ -927,6 +927,89 @@ def tab_lpips():
 
 
 # =========================================================================== main
+# =========================================================================== appendix VBM
+def tab_vbm():
+    """IXI-tiny grey-matter VBM (matched-budget models): significant area and net bias."""
+    v = pd.read_csv(os.path.join(C.ROOT, "runs/IR3C_SliceReject_all/IXI/vbm_summary.csv"))
+    v = v[v.tissue == "GM"]
+    n = pd.read_csv(os.path.join(C.ROOT, "runs/IR3C_SliceReject_all/IXI/volumes_per_subject.csv"))
+    n_subj = int(n.subject.nunique())
+    conds = [("R2_none_p00", r"$R=2$"), ("R2_burst_p30", r"$R=2$, 30\% burst"),
+             ("R4_none_p00", r"$R=4$"), ("R4_burst_p30", r"$R=4$, 30\% burst")]
+    meths = [("linear", "Linear"), ("bicubic", "Bicubic"), ("DCSRNmix", "DCSRN"),
+             ("ArSSR", "ArSSR"), ("I3Net_impute", r"I$^3$Net"), ("SAINT_impute", "SAINT"),
+             ("IR3C", "IR3C (ours)")]
+    t = [r"\begin{table*}[pos=!htbp]",
+         r"\caption{Grey-matter voxel-based morphometry on IXI-tiny (" + str(n_subj) +
+         r" test subjects, matched-budget models). Tissue probabilities from a prior-guided "
+         r"Gaussian mixture, 8\,mm smoothing, paired $t$ test of reconstructed against "
+         r"reference grey-matter density with sign-flip max-$|t|$ FWE control "
+         r"($p_{\mathrm{FWE}}<0.005$, clusters $\ge338$\,mm$^3$). ``Sig.'' is the fraction "
+         r"of the grey-matter mask with a significant difference (lower is better); "
+         r"``Bias'' is the mean signed error of total grey-matter volume in mL (closer to "
+         r"zero is better). Under rejection, SAINT and I$^3$Net use the imputation "
+         r"workaround. Because every subject has its own rejection mask, a small "
+         r"significant area indicates errors that are not consistent across subjects, not "
+         r"necessarily small errors.}",
+         r"\label{tab:vbm}", r"\small",
+         r"\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}l" + "cc" * len(conds) + r"@{}}",
+         r"\toprule",
+         " & " + " & ".join(r"\multicolumn{2}{c}{" + lab + "}" for _, lab in conds) + r" \\",
+         "".join(rf"\cmidrule(lr){{{2 + 2 * i}-{3 + 2 * i}}}" for i in range(len(conds))),
+         "Method & " + " & ".join([r"Sig.\ (\%)", "Bias (mL)"] * len(conds)) + r" \\",
+         r"\midrule"]
+    out = {}
+    for m, nm in meths:
+        cells = []
+        for ck, _ in conds:
+            r = v[(v.method == m) & (v.cond == ck)].iloc[0]
+            cells += [f"{100 * r.sig_frac_of_mask:.1f}", f"${round(r.vol_bias_ml, 1) + 0.0:+.1f}$"]
+            out[(m, ck)] = (float(r.sig_frac_of_mask), float(r.vol_bias_ml))
+        t.append(nm + " & " + " & ".join(cells) + r" \\")
+    t += [r"\bottomrule", r"\end{tabular*}", r"\end{table*}", ""]
+    C.write("tab_vbm.tex", "\n".join(t))
+    return out
+
+
+# =========================================================================== background control
+def tab_bgmask():
+    """Downstream WT/TC/ET Dice with the archived FLAIR and with its air set to zero (P9)."""
+    p = os.path.join(C.ROOT, "runs/IR3C_MedIA_P9_bgmask_downstream/bgmask_per_volume.csv")
+    d = pd.read_csv(p)
+    n_subj = int(d.subject_id.nunique())
+    meths = [("linear", "Linear"), ("bicubic", "Bicubic"), ("DCSRN_mixed", "DCSRN"),
+             ("I3Net", r"I$^3$Net"), ("SAINT", "SAINT"), ("IR3_matched", "IR3C (ours)")]
+    t = [r"\begin{table*}[t]",
+         r"\caption{Background control for the downstream endpoint (BraTS-GLI, U0, $n=" +
+         str(n_subj) + r"$). ``Air'' is the percentage of voxels outside the head (zero "
+         r"in the acquired FLAIR) that are nonzero in the restored reconstruction; the "
+         r"segmenter z-scores each channel over its nonzero voxels, so these voxels change "
+         r"its normalisation. WT Dice is against the network's prediction on the complete "
+         r"input, for the reconstruction as given (WT, as in Table~\ref{tab:downstream}) and "
+         r"after setting the air voxels to zero (WT$_{\mathrm{air}=0}$). Nothing inside the head is changed. "
+         r"Re-segmenting the unmodified reconstructions reproduces the archived Dice "
+         r"exactly.}",
+         r"\label{tab:bgmask}", r"\small",
+         r"\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}l" + "ccc" * 3 + r"@{}}",
+         r"\toprule",
+         " & " + " & ".join(rf"\multicolumn{{3}}{{c}}{{$R={R}$}}" for R in (2, 4, 8)) + r" \\",
+         r"\cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}",
+         "Method & " + " & ".join([r"Air (\%)", "WT", r"WT$_{\mathrm{air}=0}$"] * 3)
+         + r" \\", r"\midrule"]
+    out = {}
+    for m, nm in meths:
+        cells = []
+        for R in (2, 4, 8):
+            z = d[(d.method == m) & (d.R == R)]
+            fr, a, b = 100 * z.bg_nonzero_frac.mean(), z.WT_dice_orig.mean(), z.WT_dice_bgmasked.mean()
+            cells += [f"{fr:.1f}", f"{a:.3f}", f"{b:.3f}"]
+            out[(m, R)] = (fr, a, b, len(z))
+        t.append(nm + " & " + " & ".join(cells) + r" \\")
+    t += [r"\bottomrule", r"\end{tabular*}", r"\end{table*}", ""]
+    C.write("tab_bgmask.tex", "\n".join(t))
+    return out
+
+
 if __name__ == "__main__":
     facts = {}
     tab_datasets()
@@ -945,6 +1028,8 @@ if __name__ == "__main__":
     facts["cost"] = tab_cost()
     tab_detail()
     tab_budget()
+    tab_vbm()
+    tab_bgmask()
     facts["lpips"] = tab_lpips()
 
     # a plain-text digest of every number quoted in the prose, for cross-checking

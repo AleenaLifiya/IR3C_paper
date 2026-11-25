@@ -122,8 +122,9 @@ def fig_sampling():
     """Job: show the reader the acquisition problem before any method or result.
 
     (a) the seven frozen test-mask families at R=4 on the BraTS depth;
-    (b) slice rejection from a uniform R=2 acquisition;
-    (c) the four geometry profiles IR3C receives, for one irregular mask.
+    (b) slice rejection from a uniform R=2 acquisition.
+    The geometry profiles are drawn separately (fig_profiles, appendix), because the
+    ablations show they are not what makes the method work.
     """
     z = np.load(os.path.join(C.ROOT, "runs/IR3C_brats_ablation1/config/test_masks.npz"),
                 allow_pickle=True)
@@ -143,10 +144,9 @@ def fig_sampling():
     names = {"U0": "U0  uniform", "U1": "U1  mild jitter", "U2": "U2  strong jitter",
              "U3": "U3  random", "U4": "U4  clustered", "U5": "U5  centre-dense",
              "U6": "U6  mixed run lengths"}
-    fig = plt.figure(figsize=(DOUBLE, 3.05))
-    gs = fig.add_gridspec(2, 2, width_ratios=[1.55, 1.0], height_ratios=[7, 3.6],
-                          wspace=0.10, hspace=0.42, left=0.15, right=0.99, top=0.95,
-                          bottom=0.10)
+    fig = plt.figure(figsize=(SINGLE, 3.05))
+    gs = fig.add_gridspec(2, 1, height_ratios=[7, 3.6], hspace=0.42, left=0.27,
+                          right=0.97, top=0.95, bottom=0.10)
     ax = fig.add_subplot(gs[0, 0])
     for i, f in enumerate(C.FAMILIES):
         ret = as_ret(z[f"R4_{f}"])
@@ -167,7 +167,7 @@ def fig_sampling():
     ax.grid(False)
     ax.spines["left"].set_visible(False)
     ax.set_xlabel("Slice index (BraTS-GLI depth, 153 slices)")
-    panel(ax, "a", x=-0.30)
+    panel(ax, "a", x=-0.45)
 
     # (b) rejection
     axb = fig.add_subplot(gs[1, 0])
@@ -192,13 +192,21 @@ def fig_sampling():
     axb.spines["left"].set_visible(False)
     axb.set_xlabel("Slice index")
     # colour key (ink = kept, vermillion = rejected) is stated in the caption
-    panel(axb, "b", x=-0.30)
+    panel(axb, "b", x=-0.45)
 
-    # (c) profiles for the U3 mask, zoomed to a window
-    axc = fig.add_subplot(gs[:, 1])
-    ret = list(as_ret(z["R4_U3"]))
+    save(fig, "fig1_sampling")
+
+
+def fig_profiles():
+    """Job: define the four geometry profiles for readers who want to reproduce the full
+    input. Appendix only: removing them does not change accuracy (Table 9)."""
+    z = np.load(os.path.join(C.ROOT, "runs/IR3C_brats_ablation1/config/test_masks.npz"),
+                allow_pickle=True)
+    D = 153
+    ret = [int(v) for v in np.sort(np.asarray(z["R4_U3"]).astype(int).ravel())]
     import image_residual.masks as M  # noqa: E402
     prof = M.positional_profiles(ret, D)
+    fig, axc = plt.subplots(figsize=(SINGLE, 1.9))
     lo, hi = 40, 100
     zz = np.arange(lo, hi)
     gap = np.log1p(prof["local_gap"]) / np.log1p(160.0)
@@ -219,13 +227,8 @@ def fig_sampling():
     axc.spines["left"].set_visible(False)
     axc.grid(False)
     axc.set_xlabel("Slice index (U3 mask, $R=4$)")
-    panel(axc, "c", x=-0.30, y=1.0)
-    axc.text(0.0, 1.0, "", transform=axc.transAxes)
-    fig.subplots_adjust()
-    # leave room for the profile names
-    pos = axc.get_position()
-    axc.set_position([pos.x0 + 0.10, pos.y0, pos.width - 0.10, pos.height])
-    save(fig, "fig1_sampling")
+    fig.subplots_adjust(left=0.30, right=0.98, bottom=0.22, top=0.98)
+    save(fig, "figA_profiles")
 
 
 # =========================================================================== Fig. 3
@@ -573,6 +576,7 @@ def fig_gap(min_subj=GAP_MIN_SUBJ):
 
 if __name__ == "__main__":
     fig_sampling()
+    fig_profiles()
     fig_uniform()
     fig_families()
     fig_rejection()

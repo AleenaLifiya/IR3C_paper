@@ -1,0 +1,19 @@
+\begin{table*}[t]
+\caption{Background control for the downstream endpoint (BraTS-GLI, U0, $n=88$). ``Air'' is the percentage of voxels outside the head (zero in the acquired FLAIR) that are nonzero in the restored reconstruction; the segmenter z-scores each channel over its nonzero voxels, so these voxels change its normalisation. WT Dice is against the network's prediction on the complete input, for the reconstruction as given (WT, as in Table~\ref{tab:downstream}) and after setting the air voxels to zero (WT$_{\mathrm{air}=0}$). Nothing inside the head is changed. Re-segmenting the unmodified reconstructions reproduces the archived Dice exactly.}
+\label{tab:bgmask}
+\small
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lccccccccc@{}}
+\toprule
+ & \multicolumn{3}{c}{$R=2$} & \multicolumn{3}{c}{$R=4$} & \multicolumn{3}{c}{$R=8$} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}
+Method & Air (\%) & WT & WT$_{\mathrm{air}=0}$ & Air (\%) & WT & WT$_{\mathrm{air}=0}$ & Air (\%) & WT & WT$_{\mathrm{air}=0}$ \\
+\midrule
+Linear & 0.2 & 0.991 & 0.992 & 0.7 & 0.977 & 0.980 & 1.6 & 0.947 & 0.951 \\
+Bicubic & 0.2 & 0.993 & 0.994 & 0.7 & 0.981 & 0.984 & 1.6 & 0.949 & 0.955 \\
+DCSRN & 3.0 & 0.970 & 0.987 & 51.8 & 0.768 & 0.974 & 9.3 & 0.915 & 0.947 \\
+I$^3$Net & 6.8 & 0.923 & 0.994 & 70.3 & 0.676 & 0.983 & 75.9 & 0.646 & 0.952 \\
+SAINT & 0.9 & 0.986 & 0.995 & 24.5 & 0.831 & 0.987 & 28.0 & 0.815 & 0.962 \\
+IR3C (ours) & 0.3 & 0.993 & 0.995 & 0.5 & 0.985 & 0.986 & 0.7 & 0.961 & 0.961 \\
+\bottomrule
+\end{tabular*}
+\end{table*}

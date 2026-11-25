@@ -48,11 +48,11 @@
 \def\floatpagepagefraction{1}
 \def\textpagefraction{.001}
 
-\shorttitle{Interpolation-anchored reconstruction of missing and rejected MRI slices}
+\shorttitle{Anchor, then correct: robust missing-slice MRI reconstruction}
 \shortauthors{[Authors]}
 
-\title[mode=title]{Beyond uniform slice interpolation: interpolation-anchored residual
-correction for missing and rejected MRI slices}
+\title[mode=title]{Anchor, then correct: what makes missing-slice MRI reconstruction
+robust to the slice pattern}
 
 \author[1]{[First author]}[orcid=0000-0000-0000-0000]
 \cormark[1]
@@ -69,27 +69,28 @@ correction for missing and rejected MRI slices}
 %% ---------------------------------------------------------------- abstract
 \begin{abstract}
 Learned through-plane MRI reconstruction is usually developed and tested on volumes in which
-every $R$th slice is kept. In practice, the slices available for reconstruction may be
-irregularly spaced, and slices corrupted by motion may be discarded after quality control.
-Methods built around a fixed uniform grid then need a workaround before they can be applied.
-We formulate the task as reconstruction from an arbitrary set of kept slices and propose
-IR3C, a model that predicts a bounded correction to through-plane linear interpolation. The
-network receives the sparse volume, its linear interpolant and four slice-geometry profiles
-computed from the mask. Kept slices are copied to the output
-exactly, and a zero-initialised output layer makes the untrained model equal to linear
-interpolation. A single standard 3D U-Net serves all reduction factors and mask patterns. We
-evaluate on brain T2-FLAIR (BraTS-GLI), brain T1-weighted (IXI-tiny) and knee DESS (OAIZIB)
-MRI under uniform sampling, six irregular sampling families, an unseen reduction factor and
-post-acquisition slice rejection, with every learned baseline trained under a matched budget.
-On uniform sampling, the strongest specialist baseline, SAINT, is better at $R=2$ on all three
-datasets, whereas IR3C is better at $R=8$. On irregular sampling, IR3C exceeds the strongest
-applicable method by 2.2--3.0\,dB on BraTS-GLI, 0.9--1.7\,dB on OAIZIB and 1.4--2.9\,dB on
-IXI-tiny. When 20--30\% of acquired slices are rejected, IR3C exceeds the best competitor,
-including SAINT with two prespecified workarounds, by 1.2--2.3\,dB on both brain datasets
-and by 0.8--1.3\,dB on OAIZIB.
-IR3C also gives the highest whole-tumour agreement with the complete-input output of a frozen segmentation network at every factor, and reconstructs a volume in 0.26\,s. Ablations on all three datasets show that the linear anchor, its
-zero-initialised correction and training across slice patterns account for this robustness;
-the explicit geometry profiles can be removed without loss, and no new backbone is needed.
+every $R$th slice is kept. In practice, the kept slices may be irregularly spaced, and slices
+corrupted by motion may be discarded after quality control. We pose missing-slice
+reconstruction for an arbitrary set of kept slices and ask what makes a learned model robust
+to the slice pattern. We study the question with IR3C, a standard 3D U-Net that predicts a
+bounded correction to through-plane linear interpolation, starts from exactly that
+interpolation through a zero-initialised output layer, copies acquired slices to the output
+and is trained across slice patterns and reduction factors. We evaluate on brain T2-FLAIR
+(BraTS-GLI), brain T1-weighted (IXI-tiny) and knee DESS (OAIZIB) MRI, with every learned
+comparator trained under a matched budget. On uniform sampling at $R=2$, the uniform-grid
+specialist SAINT remains more accurate on all three datasets. When 20--30\% of the acquired
+slices are rejected, IR3C exceeds the best competitor, including SAINT with two prespecified
+workarounds, by 1.2--2.3\,dB on both brain datasets and by 0.8--1.3\,dB on the knee. On six
+irregular sampling families it exceeds every applicable method by 0.9--3.0\,dB, and leaving a
+family out of training costs at most 0.08\,dB, except for long clustered gaps. Ablations on
+all three datasets locate the robustness. Removing the anchor costs 1.7\,dB, a non-zero
+initial correction costs 0.9\,dB and uniform-only training gives no gain over interpolation,
+whereas the explicit slice-geometry inputs and the bound on the correction can be removed
+without loss. In a downstream tumour segmentation, the largest Dice drops, for SAINT and
+I$^3$Net, are caused by low-level signal in the background outside the region that image
+metrics score, and they largely disappear when that background is set to zero. Anchoring on
+interpolation and training across slice patterns, rather than a new architecture, make
+missing-slice reconstruction robust to the slice pattern.
 \end{abstract}
 
 \begin{graphicalabstract}
@@ -98,11 +99,11 @@ To be added
 \end{graphicalabstract}
 
 \begin{highlights}
-\item Slice reconstruction is posed for arbitrary, irregular and rejected slice patterns
-\item A zero-initialised bounded residual on linear interpolation keeps kept slices exact
+\item Missing-slice MRI reconstruction posed for arbitrary, irregular and rejected slices
 \item Uniform-grid specialists win at low sparsity but lose once slices are rejected
-\item One model serves all factors and patterns and is 5--55 times faster than baselines
-\item Image-quality rankings and downstream segmentation consistency disagree
+\item Linear anchor, zero-init correction and mixed-pattern training drive robustness
+\item Explicit geometry inputs, the residual bound and a new backbone are not needed
+\item Background haze outside the scored region can break a downstream segmenter
 \end{highlights}
 
 \begin{keywords}
@@ -150,34 +151,42 @@ model, asked only to correct linear interpolation and trained across slice patte
 accurate when the slice pattern changes, including when acquired slices
 are rejected?
 
-We answer this question with IR3C, a deliberately simple method (Fig.~\ref{fig:arch}). The
-network is a standard 3D U-Net \citep{ronneberger2015unet}. What changes is the task it is
-given. The network receives the sparse volume, its linear interpolant and four
-slice-geometry profiles derived from the mask alone. It predicts a bounded correction that
-is applied only on missing slices, so kept slices are reproduced exactly. Because the output
-layer is initialised to zero, the untrained model is exactly linear interpolation. The
-ablations show which of these choices matter: the anchor and the zero initialisation, and
-training on mixed slice patterns and factors. The geometry profiles, our original design
-emphasis, turn out to be redundant, because the sparse volume and its interpolant already
-show where the gaps are.
+We study this question with IR3C (interpolation-anchored residual 3D correction), a
+deliberately simple model (Fig.~\ref{fig:arch}). The network is a standard 3D U-Net
+\citep{ronneberger2015unet}; what changes is the task it is given. It receives the sparse
+volume and its linear interpolant, predicts a bounded correction that is applied only on
+missing slices, and copies the acquired slices to the output. Because the output layer is
+initialised to zero, the untrained model is exactly linear interpolation, and it is trained
+on a mixture of slice patterns and reduction factors. IR3C is the vehicle of the study
+rather than its main contribution. Its ablations, on all three datasets, isolate the
+recipe: anchor, then correct. The linear anchor, the zero-initialised correction and
+training across slice patterns are what make the model robust. Explicit slice-geometry
+inputs, which we originally designed for the purpose, the bound on the correction and a
+larger backbone are not needed for robustness, because the sparse volume and its
+interpolant already show where the gaps are.
 
 The contributions of this work are as follows.
 \begin{enumerate}[(1)]
-\item We formulate through-plane slice reconstruction for an arbitrary set of kept slices
-and define the evaluated region, the slice geometry and the sampling conditions explicitly.
-We separate uniform sampling, irregular sampling, unseen sparsity and post-acquisition slice
-rejection as distinct test conditions.
-\item We describe IR3C, a residual model anchored on linear interpolation and trained across
-slice patterns. It keeps acquired slices exactly and uses one set of weights for all
-reduction factors and sampling patterns.
-\item We compare IR3C with four classical interpolants and four learned methods on three
-datasets that differ in anatomy, contrast and slice geometry. All learned methods are trained
-under a matched optimisation budget, and methods that are not defined on irregular grids are
-evaluated through prespecified workarounds rather than omitted silently.
-\item We report where IR3C does not win. A uniform-grid specialist is better at low
-sparsity and on the dataset whose slice axis is already finely sampled. We also show that
-image-similarity rankings and downstream segmentation consistency disagree, and that the
-explicit geometry inputs we designed are not what makes the method robust.
+\item \emph{Problem and protocol.} We formulate through-plane slice reconstruction for an
+arbitrary set of kept slices and separate uniform sampling, irregular sampling, unseen
+sparsity and post-acquisition slice rejection as distinct test conditions. On three datasets
+that differ in anatomy, contrast and slice geometry, four classical interpolants and four
+learned methods are compared under a matched optimisation budget, on identical scored
+voxels, and methods that are not defined on irregular grids are evaluated through
+prespecified workarounds rather than omitted silently.
+\item \emph{A crossover.} A uniform-grid specialist (SAINT) is the most accurate method on
+uniform sampling at low sparsity, and clearly so on the dataset whose slice axis is already
+finely sampled. When acquired slices are rejected, it loses this advantage under either
+workaround: the crossover lies at or below 10\% rejection on all three datasets, and at
+20--30\% rejection it is behind IR3C in every condition.
+\item \emph{What makes a model robust.} One-factor-at-a-time ablations, repeated on all
+three datasets, identify the recipe: a linear anchor, a zero-initialised correction and
+training across slice patterns. Explicit geometry inputs and the residual bound can be
+removed without loss, the backbone only scales accuracy, and robustness carries over to
+irregular families left out of training, except for long clustered gaps.
+\item \emph{Evaluation beyond image similarity.} The largest downstream segmentation
+failures come from low-level background signal outside the region that image metrics score,
+and a zero-background control removes them. LPIPS ranks the methods differently again.
 \end{enumerate}
 
 Throughout the paper, the degradation removes slices from a dense reference volume. This is
@@ -269,19 +278,17 @@ consecutive acquired slices, as might follow a motion event. The rejection mask 
 deterministically from the subject identifier, so each subject has its own mask, and the
 same mask is given to every method.
 
-\begin{figure*}[t]
+\begin{figure}[t]
 \centering
-\includegraphics[width=\textwidth]{figs/fig1_sampling.pdf}
+\includegraphics[width=\columnwidth]{figs/fig1_sampling.pdf}
 \caption{Sampling conditions studied in this work. (a)~The seven test-mask families at
 $R=4$ on the 153-slice BraTS-GLI depth. Each tick is a kept slice; every family keeps 39
 slices, so the families differ only in where the slices are placed. The number on the right
 is the longest gap in slices. (b)~Slice rejection. A uniform $R=2$ acquisition loses 20\% of
 its interior slices independently (random) or in runs of two to three slices (burst).
-Black: acquired and kept; orange: acquired and rejected. (c)~The four geometry profiles that
-IR3C receives, shown for a window of the U3 mask. Grey vertical lines mark kept slices.
-Profiles are computed from the mask alone and are broadcast over the in-plane dimensions.}
+Black: acquired and kept; orange: acquired and rejected.}
 \label{fig:sampling}
-\end{figure*}
+\end{figure}
 
 \subsection{IR3C}
 \label{sec:ir3c}
@@ -298,14 +305,16 @@ x_{\mathrm{lin}}(:,:,z)=(1-\alpha_z)\,x(:,:,l_z)+\alpha_z\,x(:,:,r_z),\\
 and $x_{\mathrm{lin}}(:,:,z)=x(:,:,z)$ for kept slices.
 
 \paragraph{Geometry profiles.} Four per-slice profiles describe the acquisition geometry
-(Fig.~\ref{fig:sampling}c): the kept indicator $k_z$; the relative position $\alpha_z$; the
+(Fig.~\ref{fig:profiles}, Appendix~\ref{app:profiles}): the kept indicator $k_z$; the relative position $\alpha_z$; the
 gap length $g_z=r_z-l_z$; and the distance to the nearest kept slice
 $d_z=\min(z-l_z,\,r_z-z)$. Gap length and distance are log-compressed so that very long gaps
 remain in a bounded range, $\tilde g_z=\log(1+g_z)/\log(161)$ and
 $\tilde d_z=\log(1+d_z)/\log(81)$. All profiles except $k_z$ are zero on kept slices. Each
 profile is broadcast over the in-plane dimensions. Together with $x_s$ and $x_{\mathrm{lin}}$,
 the profiles form a six-channel input $X$. The profiles depend only on the mask, never on
-image intensities.
+image intensities. They are part of the model that we report, but the ablations
+(Section~\ref{sec:pending-form}) show that they can be removed without loss on all three
+datasets; the essential input is $(x_s, x_{\mathrm{lin}})$.
 
 \paragraph{Bounded residual.} A 3D U-Net $f_\theta$ maps $X$ to one channel. The
 reconstruction is
@@ -519,51 +528,6 @@ different vertical scales.}
 \label{fig:uniform}
 \end{figure*}
 
-\subsection{Irregular sampling}
-\label{sec:res-families}
-
-Table~\ref{tab:families} and Fig.~\ref{fig:families} report PSNR by sampling family. SAINT and
-\Ithree are absent because they are not defined on irregular grids. On every family and
-dataset, IR3C is better than every applicable method, and it is better in at least 99\% of
-subjects in each column. On the irregular families U1--U6, its margin over the strongest
-applicable comparator is 2.21--2.97\,dB on BraTS-GLI (over bicubic interpolation),
-0.86--1.69\,dB on OAIZIB (over ArSSR) and 1.39--2.90\,dB on IXI-tiny (over ArSSR). The margin is
-largest on the clustered family U4, which has the longest gaps, on all three datasets.
-
-The classical methods behave differently from one another under irregular sampling. The
-global cubic spline is close to linear interpolation on U0 but falls below it on every irregular family of every dataset, by up to 5.3\,dB on OAIZIB U4, because a spline through irregularly
-spaced knots overshoots. Local bicubic interpolation remains close to linear interpolation.
-Among the learned methods, DCSRN gains little over linear interpolation even though it was
-trained on the same mixed masks as IR3C, which indicates that training on irregular masks
-alone is not sufficient. The formulation ablation (Section~\ref{sec:pending-form}) confirms
-this with the IR3C backbone itself: trained on the same masks without the anchor, it loses
-1.7\,dB of IR3C's 2.6\,dB gain over linear interpolation on U1--U6.
-
-\input{tables/tab_families.tex}
-
-\begin{figure*}[t]
-\centering
-\includegraphics[width=\textwidth]{figs/fig4_families.pdf}
-\caption{PSNR difference from linear interpolation by sampling family, pooled over
-$R\in\{2,4,8\}$, on (a)~BraTS-GLI, (b)~OAIZIB and (c)~IXI-tiny. The shaded column is the
-uniform family U0. Only methods that are defined on irregular grids are shown. Error bars are
-95\% confidence intervals of the paired difference across subjects.}
-\label{fig:families}
-\end{figure*}
-
-\subsection{Unseen sparsity}
-\label{sec:res-r16}
-
-No model was trained at $R=16$. Table~\ref{tab:r16} shows that IR3C remains the best method at
-this factor on all datasets, pooled over all families (BraTS-GLI 18.22 versus 15.89\,dB for the
-next best method; OAIZIB 16.99 versus 15.87\,dB; IXI-tiny 19.91 versus 16.99\,dB). Absolute
-quality is low for every method, and in the most extreme cell (U4 at $R=16$ on BraTS-GLI,
-where one gap spans most of the brain) no method recovers the anatomy. We therefore read this
-result as graceful degradation outside the training range, not as a solution to extreme
-sparsity.
-
-\input{tables/tab_r16.tex}
-
 \subsection{Slice rejection}
 \label{sec:res-reject}
 
@@ -606,23 +570,115 @@ Appendix~\ref{app:reject}.}
 \label{fig:rejection}
 \end{figure*}
 
+\subsection{Irregular sampling}
+\label{sec:res-families}
+
+Table~\ref{tab:families} and Fig.~\ref{fig:families} report PSNR by sampling family. SAINT and
+\Ithree are absent because they are not defined on irregular grids. On every family and
+dataset, IR3C is better than every applicable method, and it is better in at least 99\% of
+subjects in each column. On the irregular families U1--U6, its margin over the strongest
+applicable comparator is 2.21--2.97\,dB on BraTS-GLI (over bicubic interpolation),
+0.86--1.69\,dB on OAIZIB (over ArSSR) and 1.39--2.90\,dB on IXI-tiny (over ArSSR). The margin is
+largest on the clustered family U4, which has the longest gaps, on all three datasets.
+
+The classical methods behave differently from one another under irregular sampling. The
+global cubic spline is close to linear interpolation on U0 but falls below it on every irregular family of every dataset, by up to 5.3\,dB on OAIZIB U4, because a spline through irregularly
+spaced knots overshoots. Local bicubic interpolation remains close to linear interpolation.
+Among the learned methods, DCSRN gains little over linear interpolation even though it was
+trained on the same mixed masks as IR3C, which indicates that training on irregular masks
+alone is not sufficient. The formulation ablation (Section~\ref{sec:pending-form}) confirms
+this with the IR3C backbone itself: trained on the same masks without the anchor, it loses
+1.7\,dB of IR3C's 2.6\,dB gain over linear interpolation on U1--U6.
+
+\input{tables/tab_families.tex}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figs/fig4_families.pdf}
+\caption{PSNR difference from linear interpolation by sampling family, pooled over
+$R\in\{2,4,8\}$, on (a)~BraTS-GLI, (b)~OAIZIB and (c)~IXI-tiny. The shaded column is the
+uniform family U0. Only methods that are defined on irregular grids are shown. Error bars are
+95\% confidence intervals of the paired difference across subjects.}
+\label{fig:families}
+\end{figure*}
+
+Fig.~\ref{fig:irregular} shows what these margins look like on the clustered family U4 at
+$R=4$, whose gaps reach 24 slices on BraTS-GLI, and on the random family U3 at $R=8$. Linear
+and bicubic interpolation fill each long gap with vertical streaks, ArSSR and DCSRN reduce
+but do not remove them, and DCSRN adds blocky artefacts in the tumour at $R=8$. IR3C restores
+continuous anatomy across the gaps, including the corpus callosum and the cerebellum on the
+brain datasets and the oblique tissue interfaces on the knee, and has the lowest
+error in every panel. Its remaining error lies at tissue boundaries inside the longest
+gaps, where no method has data to follow.
+
+\begin{figure*}[p]
+\centering
+\includegraphics[width=\textwidth]{figs/fig10_irregular.pdf}
+\caption{Irregular sampling on all three datasets: reformats along the reconstruction axis
+(vertical) for the clustered family U4 at $R=4$ and the random family U3 at $R=8$, using the
+shared test masks of Table~\ref{tab:families}. The plane is the one with the largest
+foreground area orthogonal to the first in-plane axis, displayed at physical aspect ratio.
+Each mask has an image row and an error row ($|\text{error}|$ on missing slices only; one
+colour scale per mask and dataset). Numbers are the MAE over the foreground of the missing
+slices in the displayed plane. Ticks on the left edge of the reference mark kept slices.
+SAINT and \Ithree are not defined on these masks, and on OAIZIB and IXI-tiny DCSRN has no
+$\times8$ model. The subject on each dataset is the one with the median IR3C gain over the
+best other method on U4, among the five showcase subjects (BraTS-GLI-00027-000, OAIZIB
+subject 408, IXI013-HH-1212). These reconstructions were recomputed from the frozen
+checkpoints for this figure; linear and IR3C reproduce the archived PSNR of every cell to
+$<10^{-6}$\,dB.}
+\label{fig:irregular}
+\end{figure*}
+
+\subsection{Unseen sparsity}
+\label{sec:res-r16}
+
+No model was trained at $R=16$. Table~\ref{tab:r16} shows that IR3C remains the best method at
+this factor on all datasets, pooled over all families (BraTS-GLI 18.22 versus 15.89\,dB for the
+next best method; OAIZIB 16.99 versus 15.87\,dB; IXI-tiny 19.91 versus 16.99\,dB). Absolute
+quality is low for every method, and in the most extreme cell (U4 at $R=16$ on BraTS-GLI,
+where one gap spans most of the brain) no method recovers the anatomy. We therefore read this
+result as graceful degradation outside the training range, not as a solution to extreme
+sparsity.
+
+\input{tables/tab_r16.tex}
+
 \subsection{Downstream segmentation consistency}
 \label{sec:res-downstream}
 
 Table~\ref{tab:downstream} and Fig.~\ref{fig:downstream} report how far each reconstruction
 moves the output of a frozen tumour segmentation network. The reference is the network's own
 prediction on the complete input; re-saving and reloading the complete volume gives WT Dice
-of 0.990, which is the noise floor of the pipeline. IR3C has the highest WT Dice at every factor and is best or within 0.001 of the best in every TC and ET column (WT 0.993, 0.985 and 0.961 at $R=2$, 4 and 8), and its advantage over linear
+of 0.990, which is the noise floor of the pipeline. On the pipeline as given, IR3C has the highest WT Dice at every factor and is best or within 0.001 of the best in every TC and ET column (WT 0.993, 0.985 and 0.961 at $R=2$, 4 and 8), and its advantage over linear
 interpolation grows with sparsity (0.002, 0.007 and 0.013; Holm-adjusted $p<10^{-7}$ at every factor). The full-budget checkpoint changes WT Dice by at most 0.001, so this endpoint does not depend on the training budget. The classical interpolants stay close to IR3C on this endpoint even though they are
 more than 2\,dB lower in PSNR.
 
 The downstream ranking does not follow PSNR. SAINT is within 1\,dB of IR3C in PSNR on BraTS-GLI at
-$R=4$ and $R=8$ (Table~\ref{tab:uniform}) but falls to WT Dice of 0.831 and 0.816. \Ithree,
-whose PSNR is close to linear interpolation, falls further, to 0.676 and 0.646. The cause of
-the SAINT drop is not yet established: its mean background intensity is low, so it does not
-follow the background-haze mechanism we found for \Ithree, which shifts the intensity
-normalisation of the segmentation network. Image metrics alone would not have revealed
-these failures.
+$R=4$ and $R=8$ (Table~\ref{tab:uniform}) but falls to WT Dice of 0.831 and 0.816, with a
+complete miss (WT Dice 0) in some subjects. \Ithree, whose PSNR is close to linear
+interpolation, falls further, to 0.676 and 0.646.
+
+The cause lies outside the region that the image metrics score (Table~\ref{tab:bgmask},
+Fig.~\ref{fig:seg}). The segmenter z-scores each input channel over its nonzero voxels, and
+the restored FLAIR maps any positive model output to at least the lower bound of the
+intensity window. A reconstruction that leaves low-level signal in the air around the head
+therefore adds those voxels to the normalisation as if they were tissue. SAINT does so for
+25--28\% of the air voxels at $R=4$ and 8, but for only 0.9\% at $R=2$, where its Dice is
+normal; \Ithree for 70--76\%, and DCSRN for 52\% at $R=4$, its worst factor. IR3C and the
+interpolants stay below 2\%. Across all methods, factors and subjects, the Dice change
+produced by removing this signal has a rank correlation of 0.84 with the fraction of air
+made nonzero. As a direct test, we set every voxel that is zero in the acquired FLAIR to zero
+in each archived reconstruction, changing nothing inside the head, and re-ran the frozen
+segmenter (re-segmenting the unmodified files reproduces the archived Dice exactly). The
+collapses disappear: SAINT recovers to WT Dice 0.987 and 0.962 at $R=4$ and 8, and \Ithree to
+0.983 and 0.952, and the complete misses vanish: the lowest subject is at 0.77 for SAINT and
+0.71 for \Ithree, comparable to the hardest subjects of every other method. After this control, IR3C and SAINT are
+practically equal (SAINT higher by 0.0005--0.0007 WT Dice), and IR3C remains above linear and
+bicubic interpolation, \Ithree and DCSRN at every factor (by 0.0006--0.014; Wilcoxon
+$p<10^{-8}$). IR3C's downstream advantage over SAINT and \Ithree on the pipeline as given is
+therefore an advantage in background behaviour, not in the reconstructed anatomy, and PSNR
+on the foreground of missing slices cannot see it. In practice the control is cheap,
+because the other three BraTS contrasts are fully acquired and give the brain mask.
 
 \input{tables/tab_downstream.tex}
 
@@ -635,6 +691,22 @@ for (a)~whole tumour, (b)~tumour core and (c)~enhancing tumour. The dotted line 
 obtained by re-saving and reloading the complete input. Error bars are 95\% confidence
 intervals across subjects.}
 \label{fig:downstream}
+\end{figure*}
+
+\input{tables/tab_bgmask.tex}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figs/fig11_seg.pdf}
+\caption{Why a reconstruction with reasonable PSNR can move the segmenter (BraTS-GLI, $R=4$,
+subject BraTS-GLI-01707-000, chosen as the subject whose SAINT WT Dice is closest to the
+cohort median). Top: restored FLAIR on the reconstructed axial slice with the largest
+reference tumour; orange marks voxels outside the head (zero in the acquired FLAIR) that the
+reconstruction makes nonzero. The percentage is over the whole volume. Bottom: prediction
+of the frozen segmenter from that FLAIR with the other three contrasts unchanged, and whole-
+volume WT Dice against the prediction from the complete input. The last column is the same
+SAINT reconstruction with the air set to zero and nothing inside the head changed.}
+\label{fig:seg}
 \end{figure*}
 
 
@@ -661,6 +733,35 @@ images share one intensity window and all error maps share one scale. \Ithree an
 the imputation workaround in the rejection rows. The subject was selected by a rule fixed in
 advance (median IR3C gain among five showcase subjects).}
 \label{fig:qual}
+\end{figure*}
+
+Fig.~\ref{fig:cubes} shows whole volumes rather than one plane. Each block is cut so that
+its three visible faces are interior planes through the foreground centroid, with the top
+face at a missing slice in the longest gap of the middle of the volume; the subject is
+chosen on each dataset by the same median-gain rule as Fig.~\ref{fig:qual}. After 30\%
+burst rejection at $R=4$, the error of linear interpolation and of SAINT with imputation is
+organised in horizontal slabs that follow the rejected runs, because both fill those runs
+with the same linear estimate. ArSSR removes part of this structure but adds a fine
+grid-like texture on the knee. IR3C has the lowest missing-slice error on all three
+subjects (MAE 0.059, 0.065 and 0.039 on BraTS-GLI, OAIZIB and IXI-tiny, against
+0.073--0.079, 0.074--0.089 and 0.048--0.061 for the other methods); its remaining error
+concentrates at tissue boundaries, most visibly in the top faces.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figs/fig9_cubes.pdf}
+\caption{Whole-volume view after 30\% burst rejection at base factor $R=4$, one subject per
+dataset. In each block the reconstruction axis is vertical, depth is drawn obliquely and
+physical voxel spacing is respected; the three visible faces are interior planes through
+the foreground centroid, and the top face is a missing slice at the centre of the longest
+gap in the middle 45--80\% of the foreground. Image rows: reference and reconstructions
+(one intensity window per dataset). Error rows: the acquired input that every method
+receives (kept slices only), then $|\text{error}|$ on missing slices; acquired slices are
+exact for every method and appear black. Ticks on the left edge mark kept (grey) and
+rejected (orange) slices. MAE is computed over the foreground of all missing slices of the
+volume. Subjects are the median-IR3C-gain subjects of the five archived showcase subjects
+(BraTS-GLI-00047-000, OAIZIB subject 406, IXI021-Guys-0703); SAINT uses the imputation workaround.}
+\label{fig:cubes}
 \end{figure*}
 
 \subsection{What makes the formulation work}
@@ -930,10 +1031,21 @@ geometry within a trained or adapted anatomy; it is not anatomy-invariant.
 \subsection{Image metrics and downstream behaviour}
 \label{sec:disc-metrics}
 
-The segmentation experiment shows that PSNR should not be the only endpoint. SAINT and
-\Ithree have reasonable PSNR but change the downstream segmentation substantially. The
-classical interpolants trail by more than 2\,dB in PSNR yet remain close to IR3C on Dice,
-because their errors are smooth. The loss-term ablation (Table~\ref{tab:loss}) shows the
+The segmentation experiment shows that PSNR should not be the only endpoint, and the
+background control shows why. The largest downstream failures, for SAINT and \Ithree, come
+from voxels that no image metric in this paper scores: low-level output in the air around
+the head, which a nonzero-based intensity normalisation turns into apparent tissue. This is
+a property of the interaction between a reconstruction and a downstream pipeline, not of the
+anatomy inside the head. Once the air is set to zero, SAINT and IR3C are equally consistent
+with the complete-input segmentation. We therefore read the endpoint in two parts. On the
+pipeline as given, IR3C is the least disruptive method because it leaves the background
+clean, plausibly because its output starts from linear interpolation, which is exactly
+zero in the air between zero-valued kept slices (the background loss term is not what keeps
+it clean; Table~\ref{tab:loss}). With a background control, which is easy to apply
+whenever a brain mask is available, the uniform-grid specialist is as good as IR3C at
+$R\le8$ on uniform sampling. Reconstruction studies with a downstream endpoint should report
+how they handle the background. The classical interpolants trail by more than 2\,dB in PSNR
+yet remain close to IR3C on Dice, because their errors are smooth. The loss-term ablation (Table~\ref{tab:loss}) shows the
 same from the training side: removing the structural term gives the highest PSNR of the
 four objectives and the lowest Dice, so PSNR would also have chosen the wrong training
 objective. The endpoint has a clear limitation: it measures
@@ -965,10 +1077,13 @@ held-out family, and patterns outside all six generators were not tested. (v)~Th
 network rather than accuracy against expert labels. The labelled BraTS-GLI training release
 was used in full to train the reconstruction models, so an accuracy evaluation would require
 a new subject-level split and retraining every learned method. (vi)~In a voxel-based morphometry
-analysis on IXI-tiny (not shown), IR3C reduced the area of significant grey-matter
-differences compared with linear interpolation but introduced a one-signed underestimation
-of total grey-matter volume, which validation-based calibration removed; IR3C should not be
-used for volumetry without such calibration.
+analysis on IXI-tiny (Table~\ref{tab:vbm}), IR3C has a smaller significant grey-matter area
+than linear interpolation in every condition, and the smallest of all methods after 30\%
+burst rejection. It also underestimates total grey-matter volume by 3--10\,mL, one-signed
+and growing with sparsity and rejection, which is the largest net bias of all methods at
+$R=4$. In an earlier analysis of the full-budget model, a linear calibration fitted on
+validation subjects removed this offset; we did not repeat the calibration for the
+matched-budget model. IR3C should not be used for volumetry without such a correction.
 
 %% ================================================================= 7 CONCLUSION
 \section{Conclusion}
@@ -981,7 +1096,9 @@ acquired slices is rejected. IR3C combines a standard 3D U-Net with three simple
 linear interpolation as an anchor with a zero-initialised correction, training across slice
 patterns and factors, and exact preservation of acquired slices. Across brain and knee MRI it is competitive on uniform
 sampling, better than every applicable method on irregular sampling, more robust under slice
-rejection, least disruptive to a downstream segmentation pipeline and 5--55 times faster than
+rejection, least disruptive to a downstream segmentation pipeline as given (a property of its
+clean background rather than of the anatomy, as a background control shows) and 5--55 times
+faster than
 the learned baselines. These results suggest that the slice patterns a method is trained and
 tested on deserve as much attention as network architecture in missing-slice reconstruction.
 
@@ -1042,6 +1159,30 @@ method in every rejection condition, including bicubic interpolation, DCSRN and 
 workarounds for \Ithree and SAINT.
 
 \input{tables/tab_rejection_absolute.tex}
+
+\FloatBarrier
+\section{Geometry profiles}
+\label{app:profiles}
+
+Fig.~\ref{fig:profiles} shows the four geometry profiles of Section~\ref{sec:ir3c} for a
+window of the U3 mask. They are part of the reported model, but removing them leaves the
+accuracy unchanged on all three datasets (Section~\ref{sec:pending-form}).
+
+\begin{figure}[pos=!htbp]
+\centering
+\includegraphics[width=\columnwidth]{figs/figA_profiles.pdf}
+\caption{The four geometry profiles for a window of the U3 mask at $R=4$. Grey vertical
+lines mark kept slices. Profiles are computed from the mask alone and are broadcast over the
+in-plane dimensions; gap length and distance are shown after log compression and scaled to
+the window.}
+\label{fig:profiles}
+\end{figure}
+
+\FloatBarrier
+\section{Voxel-based morphometry on IXI-tiny}
+\label{app:vbm}
+
+\input{tables/tab_vbm.tex}
 
 \FloatBarrier
 \section{Training budget}

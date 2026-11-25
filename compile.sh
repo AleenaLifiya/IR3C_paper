@@ -8,6 +8,7 @@ PY=/home/aleena/miniforge3/envs/xdiff/bin/python
 if [ "${1:-}" != "--tex" ]; then
   "$PY" scripts/make_tables.py
   "$PY" scripts/make_figures.py 2>&1 | grep -v -i "deprecat\|rank_zero" || true
+  (cd scripts && "$PY" make_qualitative.py 2>&1 | grep -v -i "deprecat\|rank_zero\|warn") || true
 fi
 PKG_ROOT=/home/aleena/miniforge3/pkgs
 LIB_PATH=""

@@ -1,0 +1,20 @@
+\begin{table*}[pos=!htbp]
+\caption{Grey-matter voxel-based morphometry on IXI-tiny (100 test subjects, matched-budget models). Tissue probabilities from a prior-guided Gaussian mixture, 8\,mm smoothing, paired $t$ test of reconstructed against reference grey-matter density with sign-flip max-$|t|$ FWE control ($p_{\mathrm{FWE}}<0.005$, clusters $\ge338$\,mm$^3$). ``Sig.'' is the fraction of the grey-matter mask with a significant difference (lower is better); ``Bias'' is the mean signed error of total grey-matter volume in mL (closer to zero is better). Under rejection, SAINT and I$^3$Net use the imputation workaround. Because every subject has its own rejection mask, a small significant area indicates errors that are not consistent across subjects, not necessarily small errors.}
+\label{tab:vbm}
+\small
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lcccccccc@{}}
+\toprule
+ & \multicolumn{2}{c}{$R=2$} & \multicolumn{2}{c}{$R=2$, 30\% burst} & \multicolumn{2}{c}{$R=4$} & \multicolumn{2}{c}{$R=4$, 30\% burst} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}
+Method & Sig.\ (\%) & Bias (mL) & Sig.\ (\%) & Bias (mL) & Sig.\ (\%) & Bias (mL) & Sig.\ (\%) & Bias (mL) \\
+\midrule
+Linear & 37.5 & $-2.9$ & 17.4 & $-1.1$ & 29.9 & $-2.5$ & 28.8 & $-0.8$ \\
+Bicubic & 32.5 & $-2.7$ & 13.5 & $-1.1$ & 24.8 & $-2.8$ & 27.2 & $-0.6$ \\
+DCSRN & 40.8 & $-6.3$ & 26.9 & $-3.8$ & 34.4 & $-3.8$ & 31.3 & $-2.5$ \\
+ArSSR & 50.3 & $-6.8$ & 20.6 & $-4.1$ & 37.0 & $-4.6$ & 29.1 & $-0.5$ \\
+I$^3$Net & 32.0 & $-2.4$ & 15.3 & $-0.7$ & 28.8 & $-4.8$ & 27.4 & $-2.0$ \\
+SAINT & 10.2 & $-0.8$ & 12.5 & $+0.0$ & 14.9 & $-3.7$ & 18.7 & $+0.6$ \\
+IR3C (ours) & 28.1 & $-2.9$ & 8.2 & $-7.8$ & 15.7 & $-7.4$ & 10.4 & $-10.3$ \\
+\bottomrule
+\end{tabular*}
+\end{table*}
