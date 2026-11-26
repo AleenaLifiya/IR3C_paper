@@ -1,4 +1,4 @@
-\begin{table*}[t]
+\begin{table*}[pos=t]
 \caption{Downstream segmentation consistency on BraTS-GLI (U0, $n=88$). A frozen SegResNet receives the acquired T1, T1c and T2 volumes with complete or reconstructed FLAIR. Dice is computed against the same network's prediction on the complete input, so it measures how far a reconstruction moves a fixed pipeline, not agreement with expert labels. Re-saving and reloading the complete volume gives WT/TC/ET Dice of 0.990/0.991/0.979, which is the pipeline's noise floor. WT: whole tumour; TC: tumour core; ET: enhancing tumour. IR3C is the budget-matched checkpoint used in all other tables; the last row gives the full-budget checkpoint (Table~\ref{tab:budget}) for reference and is excluded from the bold marking.}
 \label{tab:downstream}
 \small

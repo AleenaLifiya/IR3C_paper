@@ -285,7 +285,7 @@ consecutive acquired slices, as might follow a motion event. The rejection mask 
 deterministically from the subject identifier, so each subject has its own mask, and the
 same mask is given to every method.
 
-\begin{figure}[!tp]
+\begin{figure}[pos=!tp]
 \centering
 \includegraphics[width=\columnwidth]{figs/fig1_sampling.pdf}
 \caption{Sampling conditions studied in this work. (a)~The seven test-mask families at
@@ -346,7 +346,7 @@ activations (4.75\,M parameters). We use a standard backbone on purpose: the bac
 implementation vehicle, not the contribution, and Section~\ref{sec:backbone} shows that the
 results are not tied to it.
 
-\begin{figure*}[!tp]
+\begin{figure*}[pos=!tp]
 \centering
 \includegraphics[width=\textwidth]{figs/fig_architecture3d.pdf}
 \caption{IR3C. (a)~The sparse volume yields a linear through-plane anchor and four geometry
@@ -524,7 +524,7 @@ the two brain datasets.
 
 \input{tables/tab_uniform.tex}
 
-\begin{figure*}[!tp]
+\begin{figure*}[pos=!tp]
 \centering
 \includegraphics[width=\textwidth]{figs/fig3_uniform.pdf}
 \caption{Uniform sampling (U0). PSNR difference from linear interpolation for each learned
@@ -564,7 +564,7 @@ a typical subject: horizontal discontinuities at the positions of rejected slice
 
 \input{tables/tab_rejection.tex}
 
-\begin{figure*}[!tp]
+\begin{figure*}[pos=!tp]
 \centering
 \includegraphics[width=\textwidth]{figs/fig5_rejection.pdf}
 \caption{Slice rejection on BraTS-GLI (a--d), OAIZIB (e--h) and IXI-tiny (i--l). PSNR on missing slices
@@ -599,7 +599,7 @@ this with the IR3C backbone itself: trained on the same masks without the anchor
 
 \input{tables/tab_families.tex}
 
-\begin{figure*}[!tp]
+\begin{figure*}[pos=!tp]
 \centering
 \includegraphics[width=\textwidth]{figs/fig4_families.pdf}
 \caption{PSNR difference from linear interpolation by sampling family, pooled over
@@ -618,7 +618,7 @@ brain datasets and the oblique tissue interfaces on the knee, and has the lowest
 error in every panel. Its remaining error lies at tissue boundaries inside the longest
 gaps, where no method has data to follow.
 
-\begin{figure*}[!tp]
+\begin{figure*}[pos=!tp]
 \centering
 \includegraphics[width=\textwidth,height=0.80\textheight,keepaspectratio]{figs/fig10_irregular.pdf}
 \caption{Irregular sampling on all three datasets: reformats along the reconstruction axis
@@ -689,7 +689,7 @@ because the other three BraTS contrasts are fully acquired and give the brain ma
 
 \input{tables/tab_downstream.tex}
 
-\begin{figure*}[!tp]
+\begin{figure*}[pos=!tp]
 \centering
 \includegraphics[width=\textwidth]{figs/fig6_downstream.pdf}
 \caption{Downstream segmentation consistency on BraTS-GLI (U0, $n=88$). Dice between the
@@ -702,7 +702,7 @@ intervals across subjects.}
 
 \input{tables/tab_bgmask.tex}
 
-\begin{figure*}[!tp]
+\begin{figure*}[pos=!tp]
 \centering
 \includegraphics[width=\textwidth]{figs/fig11_seg.pdf}
 \caption{Why a reconstruction with reasonable PSNR can move the segmenter (BraTS-GLI, $R=4$,
@@ -728,7 +728,7 @@ the baselines show horizontal bands at the rejected positions, where gaps of up 
 are bridged by smooth interpolation. IR3C reconstructs these gaps with less banding and has
 the lowest missing-slice error (MAE 0.065 versus 0.076 for SAINT with imputation).
 
-\begin{figure*}[!tp]
+\begin{figure*}[pos=!tp]
 \centering
 \includegraphics[width=\textwidth]{figs/fig7_qualitative.pdf}
 \caption{Sagittal reformats of BraTS-GLI-00047-000 along the reconstruction axis (vertical).
@@ -754,7 +754,7 @@ subjects (MAE 0.059, 0.065 and 0.039 on BraTS-GLI, OAIZIB and IXI-tiny, against
 0.073--0.079, 0.074--0.089 and 0.048--0.061 for the other methods); its remaining error
 concentrates at tissue boundaries, most visibly in the top faces.
 
-\begin{figure*}[!tp]
+\begin{figure*}[pos=!tp]
 \centering
 \includegraphics[width=\textwidth,height=0.74\textheight,keepaspectratio]{figs/fig9_cubes.pdf}
 \caption{Whole-volume view after 30\% burst rejection at base factor $R=4$, one subject per
@@ -960,7 +960,7 @@ benefit from being represented in training.
 \input{tables/tab_heldout.tex}
 \input{tables/tab_realisations.tex}
 
-\begin{figure*}[!tp]
+\begin{figure*}[pos=!tp]
 \centering
 \includegraphics[width=\textwidth]{figs/fig8_gap.pdf}
 \caption{Reconstruction error against local slice geometry on BraTS-GLI ($n=88$). Each

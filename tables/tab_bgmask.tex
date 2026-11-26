@@ -1,4 +1,4 @@
-\begin{table*}[t]
+\begin{table*}[pos=t]
 \caption{Background control for the downstream endpoint (BraTS-GLI, U0, $n=88$). ``Air'' is the percentage of voxels outside the head (zero in the acquired FLAIR) that are nonzero in the restored reconstruction; the segmenter z-scores each channel over its nonzero voxels, so these voxels change its normalisation. WT Dice is against the network's prediction on the complete input, for the reconstruction as given (WT, as in Table~\ref{tab:downstream}) and after setting the air voxels to zero (WT$_{\mathrm{air}=0}$). Nothing inside the head is changed. Re-segmenting the unmodified reconstructions reproduces the archived Dice exactly.}
 \label{tab:bgmask}
 \small

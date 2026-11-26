@@ -38,7 +38,7 @@ def star(p):
 def tab_datasets():
     """Dataset facts. Grids and spacings were read from the NIfTI headers; splits from
     the run manifests."""
-    t = r"""\begin{table*}[t]
+    t = r"""\begin{table*}[pos=t]
 \caption{Datasets and subject-level partitions. ``Reconstruction axis'' is the axis along
 which slices are removed; its number of slices $D$ and spacing are given. OAIZIB and
 IXI-tiny models are fine-tuned on their own training partitions. Test subjects are never
@@ -127,7 +127,7 @@ def tab_uniform():
             r" & \multicolumn{3}{c}{IXI-tiny ($n=100$)} \\" "\n"
             r"\cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}" "\n"
             "Method" + " & $R=2$ & $R=4$ & $R=8$" * 3 + r" \\")
-    t = [r"\begin{table*}[t]",
+    t = [r"\begin{table*}[pos=t]",
          r"\caption{Reconstruction on uniform sampling (U0). Values are means across test "
          r"subjects; standard deviations are given in Appendix~\ref{app:detail}. Only missing "
          r"slices inside the foreground mask are scored. Bold marks the best method per "
@@ -158,7 +158,7 @@ FAM_ROWS = C.active(["Linear", "Cubic spline", "Bicubic", "DCSRN", "ArSSR", "SA-
 
 def tab_families():
     cols = C.FAMILIES + ["U1--U6"]
-    t = [r"\begin{table*}[t]",
+    t = [r"\begin{table*}[pos=t]",
          r"\caption{PSNR (dB) by sampling family, pooled over $R\in\{2,4,8\}$. U0 is "
          r"uniform; U1--U6 are irregular (Section~\ref{sec:families}). I$^3$Net and SAINT "
          r"are not defined off a regular grid and are therefore absent. The last row of each "
@@ -220,7 +220,7 @@ def tab_r16():
             vals[(nm, ds, "U0")] = C.per_subject(ds, specs[nm], ["U0"], [16])
             vals[(nm, ds, "all")] = C.per_subject(ds, specs[nm], C.FAMILIES, [16])
     best = {c: bold_idx([vals[(nm,) + c].mean() for nm in rows]) for c in cols}
-    t = [r"\begin{table}[t]",
+    t = [r"\begin{table}[pos=t]",
          r"\caption{Unseen sparsity, $R=16$ (never used in training). PSNR (dB), mean across "
          r"test subjects. ``All'' pools U0--U6. DCSRN and I$^3$Net use factor-specific models "
          r"and have no $R=16$ model; SAINT was not evaluated at this factor.}",
@@ -278,7 +278,7 @@ SHORT = {"linear": "Lin.", "bicubic": "Bic.", "ArSSR": "ArSSR", "DCSRNmix": "DCS
 
 
 def tab_rejection():
-    t = [r"\begin{table*}[t]",
+    t = [r"\begin{table*}[pos=t]",
          r"\caption{Slice rejection. A uniform acquisition at base factor $R$ loses a fraction "
          r"of its acquired interior slices, either independently (random) or in runs of two to "
          r"three slices (burst). Each cell gives IR3C minus the strongest competitor in that "
@@ -328,7 +328,7 @@ def tab_rejection_absolute():
                  ("random", PS[1:]), ("burst", PS[1:])) for p in ps]
         hdr = ["Linear", "Bicubic", "ArSSR", "DCSRN", r"I$^3$Net-A", r"I$^3$Net-B",
                "SAINT-A", "SAINT-B", "IR3C"]
-        t += [r"\begin{table*}[t]",
+        t += [r"\begin{table*}[pos=t]",
               r"\caption{Slice rejection on " + C.DS_LABEL[ds] + r": absolute PSNR (dB), "
               r"mean across " + str(C.DS_N[ds]) + r" test subjects. A: rejected slices "
               r"imputed linearly, then the uniform-grid model is run at base $R$. B: the "
@@ -375,7 +375,7 @@ def tab_downstream():
             assert len(s) == 88, (m, k, R, len(s))
             vals[(nm, k, R)] = s
     best = {c: bold_idx([vals[(nm,) + c].mean() for nm, _ in DS_METHODS]) for c in cols}
-    t = [r"\begin{table*}[t]",
+    t = [r"\begin{table*}[pos=t]",
          r"\caption{Downstream segmentation consistency on BraTS-GLI (U0, $n=88$). A frozen "
          r"SegResNet receives the acquired T1, T1c and T2 volumes with complete or "
          r"reconstructed FLAIR. Dice is computed against the same network's prediction on the "
@@ -430,7 +430,7 @@ def tab_anchor():
         for st in ("interpolation_only", "IR3C_final"):
             s = d[d.method == f"{st}_{k}"].groupby("subject").psnr_masked.mean()
             per[(k, st)] = s
-    t = [r"\begin{table}[t]",
+    t = [r"\begin{table}[pos=t]",
          r"\caption{Choice of anchor (BraTS-GLI, all families, $R\in\{2,4,8\}$, $n=88$). Each "
          r"model is trained from the same initial weights with identical data order; only the "
          r"interpolant used as the anchor changes. $\Delta$ is the paired difference to the "
@@ -497,7 +497,7 @@ def tab_formulation():
     ref = {c[0]: _p3_seedavg("A0_ir3c", c)[0] for c in P3_COLS}
     C1_best = C.p3_per_subject("C1_uniform_only@best").mean()
     lin_all = C.p3_per_subject("A0_ir3c", metric="x0_psnr_masked").mean()
-    t = [r"\begin{table*}[t]",
+    t = [r"\begin{table*}[pos=t]",
          r"\caption{Formulation ablation on BraTS-GLI ($n=88$). Every arm uses the IR3C backbone, "
          r"optimiser, data order and matched training budget (12,510 steps) and changes one "
          r"component. PSNR (dB) over missing-slice foreground, $R\in\{2,4,8\}$, except the "
@@ -574,7 +574,7 @@ def tab_loss():
                irr=C.p3_per_subject("A0_ir3c", C.NONUNIFORM, metric="x0_psnr_masked").mean(),
                ssim=C.p3_per_subject("A0_ir3c", metric="x0_ssim").mean(),
                bg=C.p3_per_subject("A0_ir3c", ["U0"], metric="x0_bg_haze").mean())
-    t = [r"\begin{table*}[t]",
+    t = [r"\begin{table*}[pos=t]",
          r"\caption{" + ("" if dd is not None else r"\pendlabel\ ") +
          r"Loss-term ablation on BraTS-GLI ($n=88$): each arm removes one term of "
          r"Eq.~(\ref{eq:loss}) and keeps everything else, including the $0.001\,\lVert\delta"
@@ -627,7 +627,7 @@ def tab_heldout():
     pend = r"\cellcolor{pendbg}" + TBD
     held = {f: C.p4_per_subject(f) for f in C.NONUNIFORM}
     done = all(v is not None for v in held.values())
-    t = [r"\begin{table}[t]",
+    t = [r"\begin{table}[pos=t]",
          r"\caption{" + ("" if done else r"\pendlabel\ ") +
          r"Generalisation to an unseen sampling family (BraTS-GLI, $n=88$, $R\in\{2,4,8\}$, "
          r"PSNR in dB). ``Seen'' is IR3C retrained in the ablation harness with all six "
@@ -670,7 +670,7 @@ def tab_realisations():
     c = c[c.k >= 0]
     g = c.groupby(["method", "family", "subject"]).psnr
     mu, sd = g.mean(), g.std(ddof=1)            # within-subject mean / SD over realisations
-    t = [r"\begin{table*}[t]",
+    t = [r"\begin{table*}[pos=t]",
          r"\caption{Sensitivity to the mask realisation (BraTS-GLI, $R=4$, $n=88$). Each "
          r"subject receives five independent masks per family, drawn with seeds disjoint from "
          r"the training and test seeds, instead of one mask shared by all subjects. Cells are "
@@ -739,7 +739,7 @@ def tab_backbone():
         e = e[e.R.isin(C.TRAIN_R)]
         cells[key] = (e[e.family == "U0"].groupby("subject").missing_psnr_masked.mean(),
                       e[e.family != "U0"].groupby("subject").missing_psnr_masked.mean())
-    t = [r"\begin{table}[t]",
+    t = [r"\begin{table}[pos=t]",
          r"\caption{Backbone capacity (BraTS-GLI, $R\in\{2,4,8\}$, $n=88$, single seed). "
          r"The anchor, input profiles, loss and training budget are identical; only the "
          r"network that predicts the correction changes. $\Delta$ is the paired difference to "
@@ -781,7 +781,7 @@ def tab_cost():
         per_R = r[r.model == m].groupby("R").recon_mean_s.mean()
         rows.append((nm, par, per_R.get(2, np.nan), per_R.get(4, np.nan), per_R.get(8, np.nan)))
     ir = rows[0]
-    t = [r"\begin{table}[t]",
+    t = [r"\begin{table}[pos=t]",
          r"\caption{Reconstruction time per BraTS-GLI volume ($240\times240\times153$), "
          r"measured end to end on one NVIDIA GB10 GPU at fp32 with batch size 1. Times "
          r"include patch extraction, sliding-window aggregation and output assembly, and are "
@@ -813,7 +813,7 @@ def tab_detail():
         specs = dict(C.method_specs(ds))
         vals = {(nm, m): C.per_subject(ds, specs[nm], ["U0"], C.TRAIN_R, m)
                 for nm in rows for m, *_ in mets}
-        t += [r"\begin{table*}[t]",
+        t += [r"\begin{table*}[pos=t]",
               r"\caption{" + C.DS_LABEL[ds] + r", uniform sampling (U0), pooled over "
               r"$R\in\{2,4,8\}$. Mean $\pm$ standard deviation across " + str(C.DS_N[ds]) +
               r" test subjects, after averaging within subject. Bold marks the best method.}",
@@ -838,7 +838,7 @@ def tab_detail():
         frows = C.active(["Nearest", "Linear", "Cubic spline", "Bicubic", "DCSRN", "ArSSR", "SA-INR",
                           "IR3C"])
         fv = {(nm, f): C.per_subject(ds, specs[nm], [f]) for nm in frows for f in C.FAMILIES}
-        t += [r"\begin{table*}[t]",
+        t += [r"\begin{table*}[pos=t]",
               r"\caption{" + C.DS_LABEL[ds] + r", PSNR (dB) by sampling family, pooled over "
               r"$R\in\{2,4,8\}$. Mean $\pm$ standard deviation across test subjects.}",
               r"\label{tab:detailfam-" + ds.lower() + "}",
@@ -864,7 +864,7 @@ def tab_budget():
     """Matched versus full training budget, all datasets, all families, R in {2,4,8}."""
     full_specs = {"BraTS": {"m": "IR3_full"}, "OAIZIB": {"m": "IR3C_OAIZIB"},
                   "IXI": {"m": "IR3C_IXI"}}
-    t = [r"\begin{table}[t]",
+    t = [r"\begin{table}[pos=t]",
          r"\caption{Effect of the source training budget on IR3C (PSNR in dB, all families, "
          r"$R\in\{2,4,8\}$). ``Matched'' stops source training at 12,510 steps, the largest "
          r"budget given to any baseline, and is the model used in every comparison. ``Full'' "
@@ -892,7 +892,7 @@ def tab_lpips():
     import make_tables as V2  # noqa: E402
     rows = [("Linear", "linear"), ("Bicubic", "bicubic"), ("ArSSR", "ArSSR_slowlr"),
             ("I$^3$Net", "I3Net"), ("SAINT", None), ("IR3C", None)]
-    t = [r"\begin{table}[t]",
+    t = [r"\begin{table}[pos=t]",
          r"\caption{LPIPS (AlexNet features, lower is better) on uniform sampling, pooled over "
          r"$R\in\{2,4,8\}$, mean across test subjects. Learned methods are not better than "
          r"classical interpolation on this metric (Section~\ref{sec:disc-metrics}). "
@@ -979,7 +979,7 @@ def tab_bgmask():
     n_subj = int(d.subject_id.nunique())
     meths = [("linear", "Linear"), ("bicubic", "Bicubic"), ("DCSRN_mixed", "DCSRN"),
              ("I3Net", r"I$^3$Net"), ("SAINT", "SAINT"), ("IR3_matched", "IR3C (ours)")]
-    t = [r"\begin{table*}[t]",
+    t = [r"\begin{table*}[pos=t]",
          r"\caption{Background control for the downstream endpoint (BraTS-GLI, U0, $n=" +
          str(n_subj) + r"$). ``Air'' is the percentage of voxels outside the head (zero "
          r"in the acquired FLAIR) that are nonzero in the restored reconstruction; the "

@@ -292,7 +292,7 @@ def write(name, text):
         text = text.replace("\\small\n", "\\footnotesize\\setlength{\\tabcolsep}{3pt}\n", 1)
     text = fix_neg_zero(text)
     if name in APPENDIX:                  # one-column appendix: keep tables after their text
-        text = text.replace("table*}", "table}").replace("[t]", "[pos=!htbp]")
+        text = text.replace("table*}", "table}").replace("[pos=t]", "[pos=!htbp]")
     os.makedirs(TABLES, exist_ok=True)
     p = os.path.join(TABLES, name)
     with open(p, "w") as fh:

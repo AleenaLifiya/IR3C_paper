@@ -1,4 +1,4 @@
-\begin{table*}[t]
+\begin{table*}[pos=t]
 \caption{Loss-term ablation on BraTS-GLI ($n=88$): each arm removes one term of Eq.~(\ref{eq:loss}) and keeps everything else, including the $0.001\,\lVert\delta\rVert_1$ term, the backbone, the initial weights, the data order and the matched budget; one seed per arm. PSNR (dB) and SSIM are over missing-slice foreground, $R\in\{2,4,8\}$; SSIM is pooled over all families. Background haze is the mean predicted intensity on missing-slice background voxels, U0 ($\times10^{-3}$). WT Dice is the downstream consistency of Table~\ref{tab:downstream} (U0, $n=88$). The control \texttt{B0\_ir3c} is the same trained model as \texttt{A0\_ir3c} (seed 42) in Table~\ref{tab:formulation}.}
 \label{tab:loss}
 \small
