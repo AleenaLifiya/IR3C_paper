@@ -581,9 +581,12 @@ Appendix~\ref{app:reject}.}
 \label{sec:res-families}
 
 Table~\ref{tab:families} and Fig.~\ref{fig:families} report PSNR by sampling family. SAINT and
-\Ithree are absent because they are not defined on irregular grids. On every family and
-dataset, IR3C is better than every applicable method, and it is better in at least 99\% of
-subjects in each column. On the irregular families U1--U6, its margin over the strongest
+\Ithree are not defined on irregular grids and are reported on U0 only. On every irregular
+family of every dataset, IR3C is better than every applicable method, and it is better in at
+least 99\% of subjects in each column. On U0 the ordering of Table~\ref{tab:uniform} carries
+over when pooled over $R$: IR3C is above SAINT by 0.21\,dB on BraTS-GLI (95\% CI 0.08 to
+0.34) and by 0.03\,dB on OAIZIB (0.02 to 0.03), and below it by 1.86\,dB on IXI-tiny, where
+SAINT's lead at $R=2$ and 4 dominates the pool. On the irregular families U1--U6, its margin over the strongest
 applicable comparator is 2.21--2.97\,dB on BraTS-GLI (over bicubic interpolation),
 0.86--1.69\,dB on OAIZIB (over ArSSR) and 1.39--2.90\,dB on IXI-tiny (over ArSSR). The margin is
 largest on the clustered family U4, which has the longest gaps, on all three datasets.
@@ -628,12 +631,11 @@ foreground area orthogonal to the first in-plane axis, displayed at physical asp
 Each mask has an image row and an error row ($|\text{error}|$ on missing slices only; one
 colour scale per mask and dataset). Numbers are the MAE over the foreground of the missing
 slices in the displayed plane. Ticks on the left edge of the reference mark kept slices.
-SAINT and \Ithree are not defined on these masks, and on OAIZIB and IXI-tiny DCSRN has no
-$\times8$ model. The subject on each dataset is the one with the median IR3C gain over the
+SAINT and \Ithree are not defined on these masks. The subject on each dataset is the one with the median IR3C gain over the
 best other method on U4, among the five showcase subjects (BraTS-GLI-00027-000, OAIZIB
 subject 408, IXI013-HH-1212). These reconstructions were recomputed from the frozen
 checkpoints for this figure; linear and IR3C reproduce the archived PSNR of every cell to
-$<10^{-6}$\,dB.}
+$<10^{-6}$\,dB, and DCSRN at $\times8$ on OAIZIB and IXI-tiny exactly.}
 \label{fig:irregular}
 \end{figure*}
 

@@ -20,6 +20,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import common as C  # noqa: E402
 
 TBD = r"\tbd"
+NA = object()   # cell where the method is undefined (printed as ---)
 
 
 def bold_idx(vals, higher=True):
@@ -64,7 +65,9 @@ axis is the finest axis of this dataset, so $R=2$, 4 and 8 correspond to slice s
 
 
 # =========================================================================== Table 2
-UNIFORM_ROWS = C.active(["Linear", "Bicubic", "DCSRN", "ArSSR", "SA-INR", "I$^3$Net", "SAINT",
+# learned comparators in publication order (DCSRN 2018, SAINT 2020, ArSSR 2023, I3Net 2024);
+# IR3C is the last row of every table
+UNIFORM_ROWS = C.active(["Linear", "Bicubic", "DCSRN", "SAINT", "ArSSR", "SA-INR", "I$^3$Net",
                          "IR3C"])
 DIRECT_ROW = "3D U-Net, direct output"
 
@@ -100,6 +103,12 @@ def tab_uniform():
         lines = []
         best = {c: bold_idx([C.mean(tab[(nm,) + c]) for nm in UNIFORM_ROWS]) for c in cols}
         for i, nm in enumerate(UNIFORM_ROWS):
+            if nm == "IR3C":
+                # unranked IR3C-backbone ablation sits just above IR3C, which stays last
+                dv = [direct_u0(ds, R, metric) for ds, R in cols]
+                dcells = [TBD if v is None else f"{v.mean():.{dec}f}" for v in dv]
+                lines.append((r"\pendrow " if any(v is None for v in dv) else "") +
+                             DIRECT_ROW + r"$^{\dagger}$ & " + " & ".join(dcells) + r" \\")
             cells = []
             for c in cols:
                 if tab[(nm,) + c] is None:
@@ -110,10 +119,6 @@ def tab_uniform():
             name = r"\textbf{IR3C (ours)}" if nm == "IR3C" else nm
             pend = r"\pendrow " if TBD in cells else ""
             lines.append(pend + name + " & " + " & ".join(cells) + r" \\")
-        dv = [direct_u0(ds, R, metric) for ds, R in cols]
-        dcells = [TBD if v is None else f"{v.mean():.{dec}f}" for v in dv]
-        lines.append((r"\pendrow " if any(v is None for v in dv) else "") + DIRECT_ROW +
-                     r"$^{\dagger}$ & " + " & ".join(dcells) + r" \\")
         return lines
 
     # paired IR3C - SAINT on PSNR, Holm over the nine columns
@@ -153,15 +158,16 @@ def tab_uniform():
 
 
 # =========================================================================== Table 3
-FAM_ROWS = C.active(["Linear", "Cubic spline", "Bicubic", "DCSRN", "ArSSR", "SA-INR", "IR3C"])
+FAM_ROWS = C.active(["Linear", "Cubic spline", "Bicubic", "DCSRN", "SAINT", "ArSSR", "SA-INR",
+                     "I$^3$Net", "IR3C"])
 
 
 def tab_families():
     cols = C.FAMILIES + ["U1--U6"]
     t = [r"\begin{table*}[pos=t]",
          r"\caption{PSNR (dB) by sampling family, pooled over $R\in\{2,4,8\}$. U0 is "
-         r"uniform; U1--U6 are irregular (Section~\ref{sec:families}). I$^3$Net and SAINT "
-         r"are not defined off a regular grid and are therefore absent. The last row of each "
+         r"uniform; U1--U6 are irregular (Section~\ref{sec:families}). SAINT and I$^3$Net "
+         r"are not defined off a regular grid and are scored on U0 only (---). The last row of each "
          r"block is the paired difference between IR3C and the strongest applicable "
          r"comparator in that column, with its 95\% confidence interval. Bold marks the best "
          r"method per column. Standard deviations are given in Appendix~\ref{app:detail}." +
@@ -179,14 +185,19 @@ def tab_families():
         for nm in FAM_ROWS:
             for c in cols:
                 fams = C.NONUNIFORM if c == "U1--U6" else [c]
-                grid[(nm, c)] = C.per_subject(ds, specs[nm], fams)
+                grid[(nm, c)] = (NA if nm in C.UNIFORM_ONLY and c != "U0" else
+                                 C.per_subject(ds, specs[nm], fams))
         if k:
             t.append(r"\midrule")
         t.append(r"\multicolumn{9}{@{}l}{\textit{" + C.DS_LABEL[ds] + r"}} \\")
-        best = {c: bold_idx([C.mean(grid[(nm, c)]) for nm in FAM_ROWS]) for c in cols}
+        best = {c: bold_idx([np.nan if grid[(nm, c)] is NA else C.mean(grid[(nm, c)])
+                             for nm in FAM_ROWS]) for c in cols}
         for i, nm in enumerate(FAM_ROWS):
             cells = []
             for c in cols:
+                if grid[(nm, c)] is NA:
+                    cells.append("---")
+                    continue
                 if grid[(nm, c)] is None:
                     cells.append(TBD)
                     continue
@@ -198,7 +209,8 @@ def tab_families():
         dcells = []
         for c in cols:
             # strongest finished comparator (a pending baseline cannot be the reference)
-            others = [nm for nm in FAM_ROWS if nm != "IR3C" and grid[(nm, c)] is not None]
+            others = [nm for nm in FAM_ROWS if nm != "IR3C" and grid[(nm, c)] is not None
+                      and grid[(nm, c)] is not NA]
             ref = max(others, key=lambda nm: C.mean(grid[(nm, c)]))
             p = C.paired(grid[("IR3C", c)], grid[(ref, c)])
             dcells.append(f"{C.signed(p['mean'])}")
@@ -326,8 +338,9 @@ def tab_rejection_absolute():
         d = C.load_sr(ds)
         conds = [(R, pat, p) for R in (2, 4) for pat, ps in (("none", [0.0]),
                  ("random", PS[1:]), ("burst", PS[1:])) for p in ps]
-        hdr = ["Linear", "Bicubic", "ArSSR", "DCSRN", r"I$^3$Net-A", r"I$^3$Net-B",
-               "SAINT-A", "SAINT-B", "IR3C"]
+        hdr = ["Linear", "Bicubic", "DCSRN", "SAINT-A", "SAINT-B", "ArSSR", r"I$^3$Net-A",
+               r"I$^3$Net-B", "IR3C"]
+        assert [SHORT.get(m, m) for m in C.SR_METHODS][2:-1] == hdr[2:-1]
         t += [r"\begin{table*}[pos=t]",
               r"\caption{Slice rejection on " + C.DS_LABEL[ds] + r": absolute PSNR (dB), "
               r"mean across " + str(C.DS_N[ds]) + r" test subjects. A: rejected slices "
@@ -354,7 +367,7 @@ def tab_rejection_absolute():
 
 # =========================================================================== Table 6 (downstream)
 DS_METHODS = [("Linear", "linear"), ("Bicubic", "bicubic"), ("DCSRN", "DCSRN_mixed"),
-              ("ArSSR", "ArSSR"), ("I$^3$Net", "I3Net"), ("SAINT", "SAINT"),
+              ("SAINT", "SAINT"), ("ArSSR", "ArSSR"), ("I$^3$Net", "I3Net"),
               ("IR3C (ours)", "IR3_matched")]
 #: reference row below the rule, never bolded: the full-budget checkpoint (Table 23)
 DS_FULL = ("IR3C, full budget", "IR3")
@@ -660,8 +673,8 @@ def tab_heldout():
 
 # =========================================================================== mask realisations
 P5_CELLS = os.path.join(C.ROOT, "runs/IR3C_MedIA_P5_realisations/cells_all.csv")
-P5_ROWS = [("linear", "Linear"), ("bicubic", "Bicubic"), ("ArSSR", "ArSSR"),
-           ("DCSRNmix", "DCSRN"), ("IR3C", "IR3C (ours)")]
+P5_ROWS = [("linear", "Linear"), ("bicubic", "Bicubic"), ("DCSRNmix", "DCSRN"),
+           ("ArSSR", "ArSSR"), ("IR3C", "IR3C (ours)")]
 
 
 def tab_realisations():
@@ -775,12 +788,12 @@ def tab_cost():
     c = pd.read_csv(os.path.join(prof, "complexity_per_unit.csv"))
     r = pd.read_csv(os.path.join(prof, "fullvolume_runtime.csv"))
     rows = []
-    for m, nm in (("IR3C", "IR3C (ours)"), ("DCSRN", "DCSRN"), ("ArSSR", "ArSSR"),
-                  ("I3Net", r"I$^3$Net"), ("SAINT", "SAINT")):
+    for m, nm in (("DCSRN", "DCSRN"), ("SAINT", "SAINT"), ("ArSSR", "ArSSR"),
+                  ("I3Net", r"I$^3$Net"), ("IR3C", "IR3C (ours)")):
         par = c[c.model == m].total_params.max() / 1e6
         per_R = r[r.model == m].groupby("R").recon_mean_s.mean()
         rows.append((nm, par, per_R.get(2, np.nan), per_R.get(4, np.nan), per_R.get(8, np.nan)))
-    ir = rows[0]
+    ir = rows[-1]
     t = [r"\begin{table}[pos=t]",
          r"\caption{Reconstruction time per BraTS-GLI volume ($240\times240\times153$), "
          r"measured end to end on one NVIDIA GB10 GPU at fp32 with batch size 1. Times "
@@ -803,8 +816,8 @@ def tab_cost():
 def tab_detail():
     """Per-dataset U0 table with all metrics (mean +/- sd), and family table with sd."""
     t = []
-    rows = C.active(["Nearest", "Linear", "Cubic spline", "Bicubic", "DCSRN", "ArSSR", "SA-INR",
-                     "I$^3$Net", "SAINT", "IR3C"])
+    rows = C.active(["Nearest", "Linear", "Cubic spline", "Bicubic", "DCSRN", "SAINT", "ArSSR",
+                     "SA-INR", "I$^3$Net", "IR3C"])
     mets = [("psnr_masked", r"PSNR (dB) $\uparrow$", True, 2),
             ("ssim", r"SSIM $\uparrow$", True, 4),
             ("nmse", r"NMSE $\downarrow$", False, 4),
@@ -890,8 +903,8 @@ def tab_lpips():
     """LPIPS on U0, reused from the audited V2 LPIPS sweep (IR3C rows as archived)."""
     sys.path.insert(0, os.path.join(C.ROOT, "IR3C_journal/IR3C_journal_V2"))
     import make_tables as V2  # noqa: E402
-    rows = [("Linear", "linear"), ("Bicubic", "bicubic"), ("ArSSR", "ArSSR_slowlr"),
-            ("I$^3$Net", "I3Net"), ("SAINT", None), ("IR3C", None)]
+    rows = [("Linear", "linear"), ("Bicubic", "bicubic"), ("SAINT", None),
+            ("ArSSR", "ArSSR_slowlr"), ("I$^3$Net", "I3Net"), ("IR3C", None)]
     t = [r"\begin{table}[pos=t]",
          r"\caption{LPIPS (AlexNet features, lower is better) on uniform sampling, pooled over "
          r"$R\in\{2,4,8\}$, mean across test subjects. Learned methods are not better than "
@@ -937,7 +950,7 @@ def tab_vbm():
     conds = [("R2_none_p00", r"$R=2$"), ("R2_burst_p30", r"$R=2$, 30\% burst"),
              ("R4_none_p00", r"$R=4$"), ("R4_burst_p30", r"$R=4$, 30\% burst")]
     meths = [("linear", "Linear"), ("bicubic", "Bicubic"), ("DCSRNmix", "DCSRN"),
-             ("ArSSR", "ArSSR"), ("I3Net_impute", r"I$^3$Net"), ("SAINT_impute", "SAINT"),
+             ("SAINT_impute", "SAINT"), ("ArSSR", "ArSSR"), ("I3Net_impute", r"I$^3$Net"),
              ("IR3C", "IR3C (ours)")]
     t = [r"\begin{table*}[pos=!htbp]",
          r"\caption{Grey-matter voxel-based morphometry on IXI-tiny (" + str(n_subj) +
@@ -978,7 +991,7 @@ def tab_bgmask():
     d = pd.read_csv(p)
     n_subj = int(d.subject_id.nunique())
     meths = [("linear", "Linear"), ("bicubic", "Bicubic"), ("DCSRN_mixed", "DCSRN"),
-             ("I3Net", r"I$^3$Net"), ("SAINT", "SAINT"), ("IR3_matched", "IR3C (ours)")]
+             ("SAINT", "SAINT"), ("I3Net", r"I$^3$Net"), ("IR3_matched", "IR3C (ours)")]
     t = [r"\begin{table*}[pos=t]",
          r"\caption{Background control for the downstream endpoint (BraTS-GLI, U0, $n=" +
          str(n_subj) + r"$). ``Air'' is the percentage of voxels outside the head (zero "

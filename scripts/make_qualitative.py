@@ -217,8 +217,8 @@ def fig_cubes(cond="R4_burst_p30"):
 
 
 # ------------------------------------------------------------------ Fig. 10 irregular
-IRR_COLS = [("linear", "Linear"), ("bicubic", "Bicubic"), ("ArSSR", "ArSSR"),
-            ("DCSRNmix", "DCSRN"), ("IR3C", "IR3C (ours)")]
+IRR_COLS = [("linear", "Linear"), ("bicubic", "Bicubic"), ("DCSRNmix", "DCSRN"),
+            ("ArSSR", "ArSSR"), ("IR3C", "IR3C (ours)")]
 
 
 def p10_load(ds, *parts):

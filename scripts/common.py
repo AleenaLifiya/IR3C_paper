@@ -181,8 +181,10 @@ def holm(pvals):
 
 # ------------------------------------------------------------------ slice rejection
 SR_ROOT = os.path.join(ROOT, "runs/IR3C_SliceReject_all")
-SR_METHODS = ["linear", "bicubic", "ArSSR", "DCSRNmix", "I3Net_impute", "I3Net_subset",
-              "SAINT_impute", "SAINT_subset", "IR3C"]
+# learned comparators in publication order (DCSRN 2018, SAINT 2020, ArSSR 2023, I3Net 2024);
+# IR3C is always last
+SR_METHODS = ["linear", "bicubic", "DCSRNmix", "SAINT_impute", "SAINT_subset", "ArSSR",
+              "I3Net_impute", "I3Net_subset", "IR3C"]
 SR_LABEL = {"linear": "Linear", "bicubic": "Bicubic", "ArSSR": "ArSSR",
             "DCSRNmix": "DCSRN", "I3Net_impute": "I$^3$Net + imputation",
             "I3Net_subset": "I$^3$Net, uniform subset",
